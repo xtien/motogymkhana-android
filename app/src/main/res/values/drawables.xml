@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <drawable name="screen_background_black">@color/black</drawable>
+    <drawable name="translucent_background">#E0000000</drawable>
+    <drawable name="transparent_background">@color/transparent</drawable>
+    <drawable name="white_background">@color/white</drawable>
+
+</resources>

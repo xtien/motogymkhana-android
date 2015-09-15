@@ -1,0 +1,360 @@
+package eu.motogymkhana.competition.model;
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.j256.ormlite.field.DatabaseField;
+import com.j256.ormlite.table.DatabaseTable;
+
+import org.apache.commons.lang.StringUtils;
+
+import eu.motogymkhana.competition.dao.impl.TimesDaoImpl;
+
+@DatabaseTable(tableName = "times", daoClass = TimesDaoImpl.class)
+public class Times {
+
+    public static final String ID = "_id";
+    public static final String START_NUMBER = "startnumber";
+    public static final String TIME1 = "time1";
+    public static final String TIME2 = "time2";
+    public static final String REGISTERED = "registered";
+    public static final String DATE = "date";
+    ;
+    public static final String RIDER = "rider_id";
+    private static final String PENALTIES1 = "pen1";
+    private static final String PENALTIES2 = "pen2";
+    private static final String DISQUALIFIED1 = "dis1";
+    private static final String DISQUALIFIED2 = "dis2";
+    private static final String TIMESTAMP = "timestamp";
+
+    @DatabaseField(generatedId = true, columnName = ID)
+    private int _id;
+
+    @JsonProperty(TIMESTAMP)
+    @DatabaseField(columnName = TIMESTAMP)
+    private long timeStamp;
+
+    @JsonProperty(DATE)
+    @DatabaseField(columnName = DATE)
+    private long date;
+
+    @JsonProperty(TIME1)
+    @DatabaseField(columnName = TIME1)
+    private int time1;
+
+    @JsonProperty(TIME2)
+    @DatabaseField(columnName = TIME2)
+    private int time2;
+
+    @JsonProperty(PENALTIES1)
+    @DatabaseField(columnName = PENALTIES1)
+    private int penalties1 = 0;
+
+    @JsonProperty(PENALTIES2)
+    @DatabaseField(columnName = PENALTIES2)
+    private int penalties2 = 0;
+
+    @JsonProperty(DISQUALIFIED1)
+    @DatabaseField(columnName = DISQUALIFIED1)
+    private boolean disqualified1;
+
+    @JsonProperty(DISQUALIFIED2)
+    @DatabaseField(columnName = DISQUALIFIED2)
+    private boolean disqualified2;
+
+    @JsonProperty(REGISTERED)
+    @DatabaseField(columnName = REGISTERED)
+    private boolean registered = false;
+
+    @DatabaseField(persisted = false)
+    private int points = 0;
+
+    @DatabaseField(columnName = START_NUMBER)
+    @JsonProperty(START_NUMBER)
+    private int startNumber;
+
+    @JsonIgnore
+    @DatabaseField(foreign = true, columnName = RIDER, foreignAutoRefresh = true)
+    private Rider rider;
+
+    public Times() {
+        timeStamp = System.currentTimeMillis();
+    }
+
+    public Times(long date) {
+        timeStamp = System.currentTimeMillis();
+        this.date = date;
+    }
+
+    public int get_id() {
+        return _id;
+    }
+
+    public void set_id(int id) {
+        this._id = id;
+    }
+
+    public int getTime1() {
+        return time1;
+    }
+
+    public int getTime2() {
+        return time2;
+    }
+
+    @JsonIgnore
+    public void setTime1(int milliseconds) {
+        timeStamp = System.currentTimeMillis();
+        time1 = milliseconds;
+    }
+
+    @JsonIgnore
+    public void setTime2(int milliseconds) {
+        timeStamp = System.currentTimeMillis();
+        time2 = milliseconds;
+    }
+
+    @JsonIgnore
+    public int getBestTime() {
+
+        int bestTime = 0;
+
+        int t1 = time1 + (1000 * penalties1);
+        int t2 = time2 + (1000 * penalties2);
+
+        if (!disqualified2 && t2 != 0 && (t2 < t1 || t1 == 0 || disqualified1)) {
+            bestTime = t2;
+
+        } else if (!disqualified1) {
+            bestTime = t1;
+
+        } else {
+            bestTime = 0;
+        }
+
+        return bestTime;
+    }
+
+    @JsonIgnore
+    public void setTime1(String string) {
+        timeStamp = System.currentTimeMillis();
+        setTime1(convertTimeString(string));
+    }
+
+    @JsonIgnore
+    public void setTime2(String string) {
+        timeStamp = System.currentTimeMillis();
+        setTime2(convertTimeString(string));
+    }
+
+    @JsonIgnore
+    public String getTime1PlusPenaltiesString() {
+        return makeString(time1 + (penalties1 * 1000));
+    }
+
+    @JsonIgnore
+    public String getTime2PlusPenaltiesString() {
+        return makeString(time2 + (penalties2 * 1000));
+    }
+
+    @JsonIgnore
+    public String getTime1String() {
+        return makeString(time1);
+    }
+
+    @JsonIgnore
+    public String getTime2String() {
+        return makeString(time2);
+    }
+
+    @JsonIgnore
+    public CharSequence getBestTimeString() {
+        return makeString(getBestTime());
+    }
+
+    @JsonIgnore
+    public String getStartNumberString() {
+        return Integer.toString(startNumber);
+    }
+
+    private String makeString(int time) {
+
+        int minutes = time / 60000;
+        int milliseconds = time - (minutes * 60000);
+        int seconds = milliseconds / 1000;
+        int centiseconds = (milliseconds - (seconds * 1000)) / 10;
+
+        String secondsString = Integer.toString(seconds);
+        String centiSecondsString = Integer.toString(centiseconds);
+
+        return Integer.toString(minutes) + ":" + (secondsString.length() == 1 ? "0" : "") + secondsString + "." +
+                (centiSecondsString.length() == 1 ? "0" : "") + centiSecondsString;
+    }
+
+    private int convertTimeString(String string) {
+
+        if (string.length() == 0) {
+            return 0;
+        } else {
+
+            int time = 0;
+
+            String stringMinutes = "";
+            String stringSeconds = "";
+            String stringHundredths = "";
+
+            if (StringUtils.isNumeric(string)) {
+
+                if (string.length() == 1) {
+                    stringHundredths = string;
+                } else if (string.length() > 1) {
+                    stringHundredths = string.substring(string.length() - 2, string.length());
+                }
+
+                if (string.length() == 3) {
+                    stringSeconds = string.substring(string.length() - 3, string.length() - 2);
+                } else if (string.length() > 3) {
+                    stringSeconds = string.substring(string.length() - 4, string.length() - 2);
+                }
+
+                if (string.length() > 4) {
+                    stringMinutes = string.substring(0, string.length() - 4);
+                }
+
+                time = Integer.parseInt(stringMinutes) * 60000;
+
+                if (stringSeconds.length() > 0) {
+                    time = time + Integer.parseInt(stringSeconds) * 1000;
+                }
+
+                if (stringHundredths.length() > 1) {
+                    time = time + Integer.parseInt(stringHundredths) * 10;
+                }
+
+            } else if (string.contains(":") && string.contains(".")) {
+
+                String[] string1 = string.split(":");
+
+                if (string1.length > 1) {
+                    String[] string2 = string1[1].split("\\.");
+
+                    time = Integer.parseInt(string1[0]) * 60000;
+
+                    if (string2.length > 0) {
+                        time = time + Integer.parseInt(string2[0]) * 1000;
+                    }
+
+                    if (string2.length > 1) {
+                        time = time + Integer.parseInt(string2[1]) * 10;
+                    }
+                }
+            }
+
+            return time;
+        }
+    }
+
+    public void setRegistered(boolean isChecked) {
+        timeStamp = System.currentTimeMillis();
+        registered = isChecked;
+    }
+
+    public boolean isRegistered() {
+        return registered;
+    }
+
+    public long getDate() {
+        return date;
+    }
+
+    public void setRider(eu.motogymkhana.competition.model.Rider rider) {
+        this.rider = rider;
+    }
+
+    public Rider getRider() {
+        return rider;
+    }
+
+    @JsonIgnore
+    public String getPenalties1String() {
+        return Integer.toString(penalties1);
+    }
+
+    @JsonIgnore
+    public String getPenalties2String() {
+        return Integer.toString(penalties2);
+    }
+
+    public void setPenalties1(int i) {
+        timeStamp = System.currentTimeMillis();
+        penalties1 = i;
+    }
+
+    public void setPenalties2(int i) {
+        timeStamp = System.currentTimeMillis();
+        penalties2 = i;
+    }
+
+    public void setDisqualified1(boolean checked) {
+        timeStamp = System.currentTimeMillis();
+        disqualified1 = checked;
+    }
+
+    public void setDisqualified2(boolean checked) {
+        timeStamp = System.currentTimeMillis();
+        disqualified2 = checked;
+    }
+
+    public boolean isDisqualified1() {
+        return disqualified1;
+    }
+
+    public boolean isDisqualified2() {
+        return disqualified2;
+    }
+
+    public int getPenalties1() {
+        return penalties1;
+    }
+
+    public int getPenalties2() {
+        return penalties2;
+    }
+
+    public void setPoints(int p) {
+        points = p;
+    }
+
+    public int getPoints() {
+        return points;
+    }
+
+    public int getStartNumber() {
+        return startNumber;
+    }
+
+    public void setStartNumber(int startNumber) {
+        timeStamp = System.currentTimeMillis();
+        this.startNumber = startNumber;
+    }
+
+    public void setDate(long date) {
+        this.date = date;
+    }
+
+    @JsonIgnore
+    public boolean isDate(long date) {
+        return this.date == date;
+    }
+
+    public boolean newerThan(Times existingTimes) {
+        return timeStamp > existingTimes.getTimeStamp();
+    }
+
+    private long getTimeStamp() {
+        return timeStamp;
+    }
+
+    public void setTimeStamp(long timeStamp) {
+        this.timeStamp = timeStamp;
+    }
+}

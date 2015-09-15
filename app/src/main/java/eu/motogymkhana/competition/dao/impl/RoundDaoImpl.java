@@ -1,0 +1,107 @@
+package eu.motogymkhana.competition.dao.impl;
+
+import com.google.inject.Singleton;
+import com.j256.ormlite.dao.BaseDaoImpl;
+import com.j256.ormlite.stmt.QueryBuilder;
+import com.j256.ormlite.support.ConnectionSource;
+
+import java.sql.SQLException;
+import java.util.Collection;
+import java.util.List;
+
+import eu.motogymkhana.competition.dao.RoundDao;
+import eu.motogymkhana.competition.model.Round;
+
+@Singleton
+public class RoundDaoImpl extends BaseDaoImpl<Round, Integer> implements RoundDao {
+
+    private static final boolean ASCENDING = true;
+
+    public RoundDaoImpl(ConnectionSource connectionSource, Class<Round> dataClass) throws SQLException {
+        super(connectionSource, Round.class);
+    }
+
+    @Override
+    public Round store(Round round) throws SQLException {
+
+        Round r = getRoundByDate(round.getDate());
+
+        if (r == null) {
+            create(round);
+        } else {
+            round.set_id(r.get_id());
+            update(round);
+        }
+
+        return round;
+    }
+
+    @Override
+    public Round getRoundByDate(long date) throws SQLException {
+
+        List<Round> list = null;
+        QueryBuilder<Round, Integer> statementBuilder = queryBuilder();
+
+        statementBuilder.where().eq(Round.DATE, date);
+        list = query(statementBuilder.prepare());
+
+        if (list != null && list.size() > 0) {
+            return list.get(0);
+        } else {
+            return null;
+        }
+    }
+
+    @Override
+    public List<Round> getRounds() throws SQLException {
+
+        List<Round> list = null;
+        QueryBuilder<Round, Integer> statementBuilder = queryBuilder();
+
+        statementBuilder.orderBy(Round.DATE, ASCENDING);
+
+        list = query(statementBuilder.prepare());
+
+        return list;
+    }
+
+    @Override
+    public Round getRoundByNumber(int number) throws SQLException {
+
+        List<Round> list = null;
+        QueryBuilder<Round, Integer> statementBuilder = queryBuilder();
+
+        statementBuilder.where().eq(Round.NUMBER, number);
+        list = query(statementBuilder.prepare());
+
+        if (list != null && list.size() > 0) {
+            return list.get(0);
+        } else {
+            return null;
+        }
+    }
+
+    @Override
+    public void store(Collection<Round> rounds) throws SQLException {
+
+        for(Round round : rounds){
+            store(round);
+        }
+    }
+
+    @Override
+    public Round getCurrentRound() throws SQLException {
+
+        List<Round> list = null;
+        QueryBuilder<Round, Integer> statementBuilder = queryBuilder();
+
+        statementBuilder.where().eq(Round.CURRENT, true);
+        list = query(statementBuilder.prepare());
+
+        if (list != null && list.size() > 0) {
+            return list.get(0);
+        } else {
+            return null;
+        }
+    }
+}

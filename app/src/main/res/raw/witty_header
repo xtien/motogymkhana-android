@@ -1,0 +1,64 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<?mso-application progid="Excel.Sheet"?>
+<Workbook xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:x="urn:schemas-microsoft-com:office:excel" xmlns:ss="urn:schemas-microsoft-com:office:spreadsheet" xmlns:html="http://www.w3.org/TR/REC-html40" xmlns="urn:schemas-microsoft-com:office:spreadsheet">
+    <DocumentProperties xmlns="urn:schemas-microsoft-com:office:office" />
+    <Styles>
+        <Style ss:ID="Default">
+            <Font ss:FontName="Tahoma" ss:Color="#000000" />
+            <Alignment ss:Vertical="Bottom" />
+        </Style>
+        <Style ss:ID="S01">
+            <Font ss:FontName="Tahoma" ss:Color="#000000" />
+            <Alignment ss:Vertical="Bottom" />
+            <NumberFormat ss:Format="General Date" />
+        </Style>
+    </Styles>
+    <Worksheet ss:Name="Witty Name Registry">
+        <Table ss:FullColumns="1" ss:FullRows="1">
+          <Row>
+                <Cell>
+                    <Data ss:Type="String">Last Name</Data>
+                </Cell>
+                <Cell>
+                    <Data ss:Type="String">First Name</Data>
+                </Cell>
+                <Cell>
+                    <Data ss:Type="String">Birth date</Data>
+                </Cell>
+                <Cell>
+                    <Data ss:Type="String">Weight</Data>
+                </Cell>
+                <Cell>
+                    <Data ss:Type="String">Height</Data>
+                </Cell>
+                <Cell>
+                    <Data ss:Type="String">Sex</Data>
+                </Cell>
+                <Cell>
+                    <Data ss:Type="String">Foot</Data>
+                </Cell>
+                <Cell>
+                    <Data ss:Type="String">ID</Data>
+                </Cell>
+                <Cell>
+                    <Data ss:Type="String">Bib</Data>
+                </Cell>
+                <Cell>
+                    <Data ss:Type="String">Sport</Data>
+                </Cell>
+                <Cell>
+                    <Data ss:Type="String">Discipline</Data>
+                </Cell>
+                <Cell>
+                    <Data ss:Type="String">Level</Data>
+                </Cell>
+                <Cell>
+                    <Data ss:Type="String">Role</Data>
+                </Cell>
+                <Cell>
+                    <Data ss:Type="String">School</Data>
+                </Cell>
+                <Cell>
+                    <Data ss:Type="String">Notes</Data>
+                </Cell>
+            </Row>

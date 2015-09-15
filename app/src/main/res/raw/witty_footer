@@ -1,0 +1,31 @@
+        </Table>
+        <WorksheetOptions xmlns="urn:schemas-microsoft-com:office:excel">
+            <PageSetup>
+                <Layout Orientation="Landscape" />
+                <Header Margin="0.3" />
+                <Footer Margin="0.3" />
+                <PageMargins Bottom="0.4" Left="0.5" Right="0.5" Top="0.4" />
+            </PageSetup>
+            <Print>
+                <ValidPrinterInfo />
+                <FitHeight>1</FitHeight>
+                <FitWidth>1</FitWidth>
+                <Scale>100</Scale>
+            </Print>
+            <Selected />
+            <FreezePanes />
+            <FrozenNoSplit />
+            <SplitHorizontal>1</SplitHorizontal>
+            <TopRowBottomPane>1</TopRowBottomPane>
+            <ActivePane>2</ActivePane>
+            <Panes>
+                <Pane>
+                    <Number>3</Number>
+                </Pane>
+                <Pane>
+                    <Number>2</Number>
+                </Pane>
+            </Panes>
+        </WorksheetOptions>
+    </Worksheet>
+</Workbook>

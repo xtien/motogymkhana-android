@@ -1,0 +1,67 @@
+apply plugin: 'com.android.application'
+apply plugin: 'findbugs'
+
+repositories {
+    mavenLocal()
+}
+
+configurations.all {
+    resolutionStrategy {
+        cacheDynamicVersionsFor 600, "days"
+    }
+}
+
+dependencies {
+
+    compile fileTree(dir: 'libs', include: ['*.jar'])
+    compile fileTree(dir: 'libs/roboguice', include: ['*.jar'])
+
+    compile 'com.android.support:support-v4:+'
+    compile 'com.android.support:multidex:1.0.0'
+
+    testCompile 'junit:junit:4.12'
+    testCompile('org.robolectric:robolectric:3.0-SNAPSHOT') {
+        exclude group: 'org.apache.httpcomponents', module: 'httpclient'
+    }
+}
+
+android {
+    compileSdkVersion 22
+    buildToolsVersion "22.0.1"
+
+    defaultConfig {
+        applicationId "eu.motogymkhana.competition"
+        minSdkVersion 15
+        targetSdkVersion 22
+        multiDexEnabled = true
+
+        testApplicationId "eu.motogymkhana.competition.test"
+        testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
+    }
+
+    packagingOptions {
+        exclude 'META-INF/LICENSE'
+        exclude 'META-INF/LICENSE.txt'
+        exclude 'META-INF/NOTICE.txt'
+        exclude 'META-INF/NOTICE'
+        exclude 'META-INF/DEPENDENCIES'
+    }
+
+    sourceSets {
+        main {
+            java.srcDirs = ['src/main/java']
+            resources.srcDirs = ['src/main/res']
+        }
+        androidTest {
+            java.srcDirs = ['src/test/java']
+            resources.srcDirs = ['src/test/res']
+        }
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+        }
+    }
+}

@@ -1,0 +1,144 @@
+<resources xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <!--
+        Base application theme, dependent on API level. This theme is replaced
+        by AppBaseTheme from res/values-vXX/styles.xml on newer devices.
+    -->
+    <style name="AppBaseTheme" parent="android:Theme.Light">
+        <!--
+            Theme customizations available in newer API levels can go in
+            res/values-vXX/styles.xml, while customizations related to
+            backward-compatibility can go here.
+        -->
+    </style>
+
+    <!-- Application theme. -->
+    <style name="AppTheme" parent="AppBaseTheme">
+        <!-- All customizations that are NOT specific to a particular API-level can go here. -->
+    </style>
+
+    <style name="text">
+        <item name="android:textSize">10pt</item>
+        <item name="android:textColor">@color/text</item>
+        <item name="android:padding">3dp</item>
+    </style>
+
+    <style name="message_text">
+        <item name="android:textSize">14dp</item>
+        <item name="android:textColor">@color/message_text</item>
+     </style>
+
+    <style name="date" parent="text">
+        <item name="android:textStyle">bold</item>
+        <item name="android:textSize">@dimen/date_text_size</item>
+    </style>
+
+    <style name="text_gray" parent="text">
+        <item name="android:textColor">@color/text_gray</item>
+    </style>
+
+    <style name="text_title" parent="text">
+        <item name="android:textSize">8pt</item>
+    </style>
+
+    <style name="no_list_results">
+        <item name="android:textSize">16pt</item>
+        <item name="android:textColor">@color/dark_gray</item>
+    </style>
+
+    <style name="button_small">
+        <item name="android:padding">0dp</item>
+        <item name="android:gravity">top|center_horizontal</item>
+        <item name="android:textSize">20dp</item>
+    </style>
+
+    <style name="button">
+        <item name="android:padding">5dp</item>
+        <item name="android:gravity">center</item>
+        <item name="android:textSize">20dp</item>
+    </style>
+
+    <style name="list">
+        <item name="android:drawSelectorOnTop">true</item>
+        <item name="android:listSelector">@drawable/list_selector</item>
+        <item name="android:fastScrollEnabled">true</item>
+    </style>
+
+    <style name="list_image">
+        <item name="android:layout_width">100dp</item>
+        <item name="android:layout_height">100dp</item>
+        <item name="android:padding">5dp</item>
+    </style>
+
+    <style name="list_text">
+        <item name="android:padding">@dimen/list_text_padding</item>
+        <item name="android:paddingLeft">5dp</item>
+        <item name="android:textColor">@color/list_text_color</item>
+        <item name="android:textSize">@dimen/list_text_size</item>
+    </style>
+
+    <style name="list_text_bold" parent="list_text">
+        <item name="android:textStyle">bold</item>
+    </style>
+
+    <style name="time_view" parent="list_text">
+        <item name="android:textStyle">bold</item>
+        <item name="android:layout_width">@dimen/time_view_width</item>
+    </style>
+
+    <style name="time_edit" parent="time_view">
+        <item name="android:background">@color/time_view_bg</item>
+    </style>
+
+    <style name="big_number" parent="time_view">
+        <item name="android:textStyle">bold</item>
+        <item name="android:textSize">20sp</item>
+    </style>
+
+    <style name="moppie_default">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+    </style>
+
+    <style name="coin" parent="moppie_default">
+        <item name="android:layout_marginTop">5dip</item>
+        <item name="android:layout_marginBottom">5dip</item>
+        <item name="android:layout_marginLeft">15dip</item>
+    </style>
+
+    <style name="icon" parent="moppie_default">
+        <item name="android:paddingTop">5dip</item>
+        <item name="android:paddingLeft">5dip</item>
+        <item name="android:paddingRight">5dip</item>
+        <item name="android:paddingBottom">5dip</item>
+    </style>
+
+    <style name="spinner_row">
+        <item name="android:textColor">@color/spinner_text</item>
+        <item name="android:layout_width">fill_parent</item>
+        <item name="android:paddingTop">7px</item>
+        <item name="android:paddingBottom">7px</item>
+        <item name="android:textSize">20sp</item>
+        <item name="android:singleLine">true</item>
+    </style>
+
+    <style name="agent_dialog_text">
+        <item name="android:textSize">20sp</item>
+        <item name="android:textColor">@color/agent_text</item>
+    </style>
+
+    <style name="agent_dialog_edit" parent="agent_dialog_text">
+        <item name="android:singleLine">true</item>
+        <item name="android:minWidth">300dp</item>
+        <item name="android:background">@color/agent_dialog_editbox</item>
+    </style>
+
+    <style name="plus_minus_button">
+        <item name="android:textStyle">bold</item>
+        <item name="android:textSize">20dp</item>
+    </style>
+
+    <style name="registered_box">
+      </style>
+
+</resources>

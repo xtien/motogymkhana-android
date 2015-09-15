@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <!-- actionbar -->
+    <color name="actionbar1">#FF34d8cd</color>
+    <color name="actionbar2">#FF36bfb6</color>
+    <color name="actionbar3">#FF33b2aa</color>
+    <color name="actionbar4">#FF289c94</color>
+    <color name="actionbar5">#FF34d8cd</color>
+    <color name="actionbar_title_color">@color/white</color>
+    <color name="actionbar_textcolor">@color/white</color>
+    <color name="fragment_background">@color/white</color>
+    <color name="text">@color/black</color>
+    <color name="text_gray">@color/gray</color>
+    <color name="message_text">@color/dark_gray</color>
+    <color name="spinner_text">@color/black</color>
+    <color name="disqualified">@color/red</color>
+    <color name="qualified">@color/light_gray</color>
+    <color name="list_background">@color/off_white</color>
+
+    <!-- list -->
+    <color name="list_text_color">@color/black</color>
+    <color name="divider">#FFA0A0A0</color>
+
+    <!-- bag, purse -->
+    <color name="purse_background">@color/olive</color>
+
+    <!-- dialog -->
+    <color name="agent_text">@color/black</color>
+    <color name="agent_dialog_background">@color/white</color>
+    <color name="agent_dialog_border">@color/gray</color>
+    <color name="agent_dialog_editbox">@color/light_gray</color>
+
+    <!-- time -->
+    <color name="time_view_bg">@color/white</color>
+
+    <!--  -->
+    <color name="transparent">#00000000</color>
+    <color name="white">#FFFFFFFF</color>
+    <color name="off_white">#FFF0F0F0</color>
+    <color name="black">#FF000000</color>
+    <color name="gray">#FFdddddd</color>
+    <color name="dark_gray">#FF666666</color>
+    <color name="light_gray">#FFEEEEEE</color>
+    <color name="olive">#FF759121</color>
+    <color name="red">#FFFF0000</color>
+
+</resources>
