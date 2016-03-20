@@ -12,88 +12,112 @@ import android.widget.TextView;
 import com.google.inject.Inject;
 import com.google.inject.assistedinject.Assisted;
 
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
 import eu.motogymkhana.competition.R;
+import eu.motogymkhana.competition.dao.RoundDao;
+import eu.motogymkhana.competition.dao.SettingsDao;
 import eu.motogymkhana.competition.model.Rider;
+import eu.motogymkhana.competition.model.Round;
 import eu.motogymkhana.competition.rider.RiderManager;
+import eu.motogymkhana.competition.settings.Settings;
+import eu.motogymkhana.competition.settings.SettingsManager;
 
 //import javax.annotation.Nullable;
 
 public class TotalsListAdapter extends BaseAdapter {
 
-	protected static final int RIDERTIMES = 101;
+    protected static final int RIDERTIMES = 101;
 
-	private List<Rider> riders = new ArrayList<Rider>();
-	private LayoutInflater inflater;
+    private List<Rider> riders = new ArrayList<Rider>();
+    private LayoutInflater inflater;
 
-	private RiderManager riderManager;
+    private RiderManager riderManager;
+    private SettingsManager settingsManager;
 
-	@Inject
-	public TotalsListAdapter(@Assisted @Nullable Collection<Rider> riders, Context context,
-			RiderManager riderManager) {
+    @Inject
+    public TotalsListAdapter(@Assisted @Nullable Collection<Rider> riders, Context context,
+                             RiderManager riderManager, SettingsManager settingsManager, RoundDao roundsDao) {
 
-		this.riderManager = riderManager;
+        this.riderManager = riderManager;
+        this.settingsManager = settingsManager;
 
-		if (riders != null && riders.size() > 0) {
-			this.riders.clear();
-			this.riders.addAll(riders);
-		}
-		inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-	}
+        try {
 
-	@Override
-	public int getCount() {
-		return riders.size();
-	}
+            Collection<Round> rounds = roundsDao.getRounds();
+            if (rounds != null && rounds.size() > 1) {
+                if (riders != null && riders.size() > 0) {
+                    this.riders.clear();
+                    this.riders.addAll(riders);
+                } else {
+                    this.riders.clear();
+                }
+            }
 
-	@Override
-	public Object getItem(int position) {
-		return riders.get(position);
-	}
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
 
-	@Override
-	public long getItemId(int position) {
-		return position;
-	}
 
-	@Override
-	public View getView(int position, View convertView, ViewGroup parent) {
+        inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+    }
 
-		convertView = (LinearLayout) inflater.inflate(R.layout.rider_list_row, null);
+    @Override
+    public int getCount() {
+        return riders.size();
+    }
 
-		final Rider rider = riders.get(position);
+    @Override
+    public Object getItem(int position) {
+        return riders.get(position);
+    }
 
-		((TextView) convertView.findViewById(R.id.first_name)).setText(rider.getFirstName());
-		((TextView) convertView.findViewById(R.id.last_name)).setText(rider.getLastName());
-		((TextView) convertView.findViewById(R.id.ridernumber)).setText(rider
-				.getRiderNumberString());
+    @Override
+    public long getItemId(int position) {
+        return position;
+    }
 
-		TextView timeView1 = ((TextView) convertView.findViewById(R.id.time1));
-		TextView timeView2 = ((TextView) convertView.findViewById(R.id.time2));
+    @Override
+    public View getView(int position, View convertView, ViewGroup parent) {
 
-		((TextView) convertView.findViewById(R.id.bib)).setText(rider.getBib().displayString());
+        int roundsCountingForSeasonResult = settingsManager.getRoundsCountingForSeasonResult();
 
-		timeView2.setVisibility(View.GONE);
-		timeView1.setVisibility(View.VISIBLE);
-		if (rider.getTotalPoints() != 0) {
-			timeView1.setText(rider.getTotalPointsString());
-		}
+        convertView = (LinearLayout) inflater.inflate(R.layout.rider_list_row, null);
 
-		return convertView;
-	}
+        final Rider rider = riders.get(position);
 
-	public void setRiders(List<Rider> riders) {
+        ((TextView) convertView.findViewById(R.id.first_name)).setText(rider.getFirstName());
+        ((TextView) convertView.findViewById(R.id.last_name)).setText(rider.getLastName());
+        ((TextView) convertView.findViewById(R.id.ridernumber)).setText(rider
+                .getRiderNumberString());
+        ((TextView) convertView.findViewById(R.id.nationality)).setText(rider.getNationality().toString());
 
-		if (riders != null) {
-			this.riders = riders;
-			notifyDataSetChanged();
-		}
-	}
+        TextView timeView1 = ((TextView) convertView.findViewById(R.id.time1));
+        TextView timeView2 = ((TextView) convertView.findViewById(R.id.time2));
 
-	public interface Factory {
-		TotalsListAdapter create(@Assisted @Nullable Collection<Rider> list);
-	}
+        ((TextView) convertView.findViewById(R.id.bib)).setText(rider.getBib().displayString());
+
+        timeView2.setVisibility(View.GONE);
+        timeView1.setVisibility(View.VISIBLE);
+        if (rider.getTotalPoints(roundsCountingForSeasonResult) != 0) {
+            timeView1.setText(rider.getTotalPointsString(roundsCountingForSeasonResult));
+        }
+
+        return convertView;
+    }
+
+    public void setRiders(List<Rider> riders) {
+
+        if (riders != null) {
+            this.riders = riders;
+            notifyDataSetChanged();
+        }
+    }
+
+    public interface Factory {
+        TotalsListAdapter create(@Assisted @Nullable Collection<Rider> list);
+    }
 }

@@ -1,10 +1,13 @@
 package eu.motogymkhana.competition.fragment;
 
 import android.app.Activity;
+import android.content.Context;
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.google.inject.Inject;
@@ -13,6 +16,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import eu.motogymkhana.competition.R;
+import eu.motogymkhana.competition.activity.RiderViewActivity;
 import eu.motogymkhana.competition.adapter.RiderTimeInputListAdapter;
 import eu.motogymkhana.competition.model.Rider;
 import eu.motogymkhana.competition.prefs.ChristinePreferences;
@@ -59,9 +63,10 @@ public class RiderTimeInputFragment extends RoboListFragment {
 
         setListAdapter(adapter);
     }
+
     @Override
-    public void onAttach(Activity activity) {
-        super.onAttach(activity);
+    public void onAttach(Context context) {
+        super.onAttach(context);
         attached = true;
     }
 

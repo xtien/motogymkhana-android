@@ -1,6 +1,7 @@
 package eu.motogymkhana.competition.fragment;
 
 import android.app.Activity;
+import android.content.Context;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -17,7 +18,9 @@ import eu.motogymkhana.competition.R;
 import eu.motogymkhana.competition.adapter.ChangeListener;
 import eu.motogymkhana.competition.adapter.TotalsListAdapter;
 import eu.motogymkhana.competition.adapter.TotalsListAdapter.Factory;
+import eu.motogymkhana.competition.dao.RoundDao;
 import eu.motogymkhana.competition.model.Rider;
+import eu.motogymkhana.competition.model.Round;
 import eu.motogymkhana.competition.rider.RiderManager;
 import roboguice.fragment.RoboListFragment;
 
@@ -27,13 +30,13 @@ public class SeasonTotalsFragment extends RoboListFragment {
     private Factory totalsAdapterFactory;
 
     private List<Rider> riders = new ArrayList<Rider>();
-    ;
 
     @Inject
     private RiderManager riderManager;
 
     private TotalsListAdapter adapter;
     private volatile boolean attached;
+    private TextView emptyView;
 
     private ChangeListener riderResultListener = new ChangeListener() {
 
@@ -44,12 +47,10 @@ public class SeasonTotalsFragment extends RoboListFragment {
                 try {
                     riderManager.getTotals(adapter);
                 } catch (SQLException e) {
-                    // TODO Auto-generated catch block
                     e.printStackTrace();
                 }
             }
         }
-
     };
 
     @Override
@@ -74,13 +75,12 @@ public class SeasonTotalsFragment extends RoboListFragment {
         try {
             riderManager.getTotals(adapter);
         } catch (SQLException e) {
-            // TODO Auto-generated catch block
             e.printStackTrace();
         }
     }
 
     @Override
-    public void onAttach(Activity activity) {
+    public void onAttach(Context activity) {
         super.onAttach(activity);
         attached = true;
     }

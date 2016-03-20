@@ -30,13 +30,11 @@ public class GetRegisteredRidersFromDBTask extends RoboAsyncTask<Collection<Ride
 
     @Override
     public Collection<Rider> call() throws Exception {
-
         return timesDao.getRegisteredRiders(date);
     }
 
     @Override
     public void onSuccess(Collection<Rider> riders) {
-
         callback.onSuccess(riders);
     }
 }

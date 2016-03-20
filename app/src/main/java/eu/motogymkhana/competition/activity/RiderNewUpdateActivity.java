@@ -8,15 +8,18 @@ import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.Spinner;
 import android.widget.TextView;
 
 import com.google.inject.Inject;
+import com.squareup.picasso.Picasso;
 
 import org.apache.commons.lang.StringUtils;
 
 import java.sql.SQLException;
 
+import eu.motogymkhana.competition.Constants;
 import eu.motogymkhana.competition.R;
 import eu.motogymkhana.competition.api.impl.RidersCallback;
 import eu.motogymkhana.competition.model.Bib;
@@ -47,23 +50,45 @@ public class RiderNewUpdateActivity extends RoboActivity {
         final EditText firstNameView = (EditText) findViewById(R.id.first_name);
         final EditText lastNameView = (EditText) findViewById(R.id.last_name);
         final EditText numberView = (EditText) findViewById(R.id.number);
-        final Spinner countrySpinner = (Spinner) findViewById(R.id.country);
+        final Spinner nationalitySpinner = (Spinner) findViewById(R.id.country);
         final Spinner bibSpinner = (Spinner) findViewById(R.id.bib);
         final CheckBox genderButton = (CheckBox) findViewById(R.id.gender);
         numberView.setText(Integer.toString(number));
         final TextView errorText = (TextView) findViewById(R.id.error_text);
         final int riderNumber = getIntent().getIntExtra(RIDER_NUMBER, -1);
         final EditText sharingWithView = (EditText) findViewById(R.id.sharing_with);
+        final EditText bikeView = (EditText) findViewById(R.id.bike);
+        final EditText riderTextView = (EditText) findViewById(R.id.rider_text);
+
+        final ImageView riderImage = (ImageView) findViewById(R.id.rider_image);
+        final ImageView bikeImage = (ImageView) findViewById(R.id.bike_image);
+
+        Button b2016 = (Button)findViewById(R.id.up_2016);
+        b2016.setOnClickListener(new OnClickListener() {
+
+            @Override
+            public void onClick(View v) {
+                riderManager.updateTo2016(rider);
+            }
+        });
+
+        Button buttonEU = (Button)findViewById(R.id.button_eu);
+        buttonEU.setOnClickListener(new OnClickListener() {
+
+            @Override
+            public void onClick(View v) {
+                riderManager.updateToEU(rider);
+            }
+        });
 
         ArrayAdapter<CharSequence> countrySpinAdapter = new ArrayAdapter(this, android.R.layout.simple_spinner_item);
         countrySpinAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-
 
         for (Country item : Country.values()) {
             countrySpinAdapter.add(item.name());
         }
 
-        countrySpinner.setAdapter(countrySpinAdapter);
+        nationalitySpinner.setAdapter(countrySpinAdapter);
 
         ArrayAdapter<CharSequence> bibSpinAdapter = new ArrayAdapter(this, android.R.layout.simple_spinner_item);
         countrySpinAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
@@ -85,17 +110,28 @@ public class RiderNewUpdateActivity extends RoboActivity {
                 numberView.setText(rider.getRiderNumberString());
                 genderButton.setChecked(rider.getGender() == Gender.F);
                 sharingWithView.setText(Integer.toString(rider.getSharing()));
+                bikeView.setText(rider.getBike());
+                riderTextView.setText(rider.getText());
+
+                if (rider.hasImageUrl()) {
+                    Picasso.with(this).load(rider.getImageUrl()).into(riderImage);
+                    riderImage.setVisibility(View.VISIBLE);
+                }
+                if (rider.hasBikeImageUrl()) {
+                    Picasso.with(this).load(rider.getBikeImageUrl()).into(bikeImage);
+                    bikeImage.setVisibility(View.VISIBLE);
+                }
 
                 if (rider.getCountry() == null) {
-                    rider.setCountry(Country.NL);
-                } else {
-                    for (int i = 0; i < Country.values().length; i++) {
-                        if (Country.values()[i] == rider.getCountry()) {
-                            countrySpinner.setSelection(i);
-                            break;
-                        }
+                    rider.setCountry(Constants.country);
+                }
+                for (int i = 0; i < Country.values().length; i++) {
+                    if (Country.values()[i] == rider.getCountry()) {
+                        nationalitySpinner.setSelection(i);
+                        break;
                     }
                 }
+
 
                 if (rider.getBib() == null) {
                     rider.setBib(Bib.Y);
@@ -117,7 +153,7 @@ public class RiderNewUpdateActivity extends RoboActivity {
             rider = new Rider();
         }
 
-        countrySpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+        nationalitySpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
 
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
@@ -173,17 +209,19 @@ public class RiderNewUpdateActivity extends RoboActivity {
                 String lastName = lastNameView.getText().toString();
                 Gender gender = genderButton.isChecked() ? Gender.F : Gender.M;
                 String numberString = numberView.getText().toString();
-                String countryString = (String) countrySpinner.getSelectedItem();
+                String nationalityString = (String) nationalitySpinner.getSelectedItem();
                 String bibString = (String) bibSpinner.getSelectedItem();
+                String bike = bikeView.getText().toString();
+                String riderText = riderTextView.getText().toString();
 
                 String sharingText = sharingWithView.getText().toString();
                 int sharing = 0;
-                if(sharingText !=null && sharingText.length()>0) {
-                     sharing = Integer.parseInt(sharingWithView.getText().toString());
-                 }
-                Country country = Country.NL;
-                if (countryString != null) {
-                    country = Country.valueOf(countryString);
+                if (sharingText != null && sharingText.length() > 0) {
+                    sharing = Integer.parseInt(sharingWithView.getText().toString());
+                }
+                Country nationality = Constants.country;
+                if (nationalityString != null) {
+                    nationality = Country.valueOf(nationalityString);
                 }
 
                 Bib bib = Bib.Y;
@@ -199,8 +237,13 @@ public class RiderNewUpdateActivity extends RoboActivity {
                 rider.setLastName(lastName);
                 rider.setGender(gender);
                 rider.setRiderNumber(number);
-                rider.setCountry(country);
+                rider.setNationality(nationality);
+                rider.setCountry(Constants.country);
+                rider.setSeason(Constants.season);
                 rider.setSharing(sharing);
+                rider.setBike(bike);
+                rider.setText(riderText);
+                rider.setBib(bib);
 
                 if (firstName != null && lastName != null) {
 

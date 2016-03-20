@@ -11,6 +11,8 @@
     <string name="action_settings">Settings</string>
     <string name="disqualify">D</string>
     <string name="e">E</string>
+    <string name="up_2016">2016</string>
+    <string name="eu">EU</string>
 
     <string name="password">Password</string>
     <string name="no_password">You are not an admin</string>
@@ -22,6 +24,12 @@
     <string name="totals">Season Totals</string>
     <string name="registration">Registration</string>
 
+    <!--settings-->
+    <string name="percentage_blue_bib">% for blue bib</string>
+    <string name="percentage_green_bib">% for geen bib</string>
+    <string name="number_of_rounds_for_season_result">Number of rounds for season result</string>
+    <string name="number_of_rounds_for_bib">Number of rounds for new bib</string>
+
 
     <!--server -->
     <string name="server">Server</string>
@@ -29,7 +37,7 @@
     <string name="test_server">Test server</string>
 
     <!-- other menu items -->
-    <string name="date1">Set Date</string>
+    <string name="settings">Settings</string>
     <string name="reset">Reset</string>
     <string name="unreset">Undo reset</string>
     <string name="new_rider">Add Rider</string>
@@ -40,7 +48,7 @@
     <string name="upload_dates">Upload Dates</string>
     <string name="admin">Admin</string>
     <string name="text">Text</string>
-    <string name="settings">Settings</string>
+    <string name="admin_settings">Admin Settings</string>
     <string name="save_witty_file">Save Witty file</string>
 
     <!-- rider -->
@@ -58,6 +66,16 @@
 
     <!-- ssl -->
     <string name="keystore_password">smndbvr</string>
+    <string name="no_rounds_planned">No races planned yet</string>
+    <string name="manage_rounds">Manage rounds</string>
+    <string name="alertOk">OK</string>
+    <string name="add_date">Add date</string>
+    <string name="save">Save</string>
+    <string name="bike">Bike</string>
+    <string name="rider_text">Text</string>
+    <string name="view_rider">Rider details</string>
+    <string name="no_totals_for_one_round">No season totals if there is only one round</string>
+    <string name="no_rounds_held">No races were organized.</string>
 
 
 </resources>

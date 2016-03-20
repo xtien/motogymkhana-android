@@ -9,7 +9,12 @@ import android.widget.TextView;
 
 import com.google.inject.Inject;
 
+import java.sql.SQLException;
+
+import eu.motogymkhana.competition.Constants;
 import eu.motogymkhana.competition.R;
+import eu.motogymkhana.competition.dao.CredentialDao;
+import eu.motogymkhana.competition.model.Credential;
 import eu.motogymkhana.competition.prefs.ChristinePreferences;
 import roboguice.activity.RoboActivity;
 import roboguice.inject.InjectResource;
@@ -17,7 +22,7 @@ import roboguice.inject.InjectResource;
 /**
  * Created by christine on 19-5-15.
  */
-public class AdminActivity extends RoboActivity {
+public class AdminActivity extends BaseActivity {
 
     @InjectResource(R.string.no_password)
     private String noPw;
@@ -27,6 +32,10 @@ public class AdminActivity extends RoboActivity {
 
     @Inject
     private ChristinePreferences prefs;
+
+    @Inject
+    private CredentialDao credentialDao;
+    private Credential credential;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -38,6 +47,17 @@ public class AdminActivity extends RoboActivity {
         final TextView errorView = (TextView) findViewById(R.id.error_text);
 
         final ProgressBar progressBar = (ProgressBar) findViewById(R.id.progress_bar);
+
+        try {
+            credential = credentialDao.get();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        if (credential == null) {
+            credential = new Credential();
+            credential.setCountry(Constants.country);
+        }
 
         Button okButton = (Button) findViewById(R.id.okButton);
 
@@ -62,21 +82,27 @@ public class AdminActivity extends RoboActivity {
                                 progressBar.setVisibility(View.GONE);
 
                                 if (check) {
-                                    prefs.setAdmin(true);
-                                    prefs.setPassword(pwView.getText().toString());
+                                    credential.setAdmin(true);
+                                    credential.setPassword(pwView.getText().toString());
+                                    credentialDao.store(credential);
                                     finish();
                                 } else {
                                     errorView.setText(noPw);
                                 }
                             } catch (Exception e) {
-                                prefs.setAdmin(false);
-                                prefs.setPassword(null);
+                                credential.setAdmin(false);
+                                credential.setPassword(pwView.getText().toString());
+                                try {
+                                    credentialDao.store(credential);
+                                } catch (SQLException e1) {
+                                    e1.printStackTrace();
+                                    showAlert(e);
+                                }
                             }
                         }
                     }).execute();
                 }
             }
         });
-
     }
 }

@@ -15,6 +15,7 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 
+import eu.motogymkhana.competition.Constants;
 import eu.motogymkhana.competition.dao.impl.RiderDaoImpl;
 import eu.motogymkhana.competition.round.RoundManagerProvider;
 
@@ -38,12 +39,40 @@ public class Rider {
     public static final String TEXT = "text";
     public static final String TIMES = "times";
     public static final String SHARING = "sharing";
-    private static final String TIMESTAMP = "timestamp";
-
-    private static final int roundsCountingForSeasonResult = 6;
+    public static final String SEASON = "season";
+    public static final String TIMESTAMP = "timestamp";
+    public static final String NATIONALITY = "nationality";
+    public static final String BIKE = "bike";
+    public static final String IMAGE_URL = "image_url";
+    public static final String BIKE_IMAGE_URL = "bike_image_url";
+    public static final String EMAIL = "email";
 
     @DatabaseField(generatedId = true, columnName = ID)
     private int _id;
+
+    @JsonProperty(SEASON)
+    @DatabaseField(columnName = SEASON)
+    private int season;
+
+    @JsonProperty(COUNTRY)
+    @DatabaseField(columnName = COUNTRY)
+    private Country country;
+
+    @JsonProperty(NATIONALITY)
+    @DatabaseField(columnName = NATIONALITY)
+    private Country nationality;
+
+    @JsonProperty(BIKE)
+    @DatabaseField(columnName = BIKE)
+    private String bike;
+
+    @JsonProperty(IMAGE_URL)
+    @DatabaseField(columnName = IMAGE_URL)
+    private String imageUrl;
+
+    @JsonProperty(BIKE_IMAGE_URL)
+    @DatabaseField(columnName = BIKE_IMAGE_URL)
+    private String bikeImageUrl;
 
     @JsonProperty(TIMESTAMP)
     @DatabaseField(columnName = TIMESTAMP)
@@ -56,6 +85,10 @@ public class Rider {
     @JsonProperty(LASTNAME)
     @DatabaseField(columnName = LASTNAME)
     private String lastName;
+
+    @JsonProperty(EMAIL)
+    @DatabaseField(columnName = EMAIL)
+    private String email;
 
     @JsonProperty(RIDER_NUMBER)
     @DatabaseField(columnName = RIDER_NUMBER)
@@ -72,10 +105,6 @@ public class Rider {
     @JsonProperty(DATE_OF_BIRTH)
     @DatabaseField(columnName = DATE_OF_BIRTH)
     private String dateOfBirth;
-
-    @JsonProperty(COUNTRY)
-    @DatabaseField(columnName = COUNTRY)
-    private Country country;
 
     @JsonProperty(BIB)
     @DatabaseField(columnName = BIB)
@@ -178,7 +207,7 @@ public class Rider {
     }
 
     @JsonIgnore
-    public int getTotalPoints() {
+    public int getTotalPoints(int roundsCountingForSeasonResult) {
 
         List<Integer> totalPointsList = new ArrayList<Integer>();
 
@@ -202,8 +231,8 @@ public class Rider {
     }
 
     @JsonIgnore
-    public String getTotalPointsString() {
-        return Integer.toString(getTotalPoints());
+    public String getTotalPointsString(int roundsCountingForSeasonResult) {
+        return Integer.toString(getTotalPoints(roundsCountingForSeasonResult));
     }
 
     public boolean hasTimes(long date) {
@@ -289,12 +318,14 @@ public class Rider {
     @JsonIgnore
     public Times getEUTimes(long date) {
 
-        Iterator<Times> iterator = timesList.iterator();
-        while (iterator.hasNext()) {
-            Times times = iterator.next();
+        if (date != 0l) {
+            Iterator<Times> iterator = timesList.iterator();
+            while (iterator.hasNext()) {
+                Times times = iterator.next();
 
-            if (times.isDate(date)) {
-                return times;
+                if (times.isDate(date)) {
+                    return times;
+                }
             }
         }
         return null;
@@ -360,7 +391,6 @@ public class Rider {
 
     @JsonIgnore
     public int getStartNumber() {
-
         return getEUTimes(RoundManagerProvider.getInstance().getDate()).getStartNumber();
     }
 
@@ -370,5 +400,57 @@ public class Rider {
 
     public void setSharing(int sharing) {
         this.sharing = sharing;
+    }
+
+    public void setBike(String bike) {
+        this.bike = bike;
+    }
+
+    public void setText(String text) {
+        this.text = text;
+    }
+
+    public String getBike() {
+        return bike;
+    }
+
+    public String getText() {
+        return text;
+    }
+
+    public boolean hasImageUrl() {
+        return imageUrl != null;
+    }
+
+    public boolean hasBikeImageUrl() {
+        return bikeImageUrl != null;
+    }
+
+    public String getImageUrl() {
+        return imageUrl;
+    }
+
+    public String getBikeImageUrl() {
+        return bikeImageUrl;
+    }
+
+    public Country getNationality() {
+        return nationality;
+    }
+
+    public void setNationality(Country nationality) {
+        this.nationality = nationality;
+    }
+
+    public void setSeason(int season) {
+        this.season = season;
+    }
+
+    public void clearTimes() {
+        timesList.clear();
+    }
+
+    public void setDateOfBirth(String dateOfBirth) {
+        this.dateOfBirth = dateOfBirth;
     }
 }

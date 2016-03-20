@@ -31,10 +31,12 @@ import eu.motogymkhana.competition.dao.RiderDao;
 import eu.motogymkhana.competition.dao.TimesDao;
 import eu.motogymkhana.competition.db.GymkhanaDatabaseHelper;
 import eu.motogymkhana.competition.model.Bib;
+import eu.motogymkhana.competition.model.Country;
 import eu.motogymkhana.competition.model.Rider;
 import eu.motogymkhana.competition.model.Times;
 import eu.motogymkhana.competition.prefs.ChristinePreferences;
 import eu.motogymkhana.competition.rider.DeleteRiderTask;
+import eu.motogymkhana.competition.rider.GetRegisteredRidersFromDBTask;
 import eu.motogymkhana.competition.rider.GetRidersCallback;
 import eu.motogymkhana.competition.rider.GetRidersFromDBTask;
 import eu.motogymkhana.competition.rider.RiderManager;
@@ -46,12 +48,14 @@ import eu.motogymkhana.competition.rider.UpdateRiderTask;
 import eu.motogymkhana.competition.rider.UpdateRidersTask;
 import eu.motogymkhana.competition.rider.UploadRidersTask;
 import eu.motogymkhana.competition.round.RoundManager;
+import eu.motogymkhana.competition.settings.SettingsManager;
 import roboguice.inject.InjectResource;
 
 @Singleton
 public class RiderManagerImpl implements RiderManager {
 
     private final Context context;
+    private final SettingsManager settingsManager;
     private ApiManager api;
     private RiderDao riderDao;
     private TimesDao timesDao;
@@ -70,7 +74,8 @@ public class RiderManagerImpl implements RiderManager {
 
     @Inject
     public RiderManagerImpl(RiderDao riderDao, Context context, TimesDao timesDao, ChristinePreferences prefs,
-                            GymkhanaDatabaseHelper databaseHelper, ApiManager api, RoundManager roundManager) {
+                            GymkhanaDatabaseHelper databaseHelper, ApiManager api, RoundManager roundManager,
+                            SettingsManager settingsManager) {
 
         this.riderDao = riderDao;
         this.timesDao = timesDao;
@@ -78,6 +83,7 @@ public class RiderManagerImpl implements RiderManager {
         this.databaseHelper = databaseHelper;
         this.api = api;
         this.roundManager = roundManager;
+        this.settingsManager = settingsManager;
         this.context = context;
     }
 
@@ -104,6 +110,9 @@ public class RiderManagerImpl implements RiderManager {
 
     private void readRidersFile() throws IOException {
 
+        Country country = Constants.country;
+        int season = Constants.season;
+
         List<String> riderList = new ArrayList<String>();
 
         File ridersFile = new File(getRiderFileName());
@@ -124,10 +133,12 @@ public class RiderManagerImpl implements RiderManager {
 
                 Times times = new Times(roundManager.getDate());
                 times.setRider(rider);
+                times.setCountry(country);
+                times.setSeason(season);
                 rider.addTimes(times);
 
                 try {
-                    rider = store(rider);
+                    rider = store(rider, country, season);
                 } catch (SQLException e) {
                     e.printStackTrace();
                 }
@@ -136,9 +147,9 @@ public class RiderManagerImpl implements RiderManager {
     }
 
     @Override
-    public Rider store(Rider rider) throws SQLException {
+    public Rider store(Rider rider, Country country, int season) throws SQLException {
 
-        rider = riderDao.store(rider);
+        rider = riderDao.store(rider, country, season);
         timesDao.storeRiderTimes(rider);
 
         return rider;
@@ -157,25 +168,18 @@ public class RiderManagerImpl implements RiderManager {
 
     @Override
     public void getRiders(GetRidersCallback callback) {
-
         new GetRidersFromDBTask(context, callback).execute();
     }
 
     @Override
     public void getRegisteredRiders(GetRidersCallback callback) {
-
-        try {
-            callback.onSuccess(timesDao.getRegisteredRiders(roundManager.getDate()));
-        } catch (SQLException e) {
-            e.printStackTrace();
-            callback.onError(e.getMessage());
-        }
+        new GetRegisteredRidersFromDBTask(context, callback, roundManager.getDate()).execute();
     }
 
     @Override
-    public void setRegistered(Rider rider, boolean registered) throws SQLException {
+    public void setRegistered(Times times, boolean registered) throws SQLException {
 
-        new SetRegisteredTask(context, rider, registered).execute();
+        new SetRegisteredTask(context, times, registered).execute();
     }
 
     @Override
@@ -265,28 +269,55 @@ public class RiderManagerImpl implements RiderManager {
 
             @Override
             public void onSuccess() {
-                callback.onSuccess();
+                if (callback != null) {
+                    callback.onSuccess();
+                }
                 notifyDataChanged();
             }
 
             @Override
             public void onError(String error) {
-                callback.onError(error);
+                if (callback != null) {
+                    callback.onError(error);
+                }
                 notifyDataChanged();
             }
         }).execute();
     }
 
     @Override
+    public void update(Times times) throws SQLException, IOException {
+
+        timesDao.store(times);
+        api.updateTimes(times);
+    }
+
+    @Override
+    public void updateTo2016(Rider rider) {
+        rider.setSeason(2016);
+        rider.setCountry(Constants.country);
+        rider.clearTimes();
+        update(rider, null);
+    }
+
+    @Override
+    public void updateToEU(Rider rider) {
+        rider.setCountry(Country.EU);
+        rider.setSeason(2016);
+        update(rider, null);
+    }
+
+    @Override
     public void update(Rider rider) throws SQLException, IOException {
 
-        riderDao.store(rider);
-
+        riderDao.store(rider, Constants.country, Constants.season);
         api.updateRider(rider);
     }
 
     @Override
     public void getTotals(TotalsListAdapter totalsListAdapter) throws SQLException {
+
+        final int roundsCountingForSeasonResult = settingsManager.getRoundsCountingForSeasonResult();
 
         HashMap<Long, List<Times>> timesMap = new HashMap<Long, List<Times>>();
 
@@ -342,7 +373,7 @@ public class RiderManagerImpl implements RiderManager {
 
             @Override
             public int compare(Rider lhs, Rider rhs) {
-                return rhs.getTotalPoints() - lhs.getTotalPoints();
+                return rhs.getTotalPoints(roundsCountingForSeasonResult) - lhs.getTotalPoints(roundsCountingForSeasonResult);
             }
 
         });

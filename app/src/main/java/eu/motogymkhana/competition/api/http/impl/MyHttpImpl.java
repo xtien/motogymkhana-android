@@ -54,8 +54,10 @@ public class MyHttpImpl implements MyHttp {
 
             try {
 
-                urlConnection.setConnectTimeout(5000);
+                setGet(urlConnection);
                 urlConnection.setSSLSocketFactory(sslContext.getSocketFactory());
+
+                urlConnection.connect();
 
                 InputStream in = new BufferedInputStream(urlConnection.getInputStream());
                 BufferedReader br = new BufferedReader(new InputStreamReader(in), 512);
@@ -82,7 +84,8 @@ public class MyHttpImpl implements MyHttp {
 
             try {
 
-                urlConnection.setConnectTimeout(5000);
+                setGet(urlConnection);
+                urlConnection.connect();
 
                 InputStream in = new BufferedInputStream(urlConnection.getInputStream());
                 BufferedReader br = new BufferedReader(new InputStreamReader(in), 512);
@@ -109,11 +112,19 @@ public class MyHttpImpl implements MyHttp {
         return result;
     }
 
+    private void setGet(HttpURLConnection urlConnection) throws ProtocolException {
+
+        urlConnection.setConnectTimeout(5000);
+        urlConnection.setRequestMethod("GET");
+    }
+
     @Override
     public HttpResultWrapper postStringFromUrl(String urlString, String input) throws UnsupportedEncodingException,
             IOException {
 
-        URL url = new URL(urlString);
+        Log.d("motogymkhana_url", urlString+ "\n" + input + "\n");
+
+        URL url = new URL(urlString );
         InputStream in;
 
         URLConnection urlConnection = null;

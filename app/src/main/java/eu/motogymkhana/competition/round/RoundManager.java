@@ -17,8 +17,6 @@ public interface RoundManager {
 
     void setDate(long date) throws SQLException;
 
-    void loadDates() throws SQLException, ParseException;
-
     Round getNextRound() throws ParseException, SQLException;
 
     void uploadRounds() throws SQLException;
@@ -32,4 +30,8 @@ public interface RoundManager {
     Round getRound() throws SQLException;
 
     String getDateString();
+
+    Integer getRoundNumber() throws SQLException;
+
+    void save(List<Round> rounds) throws SQLException;
 }

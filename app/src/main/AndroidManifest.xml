@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="eu.motogymkhana.competition"
-    android:versionCode="10"
-    android:versionName="1.10" >
+    android:versionCode="11"
+    android:versionName="2.0" >
 
     <uses-sdk
         android:minSdkVersion="15"
@@ -17,7 +17,7 @@
         android:icon="@drawable/mg_launcher"
         android:label="@string/app_name"
         android:logo="@drawable/mglogo"
-        android:theme="@style/AppTheme" >
+        android:theme="@style/AppTheme">
         <activity
             android:name="eu.motogymkhana.competition.activity.MainActivity"
             android:label="@string/app_name" >
@@ -28,11 +28,15 @@
             </intent-filter>
         </activity>
         <activity
+            android:name="eu.motogymkhana.competition.activity.RiderViewActivity"
+            android:label="@string/app_name" >
+        </activity>
+        <activity
             android:name="eu.motogymkhana.competition.activity.RiderTimesInputActivity"
             android:label="@string/app_name" >
         </activity>
         <activity
-            android:name="eu.motogymkhana.competition.activity.SettingsActivity"
+            android:name=".activity.AdminSettingsActivity"
             android:label="@string/app_name" >
         </activity>
         <activity
@@ -40,8 +44,9 @@
             android:label="@string/app_name" >
         </activity>
         <activity
-            android:name="eu.motogymkhana.competition.activity.SelectDateActivity"
-            android:label="@string/app_name" >
+            android:name=".activity.SettingsActivity"
+            android:label="@string/app_name"
+            android:windowSoftInputMode="stateHidden">
         </activity>
         <activity
             android:name="eu.motogymkhana.competition.activity.TextActivity"
@@ -55,6 +60,11 @@
         <meta-data
             android:name="roboguice.modules"
             android:value="eu.motogymkhana.competition.robo.GymkhanaModule,eu.motogymkhana.competition.robo.LiveModule"/>
+        <!-- ATTENTION: This was auto-generated to add Google Play services to your project for
+             App Indexing.  See https://g.co/AppIndexing/AndroidStudio for more information. -->
+        <meta-data
+            android:name="com.google.android.gms.version"
+            android:value="@integer/google_play_services_version"/>
     </application>
 
 </manifest>

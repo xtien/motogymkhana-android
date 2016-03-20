@@ -1,0 +1,12 @@
+{
+  "resultCode": 0,
+  "message": null,
+  "settings": {
+    "country": "NL",
+    "season": 2015,
+    "percentage_for_green_bib": 115,
+    "percentage_for_blue_bib": 105,
+    "number_of_results_for_season_result": 6,
+    "number_of_results_for_bib": 4
+  }
+}

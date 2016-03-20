@@ -1,6 +1,7 @@
 package eu.motogymkhana.competition.round.impl;
 
 import android.content.Context;
+import android.util.Log;
 
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
@@ -9,18 +10,21 @@ import java.sql.SQLException;
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Iterator;
 import java.util.List;
 
 import eu.motogymkhana.competition.Constants;
 import eu.motogymkhana.competition.api.GetRoundsTask;
 import eu.motogymkhana.competition.api.impl.RidersCallback;
 import eu.motogymkhana.competition.dao.RoundDao;
+import eu.motogymkhana.competition.dao.SettingsDao;
 import eu.motogymkhana.competition.model.Round;
 import eu.motogymkhana.competition.prefs.ChristinePreferences;
 import eu.motogymkhana.competition.rider.RiderManager;
 import eu.motogymkhana.competition.rider.UpdateRiderCallback;
 import eu.motogymkhana.competition.round.RoundManager;
 import eu.motogymkhana.competition.round.UploadRoundsTask;
+import eu.motogymkhana.competition.settings.Settings;
 
 /**
  * Created by christine on 26-5-15.
@@ -28,40 +32,38 @@ import eu.motogymkhana.competition.round.UploadRoundsTask;
 @Singleton
 public class RoundManagerImpl implements RoundManager {
 
+    private static final String LOGTAG = RoundManagerImpl.class.getSimpleName();
+
     private final ChristinePreferences prefs;
     private final Context context;
     private RoundDao roundDao;
     private RiderManager riderManager;
+    private SettingsDao settingsDao;
 
     @Inject
-    public RoundManagerImpl(Context context, ChristinePreferences prefs, RoundDao roundDao, RiderManager riderManager) {
+    public RoundManagerImpl(Context context, ChristinePreferences prefs, RoundDao roundDao, RiderManager
+            riderManager, SettingsDao settingsDao) {
 
         this.prefs = prefs;
         this.context = context;
         this.roundDao = roundDao;
         this.riderManager = riderManager;
+        this.settingsDao = settingsDao;
     }
 
     @Override
     public long getDate() {
 
-        long date = prefs.getDate();
+        long date = 0l;
 
-        if (date == 0l) {
-
-            try {
-                Round round = getNextRound();
-                if (round != null) {
-                    date = round.getDate();
-                }
-
-            } catch (ParseException e) {
-                e.printStackTrace();
-            } catch (SQLException e) {
-                e.printStackTrace();
+        try {
+            Round round = getRound();
+            if (round != null) {
+                date = round.getDate();
             }
 
-            prefs.setDate(date);
+        } catch (SQLException e) {
+            e.printStackTrace();
         }
 
         return date;
@@ -85,34 +87,6 @@ public class RoundManagerImpl implements RoundManager {
     @Override
     public Round getDate(int roundNumber) throws SQLException {
         return roundDao.getRoundByNumber(roundNumber);
-    }
-
-    @Override
-    public void loadDates() throws SQLException, ParseException {
-
-        Collection<Round> rounds = roundDao.getRounds();
-
-        if (rounds == null || rounds.size() == 0) {
-
-            for (int i = 1; i < 9; i++) {
-                String dateString = context.getString(context.getResources().getIdentifier("date" + i, "string",
-                        context.getPackageName()));
-
-                long date = Constants.dateFormat.parse(dateString).getTime();
-
-                Round round = new Round(i, date);
-
-                roundDao.store(round);
-
-                if (rounds == null) {
-                    rounds = new ArrayList<Round>();
-                }
-
-                rounds.add(round);
-            }
-        }
-
-        new UploadRoundsTask(context, rounds, null).execute();
     }
 
     @Override
@@ -155,7 +129,16 @@ public class RoundManagerImpl implements RoundManager {
 
     @Override
     public List<Round> getRounds() throws SQLException {
-        return roundDao.getRounds();
+
+        List<Round> rounds = roundDao.getRounds();
+
+        if (rounds.size() < 1) {
+            Settings settings = settingsDao.get();
+            if (settings.hasRounds()) {
+                loadRoundsFromServer();
+            }
+        }
+        return rounds;
     }
 
     @Override
@@ -198,7 +181,46 @@ public class RoundManagerImpl implements RoundManager {
     }
 
     @Override
-    public String getDateString(){
+    public String getDateString() {
         return Constants.dateFormat.format(getDate());
+    }
+
+    @Override
+    public Integer getRoundNumber() throws SQLException {
+
+        Round round = getRound();
+        return round == null ? null : round.getNumber();
+    }
+
+    @Override
+    public void save(List<Round> rounds) throws SQLException {
+
+        List<Round> toDelete = new ArrayList<Round>();
+        List<Round> toAdd = new ArrayList<Round>();
+        List<Round> existingRounds = getRounds();
+
+        Iterator<Round> iterator = existingRounds.iterator();
+        while (iterator.hasNext()) {
+            Round round = iterator.next();
+            if (!rounds.contains(round)) {
+                toDelete.add(round);
+            }
+        }
+
+        Iterator<Round> iter = rounds.iterator();
+        while (iter.hasNext()) {
+            Round round = iter.next();
+            if (!existingRounds.contains(round)) {
+                toAdd.add(round);
+            }
+        }
+
+        for (Round round : toDelete) {
+            roundDao.delete(round);
+        }
+
+        for (Round round : toAdd) {
+            roundDao.create(round);
+        }
     }
 }

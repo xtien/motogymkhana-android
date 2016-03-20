@@ -38,6 +38,11 @@ public class ApiUrlHelperImpl implements ApiUrlHelper {
 	}
 
 	@Override
+	public String getUpdateTimesUrl() {
+		return httpString + hostName + ":" + port + Constants.UPDATE_TIMES_URL_STRING;
+	}
+
+	@Override
 	public String getDeleteRiderUrl() {
 		return httpString + hostName + ":" + port + Constants.DELETE_RIDER_URL_STRING;
 	}
@@ -65,5 +70,15 @@ public class ApiUrlHelperImpl implements ApiUrlHelper {
 	@Override
 	public String getCheckPasswordUrl() {
 		return httpString + hostName + ":" + port + Constants.CHECK_PASSWORD;
+	}
+
+	@Override
+	public String getSettingsUrl() {
+		return httpString + hostName + ":" + port + Constants.GET_SETTINGS_URL_STRING;
+	}
+
+	@Override
+	public String getUploadSettingsUrl() {
+		return httpString + hostName + ":" + port + Constants.UPLOAD_SETTINGS_URL_STRING;
 	}
 }

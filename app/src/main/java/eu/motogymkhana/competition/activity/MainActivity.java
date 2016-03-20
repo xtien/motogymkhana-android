@@ -6,38 +6,52 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.support.v4.app.Fragment;
 import android.support.v4.view.ViewPager;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import com.google.inject.Inject;
 
+import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileOutputStream;
+import java.io.FileReader;
 import java.io.IOException;
-import java.io.InputStream;
 import java.sql.SQLException;
 import java.text.ParseException;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Collection;
-import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 
 import eu.motogymkhana.competition.Constants;
 import eu.motogymkhana.competition.R;
 import eu.motogymkhana.competition.adapter.ChangeListener;
 import eu.motogymkhana.competition.adapter.MyViewPagerAdapter;
 import eu.motogymkhana.competition.context.ContextProvider;
+import eu.motogymkhana.competition.dao.CredentialDao;
+import eu.motogymkhana.competition.dao.RiderDao;
+import eu.motogymkhana.competition.dao.RoundDao;
+import eu.motogymkhana.competition.dao.SettingsDao;
 import eu.motogymkhana.competition.fragment.RiderRegistrationFragment;
 import eu.motogymkhana.competition.fragment.RiderTimeInputFragment;
 import eu.motogymkhana.competition.fragment.RidersResultFragment;
 import eu.motogymkhana.competition.fragment.SeasonTotalsFragment;
+import eu.motogymkhana.competition.model.Bib;
+import eu.motogymkhana.competition.model.Country;
+import eu.motogymkhana.competition.model.Gender;
+import eu.motogymkhana.competition.model.Rider;
 import eu.motogymkhana.competition.model.Round;
+import eu.motogymkhana.competition.model.Times;
 import eu.motogymkhana.competition.prefs.ChristinePreferences;
 import eu.motogymkhana.competition.rider.RiderManager;
 import eu.motogymkhana.competition.rider.RiderManagerProvider;
 import eu.motogymkhana.competition.round.RoundManager;
 import eu.motogymkhana.competition.round.RoundManagerProvider;
+import eu.motogymkhana.competition.settings.SettingsManager;
 import roboguice.activity.RoboFragmentActivity;
 
 public class MainActivity extends RoboFragmentActivity {
@@ -45,10 +59,12 @@ public class MainActivity extends RoboFragmentActivity {
     private static final int NEW_RIDER = 101;
     private static final int ADMIN = 102;
     private static final int TEXT = 103;
-    private static final int SETTINGS = 104;
-    private static final int SELECT_DATE = 105;
+    private static final int ADMIN_SETTINGS = 104;
+    private static final int SETTINGS = 105;
 
-    private static final String TAG = MainActivity.class.getSimpleName();
+    private static final String LOGTAG = MainActivity.class.getSimpleName();
+
+    private Menu menu;
 
     @SuppressWarnings("unused")
     @Inject
@@ -62,34 +78,41 @@ public class MainActivity extends RoboFragmentActivity {
     private RiderManager riderManager;
 
     @Inject
+    private RiderDao riderDao;
+
+    @Inject
+    private RoundDao roundDao;
+
+    private MenuItem menuItem;
+
+    @Inject
     private RoundManager roundManager;
+
+    @Inject
+    private SettingsManager settingsManager;
+
+    @Inject
+    private CredentialDao credentialDao;
+
+    @Inject
+    private SettingsDao settingsDao;
 
     @Inject
     private ChristinePreferences prefs;
 
     private TextView dateView;
     private TextView messageTextView;
+    private ProgressBar progressBar;
 
-    private Runnable loadRidersTask = new Runnable() {
+    private boolean first = true;
 
-        @Override
-        public void run() {
-
-            if (!prefs.isAdmin()) {
-                riderManager.loadRidersFromServer();
-                messageTextView.setText(riderManager.getMessageText());
-
-                handler.postDelayed(loadRidersTask, Constants.refreshRate);
-            }
-        }
-    };
-
-    private Runnable loadDatesTask = new Runnable() {
+    private Runnable loadRoundsTask = new Runnable() {
 
         @Override
         public void run() {
 
             roundManager.loadRoundsFromServer();
+            handler.postDelayed(this, Constants.refreshRate);
         }
     };
 
@@ -102,7 +125,8 @@ public class MainActivity extends RoboFragmentActivity {
 
                 @Override
                 public void run() {
-                    dateView.setText(Constants.dateFormat.format(roundManager.getDate()));
+                    setDate();
+                    progressBar.setVisibility(View.GONE);
                 }
             });
         }
@@ -111,18 +135,48 @@ public class MainActivity extends RoboFragmentActivity {
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
 
+        if (menuItem != null) {
+            menuItem.setTitle(Constants.country.name() + " " + Constants.season);
+        }
+
         switch (requestCode) {
 
             case ADMIN:
-                if (prefs.isAdmin()) {
+                if (isAdmin()) {
                     setFragments();
                     setDate();
                 }
+
                 break;
 
-            case SELECT_DATE:
+            case SETTINGS:
+
                 dateView.setText(Constants.dateFormat.format(roundManager.getDate()));
+
+                Log.d(LOGTAG, "country changed " + data.getBooleanExtra(SettingsActivity.COUNTRY_CHANGED, false) + " " +
+                        "season changed " + data.getBooleanExtra
+                        (SettingsActivity.SEASON_CHANGED, false));
+
+                boolean changed = data.getBooleanExtra(SettingsActivity.COUNTRY_CHANGED, false) || data.getBooleanExtra
+                        (SettingsActivity.SEASON_CHANGED, false);
+                Log.d(LOGTAG, "changed = " + changed);
+
+                if (data.getBooleanExtra(SettingsActivity.COUNTRY_CHANGED, false) || data.getBooleanExtra
+                        (SettingsActivity.SEASON_CHANGED, false)) {
+
+                    Log.d(LOGTAG, "handler post");
+
+                    progressBar.setVisibility(View.VISIBLE);
+
+                    handler.removeCallbacksAndMessages(null);
+                    handler.post(loadRoundsTask);
+                }
+
                 break;
+
+            case ADMIN_SETTINGS:
+                break;
+
 
             default:
                 break;
@@ -133,22 +187,53 @@ public class MainActivity extends RoboFragmentActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
+        setContentView(R.layout.activity_main);
+
+        Constants.country = prefs.getCountry();
+        Constants.season = prefs.getSeason();
+
+        Country c = prefs.getCountry();
+        int s = prefs.getSeason();
+
+        getActionBar().setTitle("");
+
+        dateView = (TextView) findViewById(R.id.date);
+        viewPager = (ViewPager) findViewById(R.id.viewPager);
+        viewPager.setOffscreenPageLimit(3);
+
+        messageTextView = ((TextView) findViewById(R.id.message_text));
+        progressBar = (ProgressBar) findViewById(R.id.progress_bar);
+
         try {
 
-            int versionCode =  getPackageManager().getPackageInfo(getPackageName(), 0).versionCode;
+            int versionCode = getPackageManager().getPackageInfo(getPackageName(), 0).versionCode;
 
-            if(prefs.getVersionCode() != versionCode){
-                prefs.setAdmin(false);
+            if (prefs.getVersionCode() != versionCode) {
+                setAdmin(false);
                 prefs.setVersionCode(versionCode);
             }
 
         } catch (PackageManager.NameNotFoundException e) {
             e.printStackTrace();
-            prefs.setAdmin(false);
-            prefs.setPassword(null);
+            setAdmin(false);
         }
 
-        setContentView(R.layout.activity_main);
+        if (prefs.isFirstRun()) {
+            Locale currentLocale = getResources().getConfiguration().locale;
+            for (Country country : Country.values()) {
+                if (currentLocale.getCountry().equalsIgnoreCase(country.toString())) {
+                    Constants.country = country;
+                }
+            }
+            Calendar calendar = Calendar.getInstance();
+            Constants.season = calendar.get(Calendar.YEAR);
+
+            try {
+                settingsDao.storeCountryAndSeason(Constants.country, Constants.season);
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        }
 
         RiderManagerProvider.setContext(this);
         RoundManagerProvider.setContext(this);
@@ -161,37 +246,37 @@ public class MainActivity extends RoboFragmentActivity {
             e.printStackTrace();
         }
 
-        try {
-            if (prefs.isAdmin()) {
+        if (isAdmin()) {
+
+            try {
+                roundManager.loadRoundsFromServer();
+                settingsManager.getSettingsFromServerAsync();
 
                 if (rounds == null || rounds.size() == 0) {
-                    roundManager.loadDates();
-                    roundManager.setDate(roundManager.getNextRound().getDate());
+
+                    Round round = roundManager.getNextRound();
+                    if (round != null) {
+                        roundManager.setDate(round.getDate());
+                    }
                 }
-           }
 
-        } catch (ParseException e) {
-            e.printStackTrace();
-        } catch (SQLException e) {
-            e.printStackTrace();
+            } catch (ParseException e) {
+                e.printStackTrace();
+            } catch (SQLException e) {
+                e.printStackTrace();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
         }
-
 
         handler = new Handler();
 
-        dateView = (TextView) findViewById(R.id.date);
-        viewPager = (ViewPager) findViewById(R.id.viewPager);
-        viewPager.setOffscreenPageLimit(3);
-
-        messageTextView = ((TextView) findViewById(R.id.message_text));
-
         setFragments();
 
-        dateView.setText(Constants.dateFormat.format(roundManager.getDate()));
+        setDate();
 
-        if (!prefs.isAdmin()) {
-            handler.post(loadRidersTask);
-            handler.post(loadDatesTask);
+        if (!isAdmin()) {
+            handler.post(loadRoundsTask);
         }
 
         if (prefs.startUpTimes() > 0) {
@@ -215,21 +300,95 @@ public class MainActivity extends RoboFragmentActivity {
         }
     }
 
+    private void restoreEUData() {
+
+        try {
+            riderDao.delete(Country.EU, 2015);
+            roundDao.delete(Country.EU, 2015);
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        try {
+
+            File importFile = new File("/sdcard/mgeudb");
+
+            BufferedReader br = new BufferedReader(new FileReader(importFile));
+
+            String line;
+            while ((line = br.readLine()) != null) {
+                storeEUInDb(line);
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void storeEUInDb(String line) throws SQLException {
+
+        String[] items = line.split(",");
+        Rider rider = new Rider();
+        rider.setRiderNumber(Integer.parseInt(items[0]));
+        rider.setFirstName(items[1]);
+        rider.setLastName(items[2]);
+        rider.setGender(items[3].equals("0") ? Gender.F : Gender.M);
+        rider.setDateOfBirth(items[4]);
+
+        rider.setCountry(Country.EU);
+        rider.setSeason(2015);
+        rider.setBib(Bib.Y);
+        rider.setNationality(Country.NL);
+
+        Times times = new Times();
+        times.setCountry(Country.EU);
+        times.setSeason(2015);
+        times.setDate(1432461600000l);
+        times.setRegistered(true);
+        times.setTimeStamp(1432461600000l);
+
+        times.setDisqualified1(items[5].equals("f") ? false : true);
+        times.setPenalties1(Integer.parseInt(items[6]));
+        times.setTime1(Integer.parseInt(items[7]));
+
+        times.setDisqualified2(items[8].equals("f") ? false : true);
+        times.setPenalties2(Integer.parseInt(items[9]));
+        times.setTime2(Integer.parseInt(items[10]));
+
+        rider.addTimes(times);
+
+        if (first) {
+            long date = rider.getTimes().iterator().next().getDate();
+            Round round = new Round();
+            round.setTimeStamp(System.currentTimeMillis());
+            round.setDate(date);
+            round.setCountry(Country.EU);
+            round.setSeason(2015);
+            round.setNumber(1);
+            roundDao.store(round);
+            first = false;
+        }
+
+        riderDao.store(rider, Country.EU, 2015);
+    }
+
     @Override
     protected void onResume() {
         super.onResume();
 
-        handler.postDelayed(loadRidersTask, Constants.refreshRate);
-
         if (riderManager != null) {
             riderManager.registerRiderResultListener(dataChangedListener);
         }
+
+        //handler.postDelayed(loadRidersTask, Constants.refreshRate);
     }
 
     @Override
     protected void onPause() {
         super.onPause();
         handler.removeCallbacksAndMessages(null);
+
         if (riderManager != null) {
             riderManager.unRegisterRiderResultListener(dataChangedListener);
         }
@@ -238,7 +397,7 @@ public class MainActivity extends RoboFragmentActivity {
     private void setFragments() {
         List<Fragment> fragments = new ArrayList<Fragment>();
 
-        if (prefs.isAdmin()) {
+        if (isAdmin()) {
             fragments.add(new RiderRegistrationFragment());
         }
 
@@ -253,34 +412,31 @@ public class MainActivity extends RoboFragmentActivity {
     public boolean onPrepareOptionsMenu(Menu menu) {
         super.onPrepareOptionsMenu(menu);
 
-        boolean admin = prefs.isAdmin();
-        Collection<Round> rounds = null;
-        try {
-            rounds = roundManager.getRounds();
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-
-        int numberOfRounds = rounds == null ? 0 : rounds.size();
+        boolean admin = isAdmin();
 
         menu.findItem(R.id.load_file).setVisible(admin);
         menu.findItem(R.id.download_riders).setVisible(admin);
         menu.findItem(R.id.upload_file).setVisible(admin);
         menu.findItem(R.id.upload_dates).setVisible(admin);
         menu.findItem(R.id.new_rider).setVisible(admin);
-        menu.findItem(R.id.date1).setVisible(numberOfRounds > 0);
+        menu.findItem(R.id.settings).setVisible(true);
         menu.findItem(R.id.start_numbers).setVisible(admin);
         menu.findItem(R.id.text).setVisible(admin);
-        menu.findItem(R.id.settings).setVisible(prefs.isAdmin());
-        menu.findItem(R.id.save_witty_file).setVisible(prefs.isAdmin());
+        menu.findItem(R.id.admin_settings).setVisible(admin);
+        menu.findItem(R.id.save_witty_file).setVisible(admin);
 
-        menu.findItem(R.id.admin).setVisible(!prefs.isAdmin());
+        menuItem = menu.findItem(R.id.country);
+        menuItem.setTitle(Constants.country.name() + " " + Constants.season);
+
+        menu.findItem(R.id.admin).setVisible(!admin);
 
         return true;
     }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
+
+        this.menu = menu;
 
         getMenuInflater().inflate(R.menu.main, menu);
         return true;
@@ -293,12 +449,12 @@ public class MainActivity extends RoboFragmentActivity {
 
         switch (id) {
 
-            case R.id.settings:
-                startActivityForResult(new Intent(this, SettingsActivity.class), SETTINGS);
+            case R.id.admin_settings:
+                startActivityForResult(new Intent(this, AdminSettingsActivity.class), ADMIN_SETTINGS);
                 return true;
 
-            case R.id.date1:
-                startActivityForResult(new Intent(this, SelectDateActivity.class), SELECT_DATE);
+            case R.id.settings:
+                startActivityForResult(new Intent(this, SettingsActivity.class), SETTINGS);
                 return true;
 
             case R.id.start_numbers:
@@ -372,37 +528,30 @@ public class MainActivity extends RoboFragmentActivity {
 
     private void setDate() {
 
-        try {
-            setDate(roundManager.getNextRound().getDate());
-        } catch (ParseException e) {
-            e.printStackTrace();
-        } catch (SQLException e) {
-            e.printStackTrace();
+        long date = roundManager.getDate();
+        if (date != 0l) {
+            dateView.setText(Constants.dateFormat.format(date));
+        } else {
+            dateView.setText(getResources().getString(Constants.season < 2016 ? R.string.no_rounds_planned : R.string
+                    .no_rounds_held));
         }
     }
 
-    private void setDate(long l) throws SQLException {
-
-        roundManager.setDate(l);
-        dateView.setText(Constants.dateFormat.format(new Date(l)));
-
-        riderManager.notifyDataChanged();
-
+    public boolean isAdmin() {
+        return credentialDao.isAdmin();
     }
 
-    protected void copyFile(InputStream is, File dst) throws IOException {
+    private void setAdmin(boolean b) {
+        credentialDao.setAdmin(b);
+    }
 
-        FileOutputStream fos = new FileOutputStream(dst);
+    @Override
+    public void onStart() {
+        super.onStart();
+    }
 
-        byte[] buffer = new byte[65536 * 2];
-        int read;
-        while ((read = is.read(buffer)) != -1) {
-            fos.write(buffer, 0, read);
-        }
-
-        is.close();
-        fos.flush();
-        fos.close();
-
+    @Override
+    public void onStop() {
+        super.onStop();
     }
 }

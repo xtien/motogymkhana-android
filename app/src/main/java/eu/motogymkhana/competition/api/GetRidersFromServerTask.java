@@ -4,9 +4,12 @@ import android.content.Context;
 
 import com.google.inject.Inject;
 
+import eu.motogymkhana.competition.Constants;
 import eu.motogymkhana.competition.api.impl.RidersCallback;
 import eu.motogymkhana.competition.dao.RiderDao;
+import eu.motogymkhana.competition.dao.SettingsDao;
 import eu.motogymkhana.competition.rider.RiderManager;
+import eu.motogymkhana.competition.settings.Settings;
 import roboguice.util.RoboAsyncTask;
 
 public class GetRidersFromServerTask extends RoboAsyncTask<Void> {
@@ -16,6 +19,9 @@ public class GetRidersFromServerTask extends RoboAsyncTask<Void> {
 
     @Inject
     private RiderDao riderDao;
+
+    @Inject
+    private SettingsDao settingsDao;
 
     @Inject
     private RiderManager riderManager;
@@ -30,13 +36,23 @@ public class GetRidersFromServerTask extends RoboAsyncTask<Void> {
     @Override
     public Void call() throws Exception {
 
-        ListRidersResult result = apiManager.getRiders();
+        Settings settings = settingsDao.get();
 
-        if (result.getRiders() != null) {
-            riderDao.store(result.getRiders());
+        if (settings.hasRounds()) {
+            ListRidersResult result = apiManager.getRiders();
+
+            if (result != null && result.getRiders() != null) {
+                riderDao.store(result.getRiders(), Constants.country, Constants.season);
+            }
+
+            if (result != null && result.getSettings() != null) {
+                settingsDao.store(result.getSettings());
+            }
+
+            if (result != null && result.getText() != null) {
+                riderManager.setMessageText(result.getText());
+            }
         }
-
-        riderManager.setMessageText(result.getText());
 
         return null;
     }

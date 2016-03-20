@@ -14,11 +14,15 @@ import eu.motogymkhana.competition.api.ApiUrlHelper;
 import eu.motogymkhana.competition.api.http.SSLContextProvider;
 import eu.motogymkhana.competition.api.impl.ApiManagerImpl;
 import eu.motogymkhana.competition.api.impl.ApiUrlHelperImpl;
+import eu.motogymkhana.competition.dao.CredentialDao;
 import eu.motogymkhana.competition.dao.RiderDao;
 import eu.motogymkhana.competition.dao.RoundDao;
+import eu.motogymkhana.competition.dao.SettingsDao;
 import eu.motogymkhana.competition.dao.TimesDao;
+import eu.motogymkhana.competition.dao.provider.CredentialDaoProvider;
 import eu.motogymkhana.competition.dao.provider.RiderDaoProvider;
 import eu.motogymkhana.competition.dao.provider.RoundDaoProvider;
+import eu.motogymkhana.competition.dao.provider.SettingsDaoProvider;
 import eu.motogymkhana.competition.dao.provider.TimesDaoProvider;
 import eu.motogymkhana.competition.db.GymkhanaDatabaseHelper;
 import eu.motogymkhana.competition.db.GymkhanaDatabaseHelperProvider;
@@ -28,6 +32,8 @@ import eu.motogymkhana.competition.rider.RiderManager;
 import eu.motogymkhana.competition.rider.impl.RiderManagerImpl;
 import eu.motogymkhana.competition.round.RoundManager;
 import eu.motogymkhana.competition.round.impl.RoundManagerImpl;
+import eu.motogymkhana.competition.settings.SettingsManager;
+import eu.motogymkhana.competition.settings.impl.SettingsManagerImpl;
 
 public class GymkhanaModule extends AbstractModule {
 
@@ -36,6 +42,7 @@ public class GymkhanaModule extends AbstractModule {
 
 		bind(RiderManager.class).to(RiderManagerImpl.class).asEagerSingleton();
 		bind(RoundManager.class).to(RoundManagerImpl.class);
+		bind(SettingsManager.class).to(SettingsManagerImpl.class);
 		bind(ChristinePreferences.class).to(ChristinePreferencesImpl.class).asEagerSingleton();
 		bind(GymkhanaDatabaseHelper.class).toProvider(GymkhanaDatabaseHelperProvider.class);
 
@@ -46,10 +53,13 @@ public class GymkhanaModule extends AbstractModule {
 		bind(RiderDao.class).toProvider(RiderDaoProvider.class).asEagerSingleton();
 		bind(RoundDao.class).toProvider(RoundDaoProvider.class).asEagerSingleton();
 		bind(TimesDao.class).toProvider(TimesDaoProvider.class).asEagerSingleton();
+		bind(CredentialDao.class).toProvider(CredentialDaoProvider.class).asEagerSingleton();
+		bind(SettingsDao.class).toProvider(SettingsDaoProvider.class).asEagerSingleton();
 
-		//http
+		// http
 		bind(SSLContext.class).toProvider(SSLContextProvider.class).asEagerSingleton();
 
+		// listadapters
 		install(new FactoryModuleBuilder().implement(RiderTimeInputListAdapter.class, RiderTimeInputListAdapter.class).build
 				(RiderTimeInputListAdapter.Factory.class));
 

@@ -7,7 +7,9 @@ import java.util.List;
 import eu.motogymkhana.competition.adapter.ChangeListener;
 import eu.motogymkhana.competition.adapter.TotalsListAdapter;
 import eu.motogymkhana.competition.api.impl.RidersCallback;
+import eu.motogymkhana.competition.model.Country;
 import eu.motogymkhana.competition.model.Rider;
+import eu.motogymkhana.competition.model.Times;
 
 public interface RiderManager {
 
@@ -21,9 +23,13 @@ public interface RiderManager {
 
     void update(Rider rider, UpdateRiderCallback callback);
 
+    void updateToEU(Rider rider);
+
     void update(Rider rider) throws SQLException, IOException;
 
-    Rider store(Rider rider) throws SQLException;
+    void update(Times times) throws SQLException, IOException;
+
+    Rider store(Rider rider, Country country, int season) throws SQLException;
 
     void getTotals(TotalsListAdapter totalsListAdapter) throws SQLException;
 
@@ -53,9 +59,11 @@ public interface RiderManager {
 
     void getRegisteredRiders(GetRidersCallback callback);
 
-    void setRegistered(Rider rider, boolean isChecked) throws SQLException;
+    void setRegistered(Times times, boolean isChecked) throws SQLException;
 
     void generateStartNumbers() throws SQLException;
 
     void notifyDataChanged();
+
+    void updateTo2016(Rider rider);
 }

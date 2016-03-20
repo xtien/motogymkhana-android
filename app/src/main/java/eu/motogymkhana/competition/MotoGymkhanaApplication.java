@@ -11,6 +11,8 @@ import roboguice.RoboGuice;
  */
 public class MotoGymkhanaApplication extends Application {
 
+    private static Application instance;
+
     public MotoGymkhanaApplication() {
         RoboGuice.setUseAnnotationDatabases(false);
     }
@@ -19,5 +21,10 @@ public class MotoGymkhanaApplication extends Application {
     protected void attachBaseContext(Context base) {
         super.attachBaseContext(base);
         MultiDex.install(this);
+        instance = this;
+    }
+
+    public static Application getContext() {
+        return instance;
     }
 }

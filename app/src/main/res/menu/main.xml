@@ -1,17 +1,21 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    xmlns:compat="http://schemas.android.com/apk/res-auto"
     tools:context="eu.motogymkhana.competition.MainActivity" >
 
     <item
-        android:id="@+id/date1"
+        android:id="@+id/country"
+        android:showAsAction="always"
+        android:title="nl"/>
+
+    <item
+        android:id="@+id/settings"
         android:showAsAction="never"
-        android:title="@string/date1"/>
+        android:title="@string/settings"/>
     <item
         android:id="@+id/start_numbers"
         android:showAsAction="never"
         android:title="@string/start_numbers"/>
-     <item
+    <item
         android:id="@+id/new_rider"
         android:showAsAction="never"
         android:title="@string/new_rider"/>
@@ -40,9 +44,9 @@
         android:showAsAction="never"
         android:title="@string/admin"/>
     <item
-        android:id="@+id/settings"
+        android:id="@+id/admin_settings"
         android:showAsAction="never"
-        android:title="@string/settings"/>
+        android:title="@string/admin_settings"/>
     <item
         android:id="@+id/save_witty_file"
         android:showAsAction="never"

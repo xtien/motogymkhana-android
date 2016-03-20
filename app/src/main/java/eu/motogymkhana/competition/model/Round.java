@@ -20,9 +20,15 @@ public class Round {
     public static final String NUMBER = "number";
     public static final String CURRENT = "current";
     public static final String COUNTRY = "country";
+    public static final String SEASON = "season";
 
     @DatabaseField(generatedId = true, columnName = ID)
+    @JsonIgnore
     private int _id;
+
+    @DatabaseField(columnName = SEASON)
+    @JsonProperty(SEASON)
+    private int season;
 
     @JsonProperty(DATE)
     @DatabaseField(columnName = DATE)
@@ -42,7 +48,7 @@ public class Round {
 
     @JsonProperty(COUNTRY)
     @DatabaseField(columnName = COUNTRY)
-    private Country country = Country.NL;
+    private Country country;
 
     public Round() {
         this.timeStamp = System.currentTimeMillis();
@@ -63,7 +69,7 @@ public class Round {
     }
 
     @JsonIgnore
-    public String getDateString(){
+    public String getDateString() {
         return Constants.dateFormat.format(date);
     }
 
@@ -91,7 +97,23 @@ public class Round {
         }
     }
 
-    public int getNumber(){
+    public int getNumber() {
         return number;
+    }
+
+    public void setDate(long date) {
+        this.date = date;
+    }
+
+    public void setCountry(Country country) {
+        this.country = country;
+    }
+
+    public void setSeason(int season) {
+        this.season = season;
+    }
+
+    public void setNumber(int number) {
+        this.number = number;
     }
 }

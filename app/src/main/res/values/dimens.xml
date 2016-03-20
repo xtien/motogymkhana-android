@@ -19,4 +19,5 @@
     <dimen name="date_text_size">14dp</dimen>
 
     <dimen name="plusminusminwidth">20dp</dimen>
+    <dimen name="fragment_margin">100dp</dimen>
 </resources>

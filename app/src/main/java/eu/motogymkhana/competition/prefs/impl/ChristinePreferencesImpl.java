@@ -7,6 +7,7 @@ import com.google.inject.Inject;
 import com.google.inject.Singleton;
 
 import eu.motogymkhana.competition.Constants;
+import eu.motogymkhana.competition.model.Country;
 import eu.motogymkhana.competition.prefs.ChristinePreferences;
 
 @Singleton
@@ -14,7 +15,8 @@ public class ChristinePreferencesImpl implements ChristinePreferences {
 
     @Inject
     private SharedPreferences prefs;
-    private String defaultDate = "2015-05-24";
+
+    private String defaultDate = "2016-05-28";
 
     @Override
     public boolean isRegistered() {
@@ -44,16 +46,6 @@ public class ChristinePreferencesImpl implements ChristinePreferences {
     @Override
     public void setReset(boolean b) {
         set(RESET, b);
-    }
-
-    @Override
-    public void setAdmin(boolean b) {
-        set(ADMIN, b);
-    }
-
-    @Override
-    public boolean isAdmin() {
-        return prefs.getBoolean(ADMIN, false);
     }
 
     @Override
@@ -98,16 +90,6 @@ public class ChristinePreferencesImpl implements ChristinePreferences {
     }
 
     @Override
-    public String getPassword() {
-        return prefs.getString(PASSWORD, null);
-    }
-
-    @Override
-    public void setPassword(String password) {
-        set(PASSWORD, password);
-    }
-
-    @Override
     public void setVersionCode(int versionCode) {
         set(VERSION_CODE, versionCode);
     }
@@ -115,6 +97,28 @@ public class ChristinePreferencesImpl implements ChristinePreferences {
     @Override
     public int getVersionCode() {
         return prefs.getInt(VERSION_CODE, 0);
+    }
+
+    @Override
+    public Country getCountry() {
+        return Country.valueOf(prefs.getString(COUNTRY, COUNTRY_DEFAULT.name()));
+    }
+
+    @Override
+    public void setCountry(Country country) {
+        Constants.country = country;
+        set(COUNTRY, country.name());
+    }
+
+    @Override
+    public int getSeason() {
+        return prefs.getInt(SEASON, SEASON_DEFAULT);
+    }
+
+    @Override
+    public void setSeason(int season) {
+        Constants.season = season;
+        set(SEASON, season);
     }
 
     @Override

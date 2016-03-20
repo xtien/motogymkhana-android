@@ -1,5 +1,7 @@
 package eu.motogymkhana.competition.model;
 
+import android.util.Log;
+
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.j256.ormlite.field.DatabaseField;
@@ -7,10 +9,13 @@ import com.j256.ormlite.table.DatabaseTable;
 
 import org.apache.commons.lang.StringUtils;
 
+import eu.motogymkhana.competition.Constants;
 import eu.motogymkhana.competition.dao.impl.TimesDaoImpl;
 
 @DatabaseTable(tableName = "times", daoClass = TimesDaoImpl.class)
 public class Times {
+
+    private static final String LOGTAG = Times.class.getSimpleName();
 
     public static final String ID = "_id";
     public static final String START_NUMBER = "startnumber";
@@ -18,7 +23,9 @@ public class Times {
     public static final String TIME2 = "time2";
     public static final String REGISTERED = "registered";
     public static final String DATE = "date";
-    ;
+    public static final String SEASON = "season";
+    public static final String COUNTRY = "country";
+
     public static final String RIDER = "rider_id";
     private static final String PENALTIES1 = "pen1";
     private static final String PENALTIES2 = "pen2";
@@ -28,6 +35,14 @@ public class Times {
 
     @DatabaseField(generatedId = true, columnName = ID)
     private int _id;
+
+    @JsonProperty(SEASON)
+    @DatabaseField(columnName = SEASON)
+    private int season;
+
+    @JsonProperty(COUNTRY)
+    @DatabaseField(columnName = COUNTRY)
+    private Country country;
 
     @JsonProperty(TIMESTAMP)
     @DatabaseField(columnName = TIMESTAMP)
@@ -76,13 +91,21 @@ public class Times {
     @DatabaseField(foreign = true, columnName = RIDER, foreignAutoRefresh = true)
     private Rider rider;
 
+    @DatabaseField(persisted = false)
+    @JsonProperty(Rider.RIDER_NUMBER)
+    private int riderNumber;
+
     public Times() {
         timeStamp = System.currentTimeMillis();
+        country = Constants.country;
+        season = Constants.season;
     }
 
     public Times(long date) {
         timeStamp = System.currentTimeMillis();
         this.date = date;
+        country = Constants.country;
+        season = Constants.season;
     }
 
     public int get_id() {
@@ -356,5 +379,17 @@ public class Times {
 
     public void setTimeStamp(long timeStamp) {
         this.timeStamp = timeStamp;
+    }
+
+    public void setCountry(Country country) {
+        this.country = country;
+    }
+
+    public void setSeason(int season) {
+        this.season = season;
+    }
+
+    public void setRiderNumber(int riderNumber) {
+        this.riderNumber = riderNumber;
     }
 }

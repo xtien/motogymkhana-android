@@ -85,6 +85,10 @@
         <item name="android:textStyle">bold</item>
         <item name="android:layout_width">@dimen/time_view_width</item>
     </style>
+    <style name="rider_name_view" parent="list_text">
+        <item name="android:textStyle">bold</item>
+       <item name="android:textSize">10pt</item>
+    </style>
 
     <style name="time_edit" parent="time_view">
         <item name="android:background">@color/time_view_bg</item>

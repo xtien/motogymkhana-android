@@ -48,7 +48,6 @@ public class SSLContextProvider implements Provider<SSLContext> {
             } catch (KeyManagementException e) {
                 e.printStackTrace();
             }
-
         }
 
         return sslContext;
@@ -61,7 +60,7 @@ public class SSLContextProvider implements Provider<SSLContext> {
 
         final KeyStore ks = KeyStore.getInstance("BKS");
 
-        final InputStream in = context.getResources().openRawResource(R.raw.gossip);
+        final InputStream in = context.getResources().openRawResource(R.raw.pengo_client);
         try {
             ks.load(in, context.getString(R.string.keystore_password).toCharArray());
         } catch (java.security.cert.CertificateException e) {

@@ -2,6 +2,7 @@ package eu.motogymkhana.competition.dao.impl;
 
 import com.google.inject.Singleton;
 import com.j256.ormlite.dao.BaseDaoImpl;
+import com.j256.ormlite.stmt.DeleteBuilder;
 import com.j256.ormlite.stmt.QueryBuilder;
 import com.j256.ormlite.support.ConnectionSource;
 
@@ -9,7 +10,10 @@ import java.sql.SQLException;
 import java.util.Collection;
 import java.util.List;
 
+import eu.motogymkhana.competition.Constants;
 import eu.motogymkhana.competition.dao.RoundDao;
+import eu.motogymkhana.competition.model.Country;
+import eu.motogymkhana.competition.model.Rider;
 import eu.motogymkhana.competition.model.Round;
 
 @Singleton
@@ -42,7 +46,10 @@ public class RoundDaoImpl extends BaseDaoImpl<Round, Integer> implements RoundDa
         List<Round> list = null;
         QueryBuilder<Round, Integer> statementBuilder = queryBuilder();
 
-        statementBuilder.where().eq(Round.DATE, date);
+        statementBuilder.where()
+                .eq(Round.DATE, date).and()
+                .eq(Round.COUNTRY, Constants.country).and()
+                .eq(Round.SEASON, Constants.season);
         list = query(statementBuilder.prepare());
 
         if (list != null && list.size() > 0) {
@@ -58,6 +65,9 @@ public class RoundDaoImpl extends BaseDaoImpl<Round, Integer> implements RoundDa
         List<Round> list = null;
         QueryBuilder<Round, Integer> statementBuilder = queryBuilder();
 
+        statementBuilder.where()
+                .eq(Round.COUNTRY, Constants.country).and()
+                .eq(Round.SEASON, Constants.season);
         statementBuilder.orderBy(Round.DATE, ASCENDING);
 
         list = query(statementBuilder.prepare());
@@ -71,7 +81,11 @@ public class RoundDaoImpl extends BaseDaoImpl<Round, Integer> implements RoundDa
         List<Round> list = null;
         QueryBuilder<Round, Integer> statementBuilder = queryBuilder();
 
-        statementBuilder.where().eq(Round.NUMBER, number);
+        statementBuilder.where()
+                .eq(Round.NUMBER, number).and()
+                .eq(Round.COUNTRY, Constants.country).and()
+                .eq(Round.SEASON, Constants.season);
+
         list = query(statementBuilder.prepare());
 
         if (list != null && list.size() > 0) {
@@ -84,7 +98,7 @@ public class RoundDaoImpl extends BaseDaoImpl<Round, Integer> implements RoundDa
     @Override
     public void store(Collection<Round> rounds) throws SQLException {
 
-        for(Round round : rounds){
+        for (Round round : rounds) {
             store(round);
         }
     }
@@ -95,7 +109,11 @@ public class RoundDaoImpl extends BaseDaoImpl<Round, Integer> implements RoundDa
         List<Round> list = null;
         QueryBuilder<Round, Integer> statementBuilder = queryBuilder();
 
-        statementBuilder.where().eq(Round.CURRENT, true);
+        statementBuilder.where()
+                .eq(Round.CURRENT, true).and()
+                .eq(Round.COUNTRY, Constants.country).and()
+                .eq(Round.SEASON, Constants.season);
+
         list = query(statementBuilder.prepare());
 
         if (list != null && list.size() > 0) {
@@ -103,5 +121,15 @@ public class RoundDaoImpl extends BaseDaoImpl<Round, Integer> implements RoundDa
         } else {
             return null;
         }
+    }
+
+    @Override
+    public void delete(Country country, int season) throws SQLException {
+
+        DeleteBuilder<Round, Integer> statementBuilder = deleteBuilder();
+
+        statementBuilder.where().eq(Round.COUNTRY, country).and().eq(Round.SEASON, season);
+
+        statementBuilder.delete();
     }
 }

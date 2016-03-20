@@ -10,6 +10,8 @@ public interface ApiUrlHelper {
 
 	String getUpdateRiderUrl();
 
+	String getUpdateTimesUrl();
+
 	String getDeleteRiderUrl();
 
 	String getUploadRidersUrl();
@@ -21,4 +23,8 @@ public interface ApiUrlHelper {
 	String getUploadRoundsUrl();
 
 	String getCheckPasswordUrl();
+
+	String getSettingsUrl();
+
+	String getUploadSettingsUrl();
 }

@@ -6,18 +6,13 @@ import com.google.inject.Inject;
 
 import junit.framework.Assert;
 
-import org.junit.FixMethodOrder;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.junit.runners.MethodSorters;
-import org.robolectric.annotation.Config;
-import org.robolectric.shadows.ShadowLooper;
 
 import java.io.IOException;
 import java.util.Collection;
 import java.util.List;
 
-import eu.motogymkhana.competition.BuildConfig;
 import eu.motogymkhana.competition.adapter.ChangeListener;
 import eu.motogymkhana.competition.context.ContextProvider;
 import eu.motogymkhana.competition.http.FakeHttp;
@@ -25,14 +20,13 @@ import eu.motogymkhana.competition.model.Rider;
 import eu.motogymkhana.competition.rider.GetRidersCallback;
 import eu.motogymkhana.competition.rider.RiderManager;
 import eu.motogymkhana.competition.rider.RiderManagerProvider;
+import eu.motogymkhana.competition.robo.RoboInjectedTestRunner;
 import eu.motogymkhana.competition.round.RoundManagerProvider;
 
 /**
  * Created by christine on 24-7-15.
  */
-@RunWith(eu.motogymkhana.competition.robo.RoboInjectedTestRunner.class)
-@Config(constants = BuildConfig.class, sdk = 21)
-@FixMethodOrder(MethodSorters.NAME_ASCENDING)
+@RunWith(RoboInjectedTestRunner.class)
 public class RidersApiTest {
 
     @SuppressWarnings("unused")
@@ -72,6 +66,8 @@ public class RidersApiTest {
     @Test
     public void testGetRiders() throws IOException, InterruptedException {
 
+        Assert.assertNotNull(context);
+
         RiderManagerProvider.setContext(context);
         RoundManagerProvider.setContext(context);
 
@@ -91,7 +87,6 @@ public class RidersApiTest {
 
         while (!done) {
             Thread.sleep(1000);
-            ShadowLooper.runUiThreadTasksIncludingDelayedTasks();
             riderManager.getRiders(callback);
         }
 

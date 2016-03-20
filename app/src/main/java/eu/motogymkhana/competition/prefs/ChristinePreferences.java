@@ -1,75 +1,78 @@
 package eu.motogymkhana.competition.prefs;
 
+import eu.motogymkhana.competition.model.Country;
+
 public interface ChristinePreferences {
 
-	public static final String REGISTERED = "registered";
-	public static final String INIT_APP = "init_app";
-	public static final String LOGGED_IN = "logged_in";
-	public static final String DATE = "date";
-	public static final String RESET = "reset";
-	public static final String FIRST_RUN = "first_run";
-	public static final String SORTED = "sorted";
-	public static final String RESULT_SORTED = "result_sorted";
-	public static final String ADMIN = "admin";
-	public static final String STARTUP = "startup";
-	public static final String BLOCK_DOWNLOAD = "block_download";
-	public static final String SERVER = "server";
-	public static final String PORT = "port";
-	public static final String PASSWORD = "password";
-	public static final String VERSION_CODE = "version_code";
+    public static final String REGISTERED = "registered";
+    public static final String INIT_APP = "init_app";
+    public static final String LOGGED_IN = "logged_in";
+    public static final String DATE = "date";
+    public static final String RESET = "reset";
+    public static final String FIRST_RUN = "first_run";
+    public static final String RESULT_SORTED = "result_sorted";
+    public static final String STARTUP = "startup";
+    public static final String BLOCK_DOWNLOAD = "block_download";
+    public static final String SERVER = "server";
+    public static final String PORT = "port";
+    public static final String VERSION_CODE = "version_code";
+    public static final String COUNTRY = "country_code";
+    public static final Country COUNTRY_DEFAULT = Country.NL;
+    public static final String SEASON = "season";
+    public static final int SEASON_DEFAULT = 2016;
 
 
-	public long getDate();
+    public long getDate();
 
-	public void setDate(long dateString);
+    public void setDate(long dateString);
 
-	public boolean isRegistered();
+    public boolean isRegistered();
 
-	public void setRegistered(boolean registered);
+    public void setRegistered(boolean registered);
 
-	public boolean initApp();
+    public boolean initApp();
 
-	public void setLoggedIn(boolean b);
+    public void setLoggedIn(boolean b);
 
-	public boolean isLoggedIn();
+    public boolean isLoggedIn();
 
-	void setInitApp(boolean init);
+    void setInitApp(boolean init);
 
-	public boolean isReset();
+    public boolean isReset();
 
-	public void toggleReset();
+    public void toggleReset();
 
-	public boolean isFirstRun();
+    public boolean isFirstRun();
 
-	public void setResultSorted(boolean randomSorted);
+    public void setResultSorted(boolean randomSorted);
 
-	boolean isResultSorted();
+    boolean isResultSorted();
 
-	public void setReset(boolean b);
+    public void setReset(boolean b);
 
-	void setAdmin(boolean b);
+    int startUpTimes();
 
-	boolean isAdmin();
+    void setBlockDownload(boolean b);
 
-	int startUpTimes();
+    boolean isBlockDownload();
 
-	void setBlockDownload(boolean b);
+    String getServer();
 
-	boolean isBlockDownload();
+    void setServer(String server);
 
-	String getServer();
+    int getPort();
 
-	void setServer(String server);
+    void setPort(int port);
 
-	int getPort();
+    void setVersionCode(int versionCode);
 
-	void setPort(int port);
+    int getVersionCode();
 
-	String getPassword();
+    Country getCountry();
 
-	void setPassword(String password);
+    void setCountry(Country country);
 
-	void setVersionCode(int versionCode);
+    int getSeason();
 
-	int getVersionCode();
+    void setSeason(int season);
 }

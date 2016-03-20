@@ -30,7 +30,7 @@ public class CheckPasswordTask extends RoboAsyncTask<Boolean> {
     @Override
     public Boolean call() throws Exception {
 
-        boolean result = apiManager.checkPassword(Constants.CUSTOMER_CODE, password);
+        boolean result = apiManager.checkPassword(password);
         return result;
     }
 

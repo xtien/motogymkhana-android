@@ -23,8 +23,10 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
+import eu.motogymkhana.competition.Constants;
 import eu.motogymkhana.competition.R;
 import eu.motogymkhana.competition.activity.RiderNewUpdateActivity;
+import eu.motogymkhana.competition.activity.RiderViewActivity;
 import eu.motogymkhana.competition.dao.TimesDao;
 import eu.motogymkhana.competition.model.Bib;
 import eu.motogymkhana.competition.model.Gender;
@@ -109,14 +111,29 @@ public class RiderRegistrationListAdapter extends BaseAdapter {
 
         convertView = (LinearLayout) inflater.inflate(R.layout.rider_registration_list_row, null);
 
+        long roundDate = roundManager.getDate();
+
         final Rider rider = riders.get(position);
-        Times riderTimes = rider.getEUTimes(roundManager.getDate());
+        Times riderTimes = rider.getEUTimes(roundDate);
 
         if (riderTimes == null) {
-            riderTimes = new Times(roundManager.getDate());
+            riderTimes = new Times(roundDate);
             riderTimes.setRider(rider);
+            riderTimes.setDate(roundDate);
             rider.addTimes(riderTimes);
         }
+
+        ((LinearLayout) convertView.findViewById(R.id.rider_layout)).setOnClickListener(new OnClickListener() {
+
+            @Override
+            public void onClick(View v) {
+
+                Intent intent = new Intent(activity, RiderViewActivity.class);
+                intent.putExtra(RiderViewActivity.RIDER_NUMBER, rider.getRiderNumber());
+
+                activity.startActivity(intent);
+            }
+        });
 
         ((TextView) convertView.findViewById(R.id.first_name)).setText(rider.getFirstName());
         ((TextView) convertView.findViewById(R.id.last_name)).setText(rider.getLastName());
@@ -159,13 +176,14 @@ public class RiderRegistrationListAdapter extends BaseAdapter {
         isRegistered.setVisibility(View.VISIBLE);
         isRegistered.setChecked(riderTimes.isRegistered());
 
+        final Times finalRiderTimes = riderTimes;
         isRegistered.setOnCheckedChangeListener(new OnCheckedChangeListener() {
 
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
 
                 try {
-                    riderManager.setRegistered(riders.get(position), isChecked);
+                    riderManager.setRegistered(finalRiderTimes, isChecked);
                 } catch (SQLException e) {
                     e.printStackTrace();
                 }
@@ -180,6 +198,7 @@ public class RiderRegistrationListAdapter extends BaseAdapter {
                 rider.setDayRider(isChecked);
 
                 riderManager.update(rider, new UpdateRiderCallback() {
+
                     @Override
                     public void onSuccess() {
 

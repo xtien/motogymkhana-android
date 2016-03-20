@@ -109,6 +109,7 @@ public class RiderResultListAdapter extends BaseAdapter {
         ((LinearLayout) convertView.findViewById(R.id.ridernumber_layout)).setVisibility(View.GONE);
         ((TextView) convertView.findViewById(R.id.gender)).setText(rider.getGender() == Gender.F ? "F" : "");
         ((TextView) convertView.findViewById(R.id.bib)).setText(rider.getBib().displayString());
+        ((TextView) convertView.findViewById(R.id.nationality)).setText(rider.getNationality().toString());
 
         TextView timeView1 = (TextView) convertView.findViewById(R.id.time1);
         TextView timeView2 = (TextView) convertView.findViewById(R.id.time2);
@@ -116,7 +117,7 @@ public class RiderResultListAdapter extends BaseAdapter {
         timeView2.setVisibility(View.GONE);
         timeView1.setVisibility(View.VISIBLE);
 
-        if (riderTimes.getBestTime() != 0) {
+        if (riderTimes != null && riderTimes.getBestTime() != 0) {
             timeView1.setText(riderTimes.getBestTimeString());
         }
 
@@ -126,12 +127,15 @@ public class RiderResultListAdapter extends BaseAdapter {
     public void setRiders(Collection<Rider> riders) {
 
         this.riders.clear();
+        long roundDate = roundManager.getDate();
 
         if (riders != null) {
             Iterator<Rider> iterator = riders.iterator();
             while (iterator.hasNext()) {
                 Rider rider = iterator.next();
-                if (rider.hasTimes(roundManager.getDate())) {
+
+
+                if (rider.hasTimes(roundDate)) {
                     this.riders.add(rider);
                 }
             }

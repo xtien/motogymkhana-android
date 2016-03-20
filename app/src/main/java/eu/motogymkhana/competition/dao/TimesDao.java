@@ -6,6 +6,7 @@ import java.sql.SQLException;
 import java.util.List;
 
 import eu.motogymkhana.competition.model.Bib;
+import eu.motogymkhana.competition.model.Country;
 import eu.motogymkhana.competition.model.Rider;
 import eu.motogymkhana.competition.model.Times;
 
@@ -26,4 +27,6 @@ public interface TimesDao extends Dao<Times, Integer> {
 	void clear() throws SQLException;
 
 	List<Rider> getRegisteredRiders(long date, Bib bib) throws SQLException;
+
+	void delete(Country country, int season) throws SQLException;
 }

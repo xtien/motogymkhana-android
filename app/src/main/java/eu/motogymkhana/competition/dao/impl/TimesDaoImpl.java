@@ -1,5 +1,7 @@
 package eu.motogymkhana.competition.dao.impl;
 
+import android.util.Log;
+
 import com.google.inject.Singleton;
 import com.j256.ormlite.dao.BaseDaoImpl;
 import com.j256.ormlite.stmt.DeleteBuilder;
@@ -12,10 +14,12 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
+import eu.motogymkhana.competition.Constants;
 import eu.motogymkhana.competition.dao.RiderDao;
 import eu.motogymkhana.competition.dao.TimesDao;
 import eu.motogymkhana.competition.db.GymkhanaDatabaseHelper;
 import eu.motogymkhana.competition.model.Bib;
+import eu.motogymkhana.competition.model.Country;
 import eu.motogymkhana.competition.model.Rider;
 import eu.motogymkhana.competition.model.Times;
 
@@ -23,6 +27,7 @@ import eu.motogymkhana.competition.model.Times;
 public class TimesDaoImpl extends BaseDaoImpl<Times, Integer> implements TimesDao {
 
     private static final boolean ASCENDING = true;
+    private static final String LOGTAG = TimesDaoImpl.class.getSimpleName();
 
     public TimesDaoImpl(ConnectionSource connectionSource, Class<Times> dataClass) throws SQLException {
         super(connectionSource, Times.class);
@@ -47,7 +52,12 @@ public class TimesDaoImpl extends BaseDaoImpl<Times, Integer> implements TimesDa
         List<Times> list = null;
         QueryBuilder<Times, Integer> statementBuilder = queryBuilder();
 
-        statementBuilder.where().eq(Times.RIDER, rider_id).and().eq(Times.DATE, date);
+        statementBuilder.where()
+                .eq(Times.RIDER, rider_id).and()
+                .eq(Times.DATE, date).and()
+                .eq(Times.COUNTRY, Constants.country).and()
+                .eq(Times.SEASON, Constants.season);
+
         list = query(statementBuilder.prepare());
 
         if (list != null && list.size() > 0) {
@@ -63,8 +73,10 @@ public class TimesDaoImpl extends BaseDaoImpl<Times, Integer> implements TimesDa
         QueryBuilder<Times, Integer> statementBuilder = queryBuilder();
 
         Where<Times, Integer> where = statementBuilder.where();
-        where.eq(Times.DATE, date);
-        where.and().eq(Times.REGISTERED, true);
+        where.eq(Times.DATE, date).and()
+                .eq(Times.REGISTERED, true).and()
+                .eq(Times.COUNTRY, Constants.country).and()
+                .eq(Times.SEASON, Constants.season);
 
         statementBuilder.orderBy(Rider.BEST_TIME, ASCENDING);
         List<Times> list = query(statementBuilder.prepare());
@@ -78,7 +90,9 @@ public class TimesDaoImpl extends BaseDaoImpl<Times, Integer> implements TimesDa
         QueryBuilder<Times, Integer> statementBuilder = queryBuilder();
 
         Where<Times, Integer> where = statementBuilder.where();
-        where.eq(Times.DATE, date);
+        where.eq(Times.DATE, date).and()
+                .eq(Times.COUNTRY, Constants.country).and()
+                .eq(Times.SEASON, Constants.season);
 
         List<Rider> riders = getRiders(query(statementBuilder.prepare()));
 
@@ -106,15 +120,19 @@ public class TimesDaoImpl extends BaseDaoImpl<Times, Integer> implements TimesDa
 
     @Override
     public int create(Times times) throws SQLException {
+        //TODO just to be sure, set country and season if null
         return super.create(times);
     }
-
 
     @Override
     public void clear() throws SQLException {
 
         List<Rider> list = null;
         DeleteBuilder<Times, Integer> statementBuilder = deleteBuilder();
+
+        statementBuilder.where()
+                .eq(Times.COUNTRY, Constants.country).and()
+                .eq(Times.SEASON, Constants.season);
 
         statementBuilder.delete();
     }
@@ -124,8 +142,10 @@ public class TimesDaoImpl extends BaseDaoImpl<Times, Integer> implements TimesDa
 
         QueryBuilder<Times, Integer> timesQueryBuilder = queryBuilder();
         Where<Times, Integer> where = timesQueryBuilder.where();
-        where.eq(Times.REGISTERED, true);
-        where.and().eq(Times.DATE, date);
+        where.eq(Times.REGISTERED, true).and()
+                .eq(Times.DATE, date).and()
+                .eq(Times.COUNTRY, Constants.country).and()
+                .eq(Times.SEASON, Constants.season);
 
         RiderDao riderDao = GymkhanaDatabaseHelper.getInstance().getDao(Rider.class);
         QueryBuilder<Rider, Integer> riderQueryBuilder = riderDao.queryBuilder();
@@ -144,10 +164,11 @@ public class TimesDaoImpl extends BaseDaoImpl<Times, Integer> implements TimesDa
 
         QueryBuilder<Times, Integer> statementBuilder = queryBuilder();
 
-        Where<Times, Integer> where = statementBuilder.where();
-
-        where.eq(Times.REGISTERED, true);
-        where.and().eq(Times.DATE, date);
+        statementBuilder.where()
+                .eq(Times.REGISTERED, true).and()
+                .eq(Times.DATE, date).and()
+                .eq(Times.COUNTRY, Constants.country).and()
+                .eq(Times.SEASON, Constants.season);
 
         return getRiders(query(statementBuilder.prepare()));
     }
@@ -162,4 +183,16 @@ public class TimesDaoImpl extends BaseDaoImpl<Times, Integer> implements TimesDa
 
         return riders;
     }
+
+
+    @Override
+    public void delete(Country country, int season) throws SQLException {
+
+        DeleteBuilder<Times, Integer> statementBuilder = deleteBuilder();
+
+        statementBuilder.where().eq(Times.COUNTRY, country).and().eq(Times.SEASON, season);
+
+        statementBuilder.delete();
+    }
+
 }

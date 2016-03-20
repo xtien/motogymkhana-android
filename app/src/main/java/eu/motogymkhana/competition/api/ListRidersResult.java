@@ -3,6 +3,7 @@ package eu.motogymkhana.competition.api;
 import java.util.Collection;
 
 import eu.motogymkhana.competition.model.Rider;
+import eu.motogymkhana.competition.settings.Settings;
 
 public class ListRidersResult extends GymkhanaResult {
 
@@ -11,6 +12,7 @@ public class ListRidersResult extends GymkhanaResult {
     private int result;
     private Collection<Rider> riders;
     private String text;
+    private Settings settings;
 
     public Collection<Rider> getRiders() {
         return riders;
@@ -34,5 +36,9 @@ public class ListRidersResult extends GymkhanaResult {
 
     public String getText() {
         return text;
+    }
+
+    public Settings getSettings() {
+        return settings;
     }
 }

@@ -15,7 +15,7 @@ import roboguice.util.RoboAsyncTask;
  */
 public class SetRegisteredTask extends RoboAsyncTask<Void> {
 
-    private final Rider rider;
+    private final Times times;
     private final boolean registered;
 
     @Inject
@@ -27,20 +27,19 @@ public class SetRegisteredTask extends RoboAsyncTask<Void> {
     @Inject
     private TimesDao timesDao;
 
-    public SetRegisteredTask(Context context, Rider rider, boolean registered) {
+    public SetRegisteredTask(Context context, Times times, boolean registered) {
         super(context);
 
-        this.rider = rider;
+        this.times = times;
         this.registered = registered;
     }
 
     @Override
     public Void call() throws Exception {
 
-        Times times = rider.getEUTimes(roundManager.getDate());
         times.setRegistered(registered);
 
-        new UpdateRiderTask(context, rider, new UpdateRiderCallback() {
+        new UpdateTimesTask(context, times, new UpdateRiderCallback() {
 
             @Override
             public void onSuccess() {

@@ -6,28 +6,22 @@ import com.google.inject.Inject;
 
 import junit.framework.Assert;
 
-import org.junit.FixMethodOrder;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.junit.runners.MethodSorters;
-import org.robolectric.annotation.Config;
-import org.robolectric.shadows.ShadowLooper;
 
 import java.sql.SQLException;
 import java.util.Collection;
 
-import eu.motogymkhana.competition.BuildConfig;
 import eu.motogymkhana.competition.context.ContextProvider;
 import eu.motogymkhana.competition.http.FakeHttp;
 import eu.motogymkhana.competition.model.Round;
+import eu.motogymkhana.competition.robo.RoboInjectedTestRunner;
 import eu.motogymkhana.competition.round.RoundManager;
 
 /**
  * Created by christine on 24-7-15.
  */
-@RunWith(eu.motogymkhana.competition.robo.RoboInjectedTestRunner.class)
-@Config(constants = BuildConfig.class, sdk = 21)
-@FixMethodOrder(MethodSorters.NAME_ASCENDING)
+@RunWith(RoboInjectedTestRunner.class)
 public class RoundsApiTest {
 
     @SuppressWarnings("unused")
@@ -55,9 +49,8 @@ public class RoundsApiTest {
 
         Collection<Round> rounds = null;
 
-        while (rounds == null || rounds.size() <8) {
+        while (rounds == null || rounds.size() < 8) {
             Thread.sleep(1000);
-            ShadowLooper.runUiThreadTasksIncludingDelayedTasks();
             rounds = roundManager.getRounds();
         }
 

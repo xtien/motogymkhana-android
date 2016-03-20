@@ -1,21 +1,30 @@
 package eu.motogymkhana.competition.api;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+
+import eu.motogymkhana.competition.model.Country;
+
 public class GymkhanaRequest {
 
-    private String customerCode;
+    @JsonProperty("country")
+    private Country country;
 
+    @JsonProperty("season")
+    private int season;
+
+    @JsonProperty("password")
     private String password;
 
     public GymkhanaRequest() {
     }
 
-    public GymkhanaRequest(String customerCode, String password) {
-        this.customerCode = customerCode;
-        this.password = password;
+    public GymkhanaRequest(Country country, int season) {
+        this.country = country;
+        this.season = season;
     }
 
-    public String getCustomerCode() {
-        return customerCode;
+    public Country getCountry() {
+        return country;
     }
 
     public String getPassword() {
@@ -26,7 +35,7 @@ public class GymkhanaRequest {
         this.password = password;
     }
 
-    public void setCustomerCode(String customerCode) {
-        this.customerCode = customerCode;
+    public void setCountry(Country country) {
+        this.country = country;
     }
 }

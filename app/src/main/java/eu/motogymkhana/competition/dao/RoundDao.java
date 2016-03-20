@@ -6,6 +6,7 @@ import java.sql.SQLException;
 import java.util.Collection;
 import java.util.List;
 
+import eu.motogymkhana.competition.model.Country;
 import eu.motogymkhana.competition.model.Round;
 
 public interface RoundDao extends Dao<Round, Integer> {
@@ -21,4 +22,6 @@ public interface RoundDao extends Dao<Round, Integer> {
 	void store(Collection<Round> rounds) throws SQLException;
 
 	Round getCurrentRound() throws SQLException;
+
+	void delete(Country eu, int i) throws SQLException;
 }
