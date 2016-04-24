@@ -1,15 +1,14 @@
 package eu.motogymkhana.competition.activity;
 
 import android.os.Bundle;
+import android.support.v4.app.FragmentActivity;
 
 import eu.motogymkhana.competition.fragment.MyAlert;
-import roboguice.activity.RoboAppCompatActivity;
-import roboguice.activity.RoboFragmentActivity;
 
 /**
  * Created by christine on 7-2-16.
  */
-public class BaseActivity extends RoboFragmentActivity {
+public class BaseActivity extends FragmentActivity {
 
     @Override
     public void onCreate(Bundle savedInstanceState) {

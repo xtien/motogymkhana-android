@@ -10,8 +10,6 @@ import java.util.List;
 import eu.motogymkhana.competition.Constants;
 import eu.motogymkhana.competition.dao.CredentialDao;
 import eu.motogymkhana.competition.model.Credential;
-import eu.motogymkhana.competition.model.Rider;
-import eu.motogymkhana.competition.model.Round;
 
 /**
  * Created by christine on 14-2-16.

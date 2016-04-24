@@ -6,9 +6,10 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.Button;
+import android.widget.CheckBox;
+import android.widget.CompoundButton;
 import android.widget.TextView;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import eu.motogymkhana.competition.R;
@@ -48,8 +49,29 @@ public class ManageRoundsAdapter extends BaseAdapter {
     public View getView(final int position, View convertView, ViewGroup parent) {
 
         convertView = inflater.inflate(R.layout.date_list_row, null);
+        final Round thisRound = rounds.get(position);
 
         ((TextView) convertView.findViewById(R.id.date_string)).setText(rounds.get(position).getDateString());
+        final CheckBox currentRoundCheckBox = (CheckBox) convertView.findViewById(R.id.current);
+        currentRoundCheckBox.setChecked(thisRound.isCurrent());
+
+        currentRoundCheckBox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+
+                if (!thisRound.isCurrent()) {
+                    for (Round r : rounds) {
+                        r.setCurrent(false);
+                    }
+                    thisRound.setCurrent(true);
+                } else {
+                    currentRoundCheckBox.setChecked(true);
+                }
+                notifyDataSetChanged();
+            }
+        });
+
         ((Button) convertView.findViewById(R.id.delete)).setOnClickListener(new View.OnClickListener() {
 
             @Override

@@ -1,19 +1,17 @@
 package eu.motogymkhana.competition.round.impl;
 
 import android.content.Context;
-import android.util.Log;
 
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 
 import java.sql.SQLException;
 import java.text.ParseException;
-import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Iterator;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
-import eu.motogymkhana.competition.Constants;
 import eu.motogymkhana.competition.api.GetRoundsTask;
 import eu.motogymkhana.competition.api.impl.RidersCallback;
 import eu.motogymkhana.competition.dao.RoundDao;
@@ -24,7 +22,6 @@ import eu.motogymkhana.competition.rider.RiderManager;
 import eu.motogymkhana.competition.rider.UpdateRiderCallback;
 import eu.motogymkhana.competition.round.RoundManager;
 import eu.motogymkhana.competition.round.UploadRoundsTask;
-import eu.motogymkhana.competition.settings.Settings;
 
 /**
  * Created by christine on 26-5-15.
@@ -49,24 +46,6 @@ public class RoundManagerImpl implements RoundManager {
         this.roundDao = roundDao;
         this.riderManager = riderManager;
         this.settingsDao = settingsDao;
-    }
-
-    @Override
-    public long getDate() {
-
-        long date = 0l;
-
-        try {
-            Round round = getRound();
-            if (round != null) {
-                date = round.getDate();
-            }
-
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-
-        return date;
     }
 
     @Override
@@ -131,13 +110,6 @@ public class RoundManagerImpl implements RoundManager {
     public List<Round> getRounds() throws SQLException {
 
         List<Round> rounds = roundDao.getRounds();
-
-        if (rounds.size() < 1) {
-            Settings settings = settingsDao.get();
-            if (settings.hasRounds()) {
-                loadRoundsFromServer();
-            }
-        }
         return rounds;
     }
 
@@ -148,7 +120,7 @@ public class RoundManagerImpl implements RoundManager {
 
             @Override
             public void onSuccess() {
-                riderManager.notifyDataChanged();
+                //riderManager.notifyDataChanged();
             }
 
             @Override
@@ -160,67 +132,53 @@ public class RoundManagerImpl implements RoundManager {
     }
 
     @Override
-    public void setRound(Round r) throws SQLException {
-
-        long date = r.getDate();
-
-        prefs.setDate(date);
-
-        for (Round round : getRounds()) {
-            if (round.isCurrent() || date == round.getDate()) {
-                round.setCurrent(date == round.getDate());
-                roundDao.store(round);
-            }
-        }
-        uploadRounds();
-    }
-
-    @Override
-    public Round getRound() throws SQLException {
+    public Round getCurrentRound() throws SQLException {
         return roundDao.getCurrentRound();
     }
 
     @Override
-    public String getDateString() {
-        return Constants.dateFormat.format(getDate());
+    public Round getRoundForDate(long date) throws SQLException {
+
+        for (Round r : roundDao.getRounds()) {
+            if (r.getDate() == date) {
+                return r;
+            }
+        }
+        return getCurrentRound();
     }
 
     @Override
-    public Integer getRoundNumber() throws SQLException {
-
-        Round round = getRound();
-        return round == null ? null : round.getNumber();
+    public long getDate() {
+        return prefs.getDate();
     }
 
     @Override
     public void save(List<Round> rounds) throws SQLException {
 
-        List<Round> toDelete = new ArrayList<Round>();
-        List<Round> toAdd = new ArrayList<Round>();
+        Collections.sort(rounds, new Comparator<Round>() {
+
+            @Override
+            public int compare(Round lhs, Round rhs) {
+                return (int) (lhs.getDate() - rhs.getDate());
+            }
+        });
+
+        int i = 0;
+        for (Round r : rounds) {
+            r.setNumber(++i);
+        }
+
         List<Round> existingRounds = getRounds();
 
-        Iterator<Round> iterator = existingRounds.iterator();
-        while (iterator.hasNext()) {
-            Round round = iterator.next();
-            if (!rounds.contains(round)) {
-                toDelete.add(round);
+        for (Round r : rounds) {
+            if (existingRounds.contains(r)) {
+                existingRounds.remove(r);
             }
+            roundDao.store(r);
         }
 
-        Iterator<Round> iter = rounds.iterator();
-        while (iter.hasNext()) {
-            Round round = iter.next();
-            if (!existingRounds.contains(round)) {
-                toAdd.add(round);
-            }
-        }
-
-        for (Round round : toDelete) {
-            roundDao.delete(round);
-        }
-
-        for (Round round : toAdd) {
-            roundDao.create(round);
+        for (Round r : existingRounds) {
+            roundDao.remove(r);
         }
     }
 }

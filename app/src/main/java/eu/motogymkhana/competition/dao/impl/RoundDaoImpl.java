@@ -13,12 +13,12 @@ import java.util.List;
 import eu.motogymkhana.competition.Constants;
 import eu.motogymkhana.competition.dao.RoundDao;
 import eu.motogymkhana.competition.model.Country;
-import eu.motogymkhana.competition.model.Rider;
 import eu.motogymkhana.competition.model.Round;
 
 @Singleton
 public class RoundDaoImpl extends BaseDaoImpl<Round, Integer> implements RoundDao {
 
+    private final static String LOGTAG = RoundDaoImpl.class.getSimpleName();
     private static final boolean ASCENDING = true;
 
     public RoundDaoImpl(ConnectionSource connectionSource, Class<Round> dataClass) throws SQLException {
@@ -32,7 +32,7 @@ public class RoundDaoImpl extends BaseDaoImpl<Round, Integer> implements RoundDa
 
         if (r == null) {
             create(round);
-        } else {
+         } else {
             round.set_id(r.get_id());
             update(round);
         }
@@ -97,7 +97,6 @@ public class RoundDaoImpl extends BaseDaoImpl<Round, Integer> implements RoundDa
 
     @Override
     public void store(Collection<Round> rounds) throws SQLException {
-
         for (Round round : rounds) {
             store(round);
         }
@@ -131,5 +130,20 @@ public class RoundDaoImpl extends BaseDaoImpl<Round, Integer> implements RoundDa
         statementBuilder.where().eq(Round.COUNTRY, country).and().eq(Round.SEASON, season);
 
         statementBuilder.delete();
+    }
+
+    @Override
+    public void remove(Round r) throws SQLException {
+        delete(r);
+    }
+
+    @Override
+    public long getCurrentDate() throws SQLException {
+        Round round = getCurrentRound();
+        if(round !=null){
+            return round.getDate();
+        } else {
+            return 0l;
+        }
     }
 }

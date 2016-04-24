@@ -1,17 +1,19 @@
 package eu.motogymkhana.competition.activity;
 
 import android.content.Intent;
-import android.support.v4.app.Fragment;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
+import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
-import android.util.Log;
+import android.text.InputFilter;
+import android.text.Spanned;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.LinearLayout;
+import android.widget.ProgressBar;
 import android.widget.Spinner;
 import android.widget.TextView;
 
@@ -25,6 +27,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import butterknife.Bind;
+import butterknife.ButterKnife;
 import eu.motogymkhana.competition.Constants;
 import eu.motogymkhana.competition.R;
 import eu.motogymkhana.competition.adapter.ChangeListener;
@@ -39,6 +43,7 @@ import eu.motogymkhana.competition.rider.RiderManager;
 import eu.motogymkhana.competition.round.RoundManager;
 import eu.motogymkhana.competition.settings.Settings;
 import eu.motogymkhana.competition.settings.SettingsManager;
+import roboguice.RoboGuice;
 
 /**
  * Created by christine on 19-5-15.
@@ -72,17 +77,49 @@ public class SettingsActivity extends BaseActivity {
     private Country orgCountry;
     private Round orgRound;
 
-    private EditText percentageBlue;
-    private EditText percentageGreen;
-    private EditText roundsForSeasonResult;
-    private EditText roundsForBib;
+    @Bind(R.id.percentage_blue)
+    protected EditText percentageBlue;
 
-    private Spinner roundsSpinner;
-    private Spinner countrySpinner;
-    private Spinner seasonSpinner;
-    private LinearLayout adminLayout;
+    @Bind(R.id.percentage_green)
+    protected EditText percentageGreen;
+
+    @Bind(R.id.rounds_season_result)
+    protected EditText roundsForSeasonResult;
+
+    @Bind(R.id.rounds_bib)
+    protected EditText roundsForBib;
+
+    @Bind(R.id.points)
+    protected EditText pointsView;
+
+    @Bind(R.id.date_spinner)
+    protected Spinner roundsSpinner;
+
+    @Bind(R.id.country_spinner)
+    protected Spinner countrySpinner;
+
+    @Bind(R.id.select_season_spinner)
+    protected Spinner seasonSpinner;
+
+    @Bind(R.id.admin_layout)
+    protected LinearLayout adminLayout;
+
+    @Bind(R.id.manage_rounds)
+    protected Button manageRoundsButton;
+
+    @Bind(R.id.version_string)
+    protected TextView versionStringView;
+
+    @Bind(R.id.save)
+    protected Button saveButton;
+
+    private int[] points;
+
+    @Bind(R.id.progress_bar)
+    protected ProgressBar progressBar;
 
     boolean admin = false;
+    private boolean first = true;
 
     @Inject
     private SettingsDao settingsDao;
@@ -94,6 +131,7 @@ public class SettingsActivity extends BaseActivity {
     private RiderManager riderManager;
 
     private Settings settings;
+    private boolean firstCountrySelected = true;
 
     private ChangeListener listener = new ChangeListener() {
 
@@ -102,15 +140,148 @@ public class SettingsActivity extends BaseActivity {
 
             setRounds();
 
+        }
+    };
+
+    private View.OnClickListener saveClickListener = new View.OnClickListener() {
+
+        @Override
+        public void onClick(View v) {
+
+            int newPercentageBlue = 0;
+            int newPercentageGreen = 0;
+            int newRoundsBib = 0;
+            int newRoundsSeasonResult = 0;
+
+            if (isNumeric(percentageBlue.getText().toString())) {
+                newPercentageBlue = Integer.parseInt(percentageBlue.getText().toString());
+            }
+            if (isNumeric(percentageGreen.getText().toString())) {
+                newPercentageGreen = Integer.parseInt(percentageGreen.getText().toString());
+            }
+            if (isNumeric(roundsForBib.getText().toString())) {
+                newRoundsBib = Integer.parseInt(roundsForBib.getText().toString());
+            }
+            if (isNumeric(roundsForSeasonResult.getText().toString())) {
+                newRoundsSeasonResult = Integer.parseInt(roundsForSeasonResult.getText().toString());
+            }
+
+            if (settings == null) {
+                settings = new Settings();
+            }
+
+
+            settings.setPercentageBlue(newPercentageBlue);
+            settings.setPercentageGreen(newPercentageGreen);
+            settings.setNumberOfRoundsForBib(newRoundsBib);
+            settings.setNumberOfRoundsForSeasonResult(newRoundsSeasonResult);
+
+            settings.setSeason(seasons[seasonSpinner.getSelectedItemPosition()]);
+            settings.setCountry(countries.get(countrySpinner.getSelectedItemPosition()));
+
+            settings.setPoints(pointsView.getText().toString());
+
             try {
-
-                roundsSpinner.setSelection(getRoundNumber());
-
-                setSettings();
-
+                settingsDao.store(settings);
             } catch (SQLException e) {
                 e.printStackTrace();
             }
+
+            settingsManager.uploadSettingsToServer(settings);
+        }
+    };
+
+    private AdapterView.OnItemSelectedListener roundSelectedListener = new AdapterView.OnItemSelectedListener() {
+
+        @Override
+        public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+
+            if (!first) {
+                if (rounds.size() > position) {
+                    prefs.setDate(rounds.get(position).getDate());
+                }
+            } else {
+                first = false;
+            }
+        }
+
+        @Override
+        public void onNothingSelected(AdapterView<?> parent) {
+
+        }
+    };
+
+    private AdapterView.OnItemSelectedListener countrySelectedListener = new AdapterView.OnItemSelectedListener() {
+
+        @Override
+        public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+
+            if (!firstCountrySelected) {
+
+                Country country = countries.get(position);
+                settings.setCountry(country);
+                Constants.country = country;
+                setRounds();
+            } else {
+                firstCountrySelected = false;
+            }
+        }
+
+        @Override
+        public void onNothingSelected(AdapterView<?> parent) {
+
+        }
+    };
+
+    private AdapterView.OnItemSelectedListener seasonSelectedListener = new AdapterView.OnItemSelectedListener() {
+
+        @Override
+        public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+
+            int season = seasons[position];
+            Constants.season = season;
+            try {
+                settings = settingsManager.getSettings();
+            } catch (IOException e) {
+                e.printStackTrace();
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+
+            setRounds();
+        }
+
+        @Override
+        public void onNothingSelected(AdapterView<?> parent) {
+
+        }
+    };
+
+    private View.OnClickListener manageRoundsClickListener = new View.OnClickListener() {
+
+        @Override
+        public void onClick(View v) {
+
+            Fragment fragment = new ManageRoundsFragment();
+            FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
+            transaction.replace(R.id.fragment_container, fragment, ManageRoundsFragment.class.getSimpleName());
+            transaction.addToBackStack(ManageRoundsFragment.class.getSimpleName());
+            transaction.commit();
+        }
+    };
+
+    InputFilter filter = new InputFilter() {
+        public CharSequence filter(CharSequence source, int start, int end,
+                                   Spanned dest, int dstart, int dend) {
+            for (int i = start; i < end; i++) {
+                char c = source.charAt(i);
+                if (c == 59 || c == 46 || c == 44) {
+                    return ",";
+                } else if (!(Character.isDigit(c) || c == 44)) {
+                    return "";
+                }
+            }
+            return null;
         }
     };
 
@@ -119,6 +290,12 @@ public class SettingsActivity extends BaseActivity {
         super.onCreate(savedInstanceState);
 
         setContentView(R.layout.activity_settings);
+        ButterKnife.bind(this);
+        RoboGuice.getInjector(this).injectMembers(this);
+
+        points = getResources().getIntArray(R.array.qualification_points);
+
+        admin = credentialDao.isAdmin();
 
         try {
             settings = settingsDao.get();
@@ -130,7 +307,7 @@ public class SettingsActivity extends BaseActivity {
         orgCountry = settings.getCountry();
 
         try {
-            orgRound = roundManager.getRound();
+            orgRound = roundManager.getCurrentRound();
             rounds.addAll(roundManager.getRounds());
         } catch (SQLException e) {
             e.printStackTrace();
@@ -138,19 +315,6 @@ public class SettingsActivity extends BaseActivity {
 
         countries.addAll(Arrays.asList(Country.values()));
 
-        percentageBlue = (EditText) findViewById(R.id.percentage_blue);
-        percentageGreen = (EditText) findViewById(R.id.percentage_green);
-        roundsForSeasonResult = (EditText) findViewById(R.id.rounds_season_result);
-        roundsForBib = (EditText) findViewById(R.id.rounds_bib);
-        adminLayout = (LinearLayout) findViewById(R.id.admin_layout);
-
-        roundsSpinner = (Spinner) findViewById(R.id.date_spinner);
-        countrySpinner = (Spinner) findViewById(R.id.country_spinner);
-        seasonSpinner = (Spinner) findViewById(R.id.select_season_spinner);
-
-        final Button manageRoundsButton = (Button) findViewById(R.id.manage_rounds);
-
-        final TextView versionStringView = (TextView) findViewById(R.id.version_string);
         try {
             versionStringView.setText(getPackageManager().getPackageInfo(getPackageName(), 0).versionName + " " +
                     getPackageManager().getPackageInfo(getPackageName(), 0).versionCode);
@@ -171,38 +335,21 @@ public class SettingsActivity extends BaseActivity {
         roundsSpinner.setAdapter(roundsSpinAdapter);
 
         try {
-            Integer roundNumber = roundManager.getRoundNumber();
-            roundsSpinner.setSelection(roundNumber != null ? roundNumber - 1 : 1);
+            Round round = roundManager.getRoundForDate(prefs.getDate());
+            if (round != null) {
+                Integer roundNumber = round.getNumber();
+                roundsSpinner.setSelection(roundNumber != null ? roundNumber - 1 : 1);
+            }
         } catch (SQLException e) {
             e.printStackTrace();
         }
 
-        roundsSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-
-            @Override
-            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-
-                if (rounds.size() > position) {
-                    try {
-                        roundManager.setRound(rounds.get(position));
-                    } catch (SQLException e) {
-                        e.printStackTrace();
-                        showAlert(e);
-                    }
-                }
-            }
-
-            @Override
-            public void onNothingSelected(AdapterView<?> parent) {
-
-            }
-        });
+        roundsSpinner.setOnItemSelectedListener(roundSelectedListener);
         try {
             roundsSpinner.setSelection(getRoundNumber());
         } catch (SQLException e) {
             showAlert(e);
         }
-
 
         ArrayAdapter<CharSequence> countrySpinAdapter = new ArrayAdapter(this, android.R.layout
                 .simple_spinner_item);
@@ -212,21 +359,7 @@ public class SettingsActivity extends BaseActivity {
             countrySpinAdapter.add(country.name());
         }
 
-        countrySpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-
-            @Override
-            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                Country country = countries.get(position);
-                settings.setCountry(country);
-                Constants.country = country;
-                setRounds();
-            }
-
-            @Override
-            public void onNothingSelected(AdapterView<?> parent) {
-
-            }
-        });
+        countrySpinner.setOnItemSelectedListener(countrySelectedListener);
 
         countrySpinner.setAdapter(countrySpinAdapter);
         countrySpinner.setSelection(getCountryNumber());
@@ -235,74 +368,67 @@ public class SettingsActivity extends BaseActivity {
                 .simple_spinner_item);
         seasonSpinAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
 
-
         for (int season : seasons) {
             seasonSpinAdapter.add(Integer.toString(season));
         }
 
-        seasonSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-
-            @Override
-            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-
-                int season = seasons[position];
-                Constants.season = season;
-                try {
-                    settings = settingsManager.getSettings();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                } catch (SQLException e) {
-                    e.printStackTrace();
-                }
-
-                setRounds();
-            }
-
-            @Override
-            public void onNothingSelected(AdapterView<?> parent) {
-
-            }
-        });
+        seasonSpinner.setOnItemSelectedListener(seasonSelectedListener);
 
         seasonSpinner.setAdapter(seasonSpinAdapter);
         seasonSpinner.setSelection(getSeasonNumber());
 
-        manageRoundsButton.setOnClickListener(new View.OnClickListener() {
+        manageRoundsButton.setOnClickListener(manageRoundsClickListener);
 
-            @Override
-            public void onClick(View v) {
+        String pointsString = settings.getPointsString();
+        if (pointsString == null) {
+            pointsString = makePointString(points);
+        }
 
-                Fragment fragment = new ManageRoundsFragment();
-                FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
-                transaction.replace(R.id.fragment_container, fragment, ManageRoundsFragment.class.getSimpleName());
-                transaction.addToBackStack(ManageRoundsFragment.class.getSimpleName());
-                transaction.commit();
-            }
-        });
+        pointsView.setText(pointsString);
 
-        admin = credentialDao.isAdmin();
+        pointsView.setFilters(new InputFilter[]{filter});
+
+        saveButton.setOnClickListener(saveClickListener);
+    }
+
+    private String makePointString(int[] points) {
+        String result = "";
+        String separator = "";
+        for (int pt : points) {
+            result += separator + Integer.toString(pt);
+            separator = ",";
+        }
+        return result;
     }
 
     private void setSettings() {
 
-        try {
-            settings = settingsDao.get();
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
+        runOnUiThread(new Runnable() {
 
-        if (settings != null) {
-            percentageBlue.setText(Integer.toString(settings.getPercentageBlue()));
-            percentageGreen.setText(Integer.toString(settings.getPercentageGreen()));
-            roundsForSeasonResult.setText(Integer.toString(settings.getRoundsForSeasonResult()));
-            roundsForBib.setText(Integer.toString(settings.getRoundsForBib()));
-        }
+            @Override
+            public void run() {
+                try {
+                    settings = settingsDao.get();
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                }
 
-        if (admin) {
-            adminLayout.setVisibility(View.VISIBLE);
-        } else {
-            adminLayout.setVisibility(View.GONE);
-        }
+                if (settings != null) {
+                    percentageBlue.setText(Integer.toString(settings.getPercentageBlue()));
+                    percentageGreen.setText(Integer.toString(settings.getPercentageGreen()));
+                    roundsForSeasonResult.setText(Integer.toString(settings.getRoundsForSeasonResult()));
+                    roundsForBib.setText(Integer.toString(settings.getRoundsForBib()));
+                }
+
+                if (admin) {
+                    adminLayout.setVisibility(View.VISIBLE);
+                } else {
+                    adminLayout.setVisibility(View.GONE);
+                }
+
+                progressBar.setVisibility(View.GONE);
+            }
+        });
     }
 
     private void setRounds() {
@@ -310,12 +436,31 @@ public class SettingsActivity extends BaseActivity {
         roundsSpinAdapter.clear();
 
         try {
-            for (Round round : roundManager.getRounds()) {
-                roundsSpinAdapter.add(round.getDateString());
-            }
+            rounds = roundManager.getRounds();
         } catch (SQLException e) {
             e.printStackTrace();
-            showAlert(e);
+        }
+
+        if (rounds == null || rounds.size() == 0) {
+
+            progressBar.setVisibility(View.VISIBLE);
+            roundManager.loadRoundsFromServer();
+        } else {
+            for (Round round : rounds) {
+                roundsSpinAdapter.add(round.getDateString());
+            }
+
+            try {
+
+                int position = getRoundNumber();
+                roundsSpinner.setSelection(position);
+                prefs.setDate(rounds.get(position).getDate());
+
+                setSettings();
+
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
         }
     }
 
@@ -335,7 +480,6 @@ public class SettingsActivity extends BaseActivity {
 
         Country currentCountry = settings.getCountry();
         for (int i = 0; i < countries.size(); i++) {
-            Log.d(LOGTAG, "currentCountry = " + currentCountry + " " + countries.get(i));
             if (currentCountry == countries.get(i)) {
                 return i;
             }
@@ -347,9 +491,7 @@ public class SettingsActivity extends BaseActivity {
 
         int currentSeason = settings.getSeason();
         for (int i = 0; i < seasons.length; i++) {
-            Log.d(LOGTAG, "currentSeason = " + currentSeason + " " + seasons[i]);
             if (currentSeason == seasons[i]) {
-                Log.d(LOGTAG, "return " + i);
                 return i;
             }
         }
@@ -358,12 +500,11 @@ public class SettingsActivity extends BaseActivity {
 
     private int getRoundNumber() throws SQLException {
 
-        Round currentRound = roundManager.getRound();
+        Round round = roundManager.getRoundForDate(prefs.getDate());
 
-        if (currentRound != null) {
+        if (round != null) {
             for (int i = 0; i < rounds.size(); i++) {
-                if (currentRound.get_id() == rounds.get(i).get_id()) {
-                    Log.d(LOGTAG, "return " + i);
+                if (round.getNumber() == rounds.get(i).getNumber()) {
                     return i;
                 }
             }
@@ -390,61 +531,8 @@ public class SettingsActivity extends BaseActivity {
             intent.putExtra(SEASON_CHANGED, true);
         }
 
-        Round currentRound = null;
-        try {
-            currentRound = roundManager.getRound();
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-
-        if (currentRound == null || orgRound == null || currentRound.getDate() != orgRound.getDate()) {
+        if (prefs.getDate() != orgRound.getDate()) {
             intent.putExtra(ROUND_CHANGED, true);
-        }
-
-        if (admin) {
-            int newPercentageBlue = 0;
-            int newPercentageGreen = 0;
-            int newRoundsBib = 0;
-            int newRoundsSeasonResult = 0;
-
-            if (isNumeric(percentageBlue.getText().toString())) {
-                newPercentageBlue = Integer.parseInt(percentageBlue.getText().toString());
-            }
-            if (isNumeric(percentageGreen.getText().toString())) {
-                newPercentageGreen = Integer.parseInt(percentageGreen.getText().toString());
-            }
-            if (isNumeric(roundsForBib.getText().toString())) {
-                newRoundsBib = Integer.parseInt(roundsForBib.getText().toString());
-            }
-            if (isNumeric(roundsForSeasonResult.getText().toString())) {
-                newRoundsSeasonResult = Integer.parseInt(roundsForSeasonResult.getText().toString());
-            }
-
-            if (settings == null) {
-                settings = new Settings();
-            }
-
-            if (newPercentageBlue != settings.getPercentageBlue() ||
-                    newPercentageBlue != settings.getPercentageBlue() ||
-                    newRoundsBib != settings.getRoundsForBib() ||
-                    newRoundsSeasonResult != settings.getRoundsForSeasonResult()) {
-
-                settings.setPercentageBlue(newPercentageBlue);
-                settings.setPercentageGreen(newPercentageGreen);
-                settings.setNumberOfRoundsForBib(newRoundsBib);
-                settings.setNumberOfRoundsForSeasonResult(newRoundsSeasonResult);
-
-                settings.setSeason(seasons[seasonSpinner.getSelectedItemPosition()]);
-                settings.setCountry(countries.get(countrySpinner.getSelectedItemPosition()));
-
-                try {
-                    settingsDao.store(settings);
-                } catch (SQLException e) {
-                    e.printStackTrace();
-                }
-
-                settingsManager.uploadSettingsToServer(settings);
-            }
         }
 
         Constants.season = settings.getSeason();
@@ -454,7 +542,6 @@ public class SettingsActivity extends BaseActivity {
 
         setResult(OK, intent);
 
-        setRounds();
         super.onBackPressed();
     }
 

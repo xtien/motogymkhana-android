@@ -4,6 +4,8 @@ import android.app.Application;
 import android.content.Context;
 import android.support.multidex.MultiDex;
 
+import eu.motogymkhana.competition.robo.GymkhanaModule;
+import eu.motogymkhana.competition.robo.LiveModule;
 import roboguice.RoboGuice;
 
 /**
@@ -11,20 +13,23 @@ import roboguice.RoboGuice;
  */
 public class MotoGymkhanaApplication extends Application {
 
-    private static Application instance;
+    private static Context instance;
 
-    public MotoGymkhanaApplication() {
+    @Override
+    public void onCreate() {
+        super.onCreate();
+        instance = getApplicationContext();
         RoboGuice.setUseAnnotationDatabases(false);
+        RoboGuice.setupBaseApplicationInjector(this, new GymkhanaModule(), new LiveModule());
     }
 
     @Override
     protected void attachBaseContext(Context base) {
         super.attachBaseContext(base);
         MultiDex.install(this);
-        instance = this;
     }
 
-    public static Application getContext() {
+    public static Context getContext() {
         return instance;
     }
 }

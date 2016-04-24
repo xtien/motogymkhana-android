@@ -1,18 +1,18 @@
 package eu.motogymkhana.competition.rider;
 
 import android.content.Context;
+import android.os.AsyncTask;
 
 import com.google.inject.Inject;
 
 import eu.motogymkhana.competition.dao.RiderDao;
 import eu.motogymkhana.competition.dao.TimesDao;
 import eu.motogymkhana.competition.round.RoundManager;
-import roboguice.util.RoboAsyncTask;
 
 /**
  * Created by christine on 17-5-15.
  */
-public class StoreWittyRidersTask extends RoboAsyncTask<Void> {
+public class StoreWittyRidersTask extends AsyncTask<Void,Void,Void> {
 
     private Context context;
 
@@ -26,12 +26,11 @@ public class StoreWittyRidersTask extends RoboAsyncTask<Void> {
     private TimesDao timesDao;
 
     public StoreWittyRidersTask(Context context) {
-        super(context);
-        this.context = context;
+         this.context = context;
     }
 
     @Override
-    public Void call() throws Exception {
+    public Void doInBackground(Void... params) {
 
 //        InputStream is = context.getResources().openRawResource(R.raw.witty_row);
 //        String row = IOUtils.toString(is);
@@ -62,10 +61,5 @@ public class StoreWittyRidersTask extends RoboAsyncTask<Void> {
 //        bos.close();
 //
         return null;
-    }
-
-    @Override
-    public void onException(Exception e) {
-        e.printStackTrace();
     }
 }

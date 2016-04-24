@@ -9,6 +9,9 @@ dependencies {
 
     compile fileTree(dir: 'libs', include: ['*.jar'])
     compile fileTree(dir: 'libs/roboguice', include: ['*.jar'])
+    compile 'org.roboguice:roboguice:4.0.0'
+
+    compile 'com.jakewharton:butterknife:7.0.1'
     compile 'com.squareup.picasso:picasso:2.5.2'
 
     testCompile 'junit:junit:4.12'
@@ -16,6 +19,10 @@ dependencies {
     compile 'com.android.support:support-v4:+'
     compile 'com.android.support:multidex:1.0.0'
 
+    testCompile('org.robolectric:robolectric:3.1-CHRISTINE') {
+        exclude group: 'org.apache.httpcomponents', module: 'httpclient'
+        exclude module: 'commons-logging'
+    }
     testCompile('org.robolectric:shadows-play-services:3.0') {
         exclude group: 'org.apache.httpcomponents', module: 'httpclient'
         exclude module: 'commons-logging'

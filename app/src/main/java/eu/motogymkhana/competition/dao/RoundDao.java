@@ -24,4 +24,8 @@ public interface RoundDao extends Dao<Round, Integer> {
 	Round getCurrentRound() throws SQLException;
 
 	void delete(Country eu, int i) throws SQLException;
+
+	void remove(Round r) throws SQLException;
+
+	long getCurrentDate() throws SQLException;
 }

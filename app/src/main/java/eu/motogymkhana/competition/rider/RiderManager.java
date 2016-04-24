@@ -31,7 +31,7 @@ public interface RiderManager {
 
     Rider store(Rider rider, Country country, int season) throws SQLException;
 
-    void getTotals(TotalsListAdapter totalsListAdapter) throws SQLException;
+    void getTotals(TotalsListAdapter totalsListAdapter) throws SQLException, IOException;
 
     void createOrUpdate(Rider rider, UpdateRiderCallback callback) throws SQLException;
 

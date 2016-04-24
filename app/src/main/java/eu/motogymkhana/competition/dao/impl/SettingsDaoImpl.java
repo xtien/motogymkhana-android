@@ -8,10 +8,8 @@ import java.sql.SQLException;
 import java.util.List;
 
 import eu.motogymkhana.competition.Constants;
-import eu.motogymkhana.competition.dao.CredentialDao;
 import eu.motogymkhana.competition.dao.SettingsDao;
 import eu.motogymkhana.competition.model.Country;
-import eu.motogymkhana.competition.model.Credential;
 import eu.motogymkhana.competition.settings.Settings;
 
 /**

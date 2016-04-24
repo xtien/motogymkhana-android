@@ -5,8 +5,8 @@ import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentActivity;
 import android.support.v4.view.ViewPager;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -15,9 +15,6 @@ import android.widget.TextView;
 
 import com.google.inject.Inject;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileReader;
 import java.io.IOException;
 import java.sql.SQLException;
 import java.text.ParseException;
@@ -40,21 +37,17 @@ import eu.motogymkhana.competition.fragment.RiderRegistrationFragment;
 import eu.motogymkhana.competition.fragment.RiderTimeInputFragment;
 import eu.motogymkhana.competition.fragment.RidersResultFragment;
 import eu.motogymkhana.competition.fragment.SeasonTotalsFragment;
-import eu.motogymkhana.competition.model.Bib;
 import eu.motogymkhana.competition.model.Country;
-import eu.motogymkhana.competition.model.Gender;
-import eu.motogymkhana.competition.model.Rider;
 import eu.motogymkhana.competition.model.Round;
-import eu.motogymkhana.competition.model.Times;
 import eu.motogymkhana.competition.prefs.ChristinePreferences;
 import eu.motogymkhana.competition.rider.RiderManager;
 import eu.motogymkhana.competition.rider.RiderManagerProvider;
 import eu.motogymkhana.competition.round.RoundManager;
 import eu.motogymkhana.competition.round.RoundManagerProvider;
 import eu.motogymkhana.competition.settings.SettingsManager;
-import roboguice.activity.RoboFragmentActivity;
+import roboguice.RoboGuice;
 
-public class MainActivity extends RoboFragmentActivity {
+public class MainActivity extends FragmentActivity {
 
     private static final int NEW_RIDER = 101;
     private static final int ADMIN = 102;
@@ -110,8 +103,23 @@ public class MainActivity extends RoboFragmentActivity {
 
         @Override
         public void run() {
-
             roundManager.loadRoundsFromServer();
+            settingsManager.getSettingsFromServerAsync();
+
+        }
+    };
+    private Runnable refreshTask = new Runnable() {
+
+        @Override
+        public void run() {
+
+            if (prefs.loadRounds()) {
+                roundManager.loadRoundsFromServer();
+                settingsManager.getSettingsFromServerAsync();
+            } else {
+                riderManager.loadRidersFromServer();
+            }
+
             handler.postDelayed(this, Constants.refreshRate);
         }
     };
@@ -151,24 +159,13 @@ public class MainActivity extends RoboFragmentActivity {
 
             case SETTINGS:
 
-                dateView.setText(Constants.dateFormat.format(roundManager.getDate()));
-
-                Log.d(LOGTAG, "country changed " + data.getBooleanExtra(SettingsActivity.COUNTRY_CHANGED, false) + " " +
-                        "season changed " + data.getBooleanExtra
-                        (SettingsActivity.SEASON_CHANGED, false));
-
-                boolean changed = data.getBooleanExtra(SettingsActivity.COUNTRY_CHANGED, false) || data.getBooleanExtra
-                        (SettingsActivity.SEASON_CHANGED, false);
-                Log.d(LOGTAG, "changed = " + changed);
+                dateView.setText(Constants.dateFormat.format(prefs.getDate()));
+                riderManager.notifyDataChanged();
 
                 if (data.getBooleanExtra(SettingsActivity.COUNTRY_CHANGED, false) || data.getBooleanExtra
                         (SettingsActivity.SEASON_CHANGED, false)) {
 
-                    Log.d(LOGTAG, "handler post");
-
-                    progressBar.setVisibility(View.VISIBLE);
-
-                    handler.removeCallbacksAndMessages(null);
+                    showProgressBar();
                     handler.post(loadRoundsTask);
                 }
 
@@ -177,17 +174,29 @@ public class MainActivity extends RoboFragmentActivity {
             case ADMIN_SETTINGS:
                 break;
 
-
             default:
                 break;
         }
+    }
+
+    private void showProgressBar() {
+
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                progressBar.setVisibility(View.VISIBLE);
+            }
+        });
     }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
+        //CopyDB.copyDB(this, Constants.DATABASE_NAME, "motogymkhana/");
+
         setContentView(R.layout.activity_main);
+        RoboGuice.getInjector(this).injectMembers(this);
 
         Constants.country = prefs.getCountry();
         Constants.season = prefs.getSeason();
@@ -264,20 +273,17 @@ public class MainActivity extends RoboFragmentActivity {
                 e.printStackTrace();
             } catch (SQLException e) {
                 e.printStackTrace();
-            } catch (IOException e) {
-                e.printStackTrace();
             }
         }
 
         handler = new Handler();
 
+        if (!isAdmin()) {
+            handler.post(refreshTask);
+        }
         setFragments();
 
         setDate();
-
-        if (!isAdmin()) {
-            handler.post(loadRoundsTask);
-        }
 
         if (prefs.startUpTimes() > 0) {
 
@@ -300,79 +306,6 @@ public class MainActivity extends RoboFragmentActivity {
         }
     }
 
-    private void restoreEUData() {
-
-        try {
-            riderDao.delete(Country.EU, 2015);
-            roundDao.delete(Country.EU, 2015);
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-
-        try {
-
-            File importFile = new File("/sdcard/mgeudb");
-
-            BufferedReader br = new BufferedReader(new FileReader(importFile));
-
-            String line;
-            while ((line = br.readLine()) != null) {
-                storeEUInDb(line);
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-    }
-
-    private void storeEUInDb(String line) throws SQLException {
-
-        String[] items = line.split(",");
-        Rider rider = new Rider();
-        rider.setRiderNumber(Integer.parseInt(items[0]));
-        rider.setFirstName(items[1]);
-        rider.setLastName(items[2]);
-        rider.setGender(items[3].equals("0") ? Gender.F : Gender.M);
-        rider.setDateOfBirth(items[4]);
-
-        rider.setCountry(Country.EU);
-        rider.setSeason(2015);
-        rider.setBib(Bib.Y);
-        rider.setNationality(Country.NL);
-
-        Times times = new Times();
-        times.setCountry(Country.EU);
-        times.setSeason(2015);
-        times.setDate(1432461600000l);
-        times.setRegistered(true);
-        times.setTimeStamp(1432461600000l);
-
-        times.setDisqualified1(items[5].equals("f") ? false : true);
-        times.setPenalties1(Integer.parseInt(items[6]));
-        times.setTime1(Integer.parseInt(items[7]));
-
-        times.setDisqualified2(items[8].equals("f") ? false : true);
-        times.setPenalties2(Integer.parseInt(items[9]));
-        times.setTime2(Integer.parseInt(items[10]));
-
-        rider.addTimes(times);
-
-        if (first) {
-            long date = rider.getTimes().iterator().next().getDate();
-            Round round = new Round();
-            round.setTimeStamp(System.currentTimeMillis());
-            round.setDate(date);
-            round.setCountry(Country.EU);
-            round.setSeason(2015);
-            round.setNumber(1);
-            roundDao.store(round);
-            first = false;
-        }
-
-        riderDao.store(rider, Country.EU, 2015);
-    }
-
     @Override
     protected void onResume() {
         super.onResume();
@@ -380,8 +313,6 @@ public class MainActivity extends RoboFragmentActivity {
         if (riderManager != null) {
             riderManager.registerRiderResultListener(dataChangedListener);
         }
-
-        //handler.postDelayed(loadRidersTask, Constants.refreshRate);
     }
 
     @Override
@@ -414,16 +345,16 @@ public class MainActivity extends RoboFragmentActivity {
 
         boolean admin = isAdmin();
 
-        menu.findItem(R.id.load_file).setVisible(admin);
+        menu.findItem(R.id.load_file).setVisible(false);
         menu.findItem(R.id.download_riders).setVisible(admin);
-        menu.findItem(R.id.upload_file).setVisible(admin);
+        menu.findItem(R.id.upload_riders).setVisible(false);
         menu.findItem(R.id.upload_dates).setVisible(admin);
         menu.findItem(R.id.new_rider).setVisible(admin);
         menu.findItem(R.id.settings).setVisible(true);
         menu.findItem(R.id.start_numbers).setVisible(admin);
         menu.findItem(R.id.text).setVisible(admin);
         menu.findItem(R.id.admin_settings).setVisible(admin);
-        menu.findItem(R.id.save_witty_file).setVisible(admin);
+        menu.findItem(R.id.save_witty_file).setVisible(false);
 
         menuItem = menu.findItem(R.id.country);
         menuItem.setTitle(Constants.country.name() + " " + Constants.season);
@@ -487,7 +418,7 @@ public class MainActivity extends RoboFragmentActivity {
                 }
                 return true;
 
-            case R.id.upload_file:
+            case R.id.upload_riders:
 
                 try {
                     riderManager.uploadRiders();
@@ -528,12 +459,24 @@ public class MainActivity extends RoboFragmentActivity {
 
     private void setDate() {
 
-        long date = roundManager.getDate();
+        long date = prefs.getDate();
+
+        if (date == 0l) {
+            try {
+                date = roundDao.getCurrentDate();
+                if (date != 0l) {
+                    prefs.setDate(date);
+                }
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        }
+
         if (date != 0l) {
             dateView.setText(Constants.dateFormat.format(date));
         } else {
-            dateView.setText(getResources().getString(Constants.season < 2016 ? R.string.no_rounds_planned : R.string
-                    .no_rounds_held));
+            dateView.setText(getResources().getString(Constants.season < 2016 ? R.string.no_rounds_held : R.string
+                    .no_rounds_planned));
         }
     }
 

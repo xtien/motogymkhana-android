@@ -1,13 +1,11 @@
 package eu.motogymkhana.competition.fragment;
 
-import android.app.Activity;
 import android.content.Context;
-import android.content.Intent;
 import android.os.Bundle;
+import android.support.v4.app.ListFragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.google.inject.Inject;
@@ -16,23 +14,27 @@ import java.util.ArrayList;
 import java.util.List;
 
 import eu.motogymkhana.competition.R;
-import eu.motogymkhana.competition.activity.RiderViewActivity;
 import eu.motogymkhana.competition.adapter.RiderTimeInputListAdapter;
+import eu.motogymkhana.competition.dao.CredentialDao;
 import eu.motogymkhana.competition.model.Rider;
 import eu.motogymkhana.competition.prefs.ChristinePreferences;
 import eu.motogymkhana.competition.rider.RiderManager;
-import roboguice.fragment.RoboListFragment;
+import eu.motogymkhana.competition.round.RoundManager;
+import roboguice.RoboGuice;
 
-public class RiderTimeInputFragment extends RoboListFragment {
-
-    @Inject
-    private RiderTimeInputListAdapter.Factory riderListAdapterFactory;
+public class RiderTimeInputFragment extends ListFragment {
 
     @Inject
     private ChristinePreferences prefs;
 
     @Inject
     private RiderManager riderManager;
+
+    @Inject
+    private RoundManager roundManager;
+
+    @Inject
+    private CredentialDao credentialDao;
 
     private RiderTimeInputListAdapter adapter;
 
@@ -50,6 +52,7 @@ public class RiderTimeInputFragment extends RoboListFragment {
     @Override
     public void onViewCreated(View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
+        RoboGuice.getInjector(getActivity()).injectMembers(this);
 
         TextView titleView = ((TextView) view.findViewById(R.id.title));
         titleView.setVisibility(View.VISIBLE);
@@ -57,8 +60,8 @@ public class RiderTimeInputFragment extends RoboListFragment {
 
         resultSorted = prefs.isResultSorted();
 
-        adapter = riderListAdapterFactory.create();
-        adapter.setSorted();
+        adapter = new RiderTimeInputListAdapter(getActivity(), riderManager,
+                roundManager, prefs, credentialDao);
         adapter.setActivity(getActivity());
 
         setListAdapter(adapter);

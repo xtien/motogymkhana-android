@@ -1,7 +1,5 @@
 package eu.motogymkhana.competition.model;
 
-import android.util.Log;
-
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.j256.ormlite.field.DatabaseField;

@@ -28,9 +28,9 @@ import eu.motogymkhana.competition.model.Gender;
 import eu.motogymkhana.competition.model.Rider;
 import eu.motogymkhana.competition.rider.RiderManager;
 import eu.motogymkhana.competition.rider.UpdateRiderCallback;
-import roboguice.activity.RoboActivity;
+import roboguice.RoboGuice;
 
-public class RiderNewUpdateActivity extends RoboActivity {
+public class RiderNewUpdateActivity extends BaseActivity {
 
     public static final String RIDER_NUMBER = "rider_number";
     public static final String FOCUS = "focus";
@@ -46,6 +46,7 @@ public class RiderNewUpdateActivity extends RoboActivity {
         super.onCreate(savedInstanceState);
 
         setContentView(R.layout.activity_new_rider_input);
+        RoboGuice.getInjector(this).injectMembers(this);
 
         final EditText firstNameView = (EditText) findViewById(R.id.first_name);
         final EditText lastNameView = (EditText) findViewById(R.id.last_name);
@@ -64,6 +65,7 @@ public class RiderNewUpdateActivity extends RoboActivity {
         final ImageView bikeImage = (ImageView) findViewById(R.id.bike_image);
 
         Button b2016 = (Button)findViewById(R.id.up_2016);
+        b2016.setVisibility(View.GONE);
         b2016.setOnClickListener(new OnClickListener() {
 
             @Override
@@ -73,6 +75,7 @@ public class RiderNewUpdateActivity extends RoboActivity {
         });
 
         Button buttonEU = (Button)findViewById(R.id.button_eu);
+        buttonEU.setVisibility(View.GONE);
         buttonEU.setOnClickListener(new OnClickListener() {
 
             @Override

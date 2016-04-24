@@ -72,7 +72,7 @@
 
     <style name="list_text">
         <item name="android:padding">@dimen/list_text_padding</item>
-        <item name="android:paddingLeft">5dp</item>
+        <item name="android:paddingLeft">@dimen/list_padding_left</item>
         <item name="android:textColor">@color/list_text_color</item>
         <item name="android:textSize">@dimen/list_text_size</item>
     </style>
@@ -83,8 +83,9 @@
 
     <style name="time_view" parent="list_text">
         <item name="android:textStyle">bold</item>
-        <item name="android:layout_width">@dimen/time_view_width</item>
+        <item name="android:textSize">@dimen/list_time_text_size</item>
     </style>
+
     <style name="rider_name_view" parent="list_text">
         <item name="android:textStyle">bold</item>
        <item name="android:textSize">10pt</item>
@@ -145,4 +146,5 @@
     <style name="registered_box">
       </style>
 
+    <dimen name="list_padding_left">3dp</dimen>
 </resources>

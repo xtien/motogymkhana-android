@@ -4,23 +4,6 @@ import eu.motogymkhana.competition.model.Country;
 
 public interface ChristinePreferences {
 
-    public static final String REGISTERED = "registered";
-    public static final String INIT_APP = "init_app";
-    public static final String LOGGED_IN = "logged_in";
-    public static final String DATE = "date";
-    public static final String RESET = "reset";
-    public static final String FIRST_RUN = "first_run";
-    public static final String RESULT_SORTED = "result_sorted";
-    public static final String STARTUP = "startup";
-    public static final String BLOCK_DOWNLOAD = "block_download";
-    public static final String SERVER = "server";
-    public static final String PORT = "port";
-    public static final String VERSION_CODE = "version_code";
-    public static final String COUNTRY = "country_code";
-    public static final Country COUNTRY_DEFAULT = Country.NL;
-    public static final String SEASON = "season";
-    public static final int SEASON_DEFAULT = 2016;
-
 
     public long getDate();
 
@@ -75,4 +58,6 @@ public interface ChristinePreferences {
     int getSeason();
 
     void setSeason(int season);
+
+    boolean loadRounds();
 }

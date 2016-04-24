@@ -2,7 +2,6 @@ package eu.motogymkhana.competition.rider.impl;
 
 import android.content.Context;
 import android.os.Environment;
-import android.util.Log;
 
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
@@ -49,7 +48,6 @@ import eu.motogymkhana.competition.rider.UpdateRidersTask;
 import eu.motogymkhana.competition.rider.UploadRidersTask;
 import eu.motogymkhana.competition.round.RoundManager;
 import eu.motogymkhana.competition.settings.SettingsManager;
-import roboguice.inject.InjectResource;
 
 @Singleton
 public class RiderManagerImpl implements RiderManager {
@@ -61,7 +59,6 @@ public class RiderManagerImpl implements RiderManager {
     private TimesDao timesDao;
     private GymkhanaDatabaseHelper databaseHelper;
 
-    @InjectResource(R.array.qualification_points)
     private int[] points;
 
     private ChristinePreferences prefs;
@@ -173,7 +170,7 @@ public class RiderManagerImpl implements RiderManager {
 
     @Override
     public void getRegisteredRiders(GetRidersCallback callback) {
-        new GetRegisteredRidersFromDBTask(context, callback, roundManager.getDate()).execute();
+        new GetRegisteredRidersFromDBTask(context, callback, prefs.getDate()).execute();
     }
 
     @Override
@@ -245,9 +242,6 @@ public class RiderManagerImpl implements RiderManager {
 
     private void swapStartNumbers(Rider previousRider, Rider prePreviousRider) throws SQLException {
 
-        Log.d("xtien", "swap riders " + previousRider.getFirstName() + " " + previousRider.getLastName() + " and " +
-                prePreviousRider.getFirstName() + " " + prePreviousRider.getLastName());
-
         long date = roundManager.getDate();
 
         int startNumber = prePreviousRider.getStartNumber();
@@ -315,7 +309,12 @@ public class RiderManagerImpl implements RiderManager {
     }
 
     @Override
-    public void getTotals(TotalsListAdapter totalsListAdapter) throws SQLException {
+    public void getTotals(TotalsListAdapter totalsListAdapter) throws SQLException, IOException {
+
+        points = settingsManager.getSettings().getPoints();
+        if (points == null) {
+            points = context.getResources().getIntArray(R.array.qualification_points);
+        }
 
         final int roundsCountingForSeasonResult = settingsManager.getRoundsCountingForSeasonResult();
 

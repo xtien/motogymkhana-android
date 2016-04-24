@@ -4,7 +4,6 @@ import com.j256.ormlite.field.DatabaseField;
 import com.j256.ormlite.table.DatabaseTable;
 
 import eu.motogymkhana.competition.dao.impl.CredentialDaoImpl;
-import eu.motogymkhana.competition.dao.impl.RiderDaoImpl;
 
 /**
  * Created by christine on 14-2-16.

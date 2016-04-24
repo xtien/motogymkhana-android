@@ -16,18 +16,14 @@ import eu.motogymkhana.competition.R;
 import eu.motogymkhana.competition.dao.CredentialDao;
 import eu.motogymkhana.competition.model.Credential;
 import eu.motogymkhana.competition.prefs.ChristinePreferences;
-import roboguice.activity.RoboActivity;
-import roboguice.inject.InjectResource;
+import roboguice.RoboGuice;
 
 /**
  * Created by christine on 19-5-15.
  */
 public class AdminActivity extends BaseActivity {
 
-    @InjectResource(R.string.no_password)
-    private String noPw;
-
-    @InjectResource(R.string.password_too_short)
+     private String noPw;
     private String pwShort;
 
     @Inject
@@ -42,6 +38,11 @@ public class AdminActivity extends BaseActivity {
         super.onCreate(savedInstanceState);
 
         setContentView(R.layout.activity_admin);
+        RoboGuice.getInjector(this).injectMembers(this);
+
+        noPw = getString(R.string.no_password);
+        pwShort = getString(R.string.password_too_short);
+
 
         final EditText pwView = (EditText) findViewById(R.id.password);
         final TextView errorView = (TextView) findViewById(R.id.error_text);

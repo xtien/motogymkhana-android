@@ -1,5 +1,6 @@
 package eu.motogymkhana.competition.prefs.impl;
 
+import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
 
@@ -13,10 +14,34 @@ import eu.motogymkhana.competition.prefs.ChristinePreferences;
 @Singleton
 public class ChristinePreferencesImpl implements ChristinePreferences {
 
-    @Inject
+    protected static final String ROBOGUICE_1_DEFAULT_FILENAME = "default.xml";
+
+    private static final String REGISTERED = "registered";
+    private static final String INIT_APP = "init_app";
+    private static final String LOGGED_IN = "logged_in";
+    private static final String DATE = "date";
+    private static final String RESET = "reset";
+    private static final String FIRST_RUN = "first_run";
+    private static final String RESULT_SORTED = "result_sorted";
+    private static final String STARTUP = "startup";
+    private static final String BLOCK_DOWNLOAD = "block_download";
+    private static final String SERVER = "server";
+    private static final String PORT = "port";
+    private static final String VERSION_CODE = "version_code";
+    private static final String COUNTRY = "country_code";
+    private static final Country COUNTRY_DEFAULT = Country.NL;
+    private static final String SEASON = "season";
+    private static final String LOAD_ROUNDS = "load_rounds";
+    private static final int SEASON_DEFAULT = 2016;
+
     private SharedPreferences prefs;
 
     private String defaultDate = "2016-05-28";
+
+    @Inject
+    public ChristinePreferencesImpl(Context context) {
+        prefs = context.getSharedPreferences(ROBOGUICE_1_DEFAULT_FILENAME, Context.MODE_PRIVATE);
+    }
 
     @Override
     public boolean isRegistered() {
@@ -119,6 +144,17 @@ public class ChristinePreferencesImpl implements ChristinePreferences {
     public void setSeason(int season) {
         Constants.season = season;
         set(SEASON, season);
+    }
+
+    @Override
+    public boolean loadRounds() {
+
+        long roundsLoadedAt = prefs.getLong(LOAD_ROUNDS, 0l);
+        if ((System.currentTimeMillis() - roundsLoadedAt) > 24 * 3600 * 1000l) {
+            set(LOAD_ROUNDS, System.currentTimeMillis());
+            return true;
+        }
+        return false;
     }
 
     @Override

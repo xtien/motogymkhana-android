@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <dimen name="list_text_size">16dp</dimen>
+    <dimen name="list_time_text_size">16dp</dimen>
     <dimen name="date_text_size">12pt</dimen>
  </resources>

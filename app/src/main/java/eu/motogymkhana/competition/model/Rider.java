@@ -15,7 +15,6 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 
-import eu.motogymkhana.competition.Constants;
 import eu.motogymkhana.competition.dao.impl.RiderDaoImpl;
 import eu.motogymkhana.competition.round.RoundManagerProvider;
 
@@ -391,7 +390,13 @@ public class Rider {
 
     @JsonIgnore
     public int getStartNumber() {
-        return getEUTimes(RoundManagerProvider.getInstance().getDate()).getStartNumber();
+        Times t = getEUTimes(RoundManagerProvider.getInstance().getDate());
+        if (t != null) {
+            return t.getStartNumber();
+        } else {
+            return 0;
+        }
+
     }
 
     public int getSharing() {
@@ -452,5 +457,18 @@ public class Rider {
 
     public void setDateOfBirth(String dateOfBirth) {
         this.dateOfBirth = dateOfBirth;
+    }
+
+    public int getBibColor() {
+        switch (bib) {
+            case B:
+                return -16724737;
+            case G:
+                return -13314719;
+            case R:
+                return -64508;
+            default:
+                return -656559;
+        }
     }
 }

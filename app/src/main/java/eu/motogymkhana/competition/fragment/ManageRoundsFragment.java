@@ -2,16 +2,17 @@ package eu.motogymkhana.competition.fragment;
 
 import android.app.DatePickerDialog;
 import android.os.Bundle;
-import android.support.v4.app.DialogFragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.DatePicker;
 import android.widget.ListView;
+import android.widget.Toast;
 
 import com.google.inject.Inject;
 
+import java.io.IOException;
 import java.sql.SQLException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
@@ -20,10 +21,12 @@ import java.util.List;
 import eu.motogymkhana.competition.Constants;
 import eu.motogymkhana.competition.R;
 import eu.motogymkhana.competition.adapter.ManageRoundsAdapter;
-import eu.motogymkhana.competition.model.Country;
 import eu.motogymkhana.competition.model.Round;
 import eu.motogymkhana.competition.prefs.ChristinePreferences;
+import eu.motogymkhana.competition.rider.RiderManager;
 import eu.motogymkhana.competition.round.RoundManager;
+import eu.motogymkhana.competition.settings.SettingsManager;
+import roboguice.RoboGuice;
 
 /**
  * Created by christine on 6-2-16.
@@ -35,6 +38,13 @@ public class ManageRoundsFragment extends BaseFragment implements DatePickerDial
 
     @Inject
     private RoundManager roundManager;
+
+    @Inject
+    private RiderManager riderManager;
+
+    @Inject
+    private SettingsManager settingsManager;
+
     private DatePicker datePicker;
     private Button addButton;
     private ManageRoundsAdapter adapter;
@@ -56,6 +66,7 @@ public class ManageRoundsFragment extends BaseFragment implements DatePickerDial
 
     @Override
     public void onViewCreated(View view, Bundle savedInstanceState) {
+        RoboGuice.getInjector(getActivity()).injectMembers(this);
 
         List<Round> rounds = null;
         try {
@@ -100,9 +111,18 @@ public class ManageRoundsFragment extends BaseFragment implements DatePickerDial
     public void onBackPressed() {
 
         try {
+
             roundManager.save(adapter.getRounds());
+            settingsManager.setRounds(adapter.getRounds());
+
+            riderManager.notifyDataChanged();
+
+            Toast.makeText(getActivity(), R.string.upload_rounds_manually, Toast.LENGTH_LONG).show();
+
         } catch (SQLException e) {
             showAlert(e);
+        } catch (IOException e) {
+            e.printStackTrace();
         }
     }
 }

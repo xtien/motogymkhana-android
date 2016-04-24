@@ -2,34 +2,20 @@ package eu.motogymkhana.competition.activity;
 
 import android.os.Bundle;
 import android.view.View;
-import android.view.View.OnClickListener;
-import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
-import android.widget.Button;
-import android.widget.CheckBox;
-import android.widget.EditText;
 import android.widget.ImageView;
-import android.widget.Spinner;
 import android.widget.TextView;
 
 import com.google.inject.Inject;
 import com.squareup.picasso.Picasso;
 
-import org.apache.commons.lang.StringUtils;
-
 import java.sql.SQLException;
 
 import eu.motogymkhana.competition.R;
-import eu.motogymkhana.competition.api.impl.RidersCallback;
-import eu.motogymkhana.competition.model.Bib;
-import eu.motogymkhana.competition.model.Country;
-import eu.motogymkhana.competition.model.Gender;
 import eu.motogymkhana.competition.model.Rider;
 import eu.motogymkhana.competition.rider.RiderManager;
-import eu.motogymkhana.competition.rider.UpdateRiderCallback;
-import roboguice.activity.RoboActivity;
+import roboguice.RoboGuice;
 
-public class RiderViewActivity extends RoboActivity {
+public class RiderViewActivity extends BaseActivity {
 
     public static final String RIDER_NUMBER = "rider_number";
     public static final String FOCUS = "focus";
@@ -45,6 +31,7 @@ public class RiderViewActivity extends RoboActivity {
         super.onCreate(savedInstanceState);
 
         setContentView(R.layout.activity_view_rider);
+        RoboGuice.getInjector(this).injectMembers(this);
 
         final TextView firstNameView = (TextView) findViewById(R.id.first_name);
         final TextView lastNameView = (TextView) findViewById(R.id.last_name);

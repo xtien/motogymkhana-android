@@ -2,8 +2,6 @@ package eu.motogymkhana.competition.api.http.impl;
 
 import android.util.Log;
 
-import com.google.inject.Inject;
-
 import java.io.BufferedInputStream;
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -18,12 +16,10 @@ import java.net.URL;
 import java.net.URLConnection;
 
 import javax.net.ssl.HttpsURLConnection;
-import javax.net.ssl.SSLContext;
 
 import eu.motogymkhana.competition.Constants;
 import eu.motogymkhana.competition.api.http.HttpResultWrapper;
 import eu.motogymkhana.competition.api.http.MyHttp;
-import eu.motogymkhana.competition.api.http.NullHostNameVerifier;
 
 /**
  * Created by christine on 9-6-15.
@@ -35,9 +31,6 @@ public class MyHttpImpl implements MyHttp {
     private static int readTimeout = 10000;
     private static int connectTimeout = 15000;
 
-    @Inject
-    private SSLContext sslContext;
-
     @Override
     public HttpResultWrapper getStringFromUrl(String urlString) throws IOException {
 
@@ -48,14 +41,11 @@ public class MyHttpImpl implements MyHttp {
 
         if (Constants.USE_HTTPS) {
 
-            HttpsURLConnection.setDefaultHostnameVerifier(new NullHostNameVerifier());
-
             HttpsURLConnection urlConnection = (HttpsURLConnection) url.openConnection();
 
             try {
 
                 setGet(urlConnection);
-                urlConnection.setSSLSocketFactory(sslContext.getSocketFactory());
 
                 urlConnection.connect();
 
@@ -122,8 +112,6 @@ public class MyHttpImpl implements MyHttp {
     public HttpResultWrapper postStringFromUrl(String urlString, String input) throws UnsupportedEncodingException,
             IOException {
 
-        Log.d("motogymkhana_url", urlString+ "\n" + input + "\n");
-
         URL url = new URL(urlString );
         InputStream in;
 
@@ -140,10 +128,7 @@ public class MyHttpImpl implements MyHttp {
 
             if (Constants.USE_HTTPS) {
 
-                HttpsURLConnection.setDefaultHostnameVerifier(new NullHostNameVerifier());
-
                 setPost((HttpsURLConnection) urlConnection);
-                ((HttpsURLConnection) urlConnection).setSSLSocketFactory(sslContext.getSocketFactory());
 
                 urlConnection.connect();
 

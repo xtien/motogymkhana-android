@@ -6,6 +6,9 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.j256.ormlite.field.DatabaseField;
 import com.j256.ormlite.table.DatabaseTable;
 
+import org.apache.commons.lang.builder.EqualsBuilder;
+import org.apache.commons.lang.builder.HashCodeBuilder;
+
 import java.text.ParseException;
 
 import eu.motogymkhana.competition.Constants;
@@ -115,5 +118,39 @@ public class Round {
 
     public void setNumber(int number) {
         this.number = number;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (obj == null) {
+            return false;
+        }
+        if (obj == this) {
+            return true;
+        }
+        if (obj.getClass() != getClass()) {
+            return false;
+        }
+        Round other = (Round) obj;
+        boolean result =  new EqualsBuilder()
+                .append(date, other.date)
+                .isEquals();
+
+        return result;
+    }
+
+    @Override
+    public int hashCode() {
+        return new HashCodeBuilder(17, 37).
+                append(date).
+                toHashCode();
+    }
+
+    public Country getCountry() {
+        return country;
+    }
+
+    public int getSeason() {
+        return season;
     }
 }

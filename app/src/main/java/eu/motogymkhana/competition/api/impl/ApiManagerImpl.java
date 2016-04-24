@@ -4,13 +4,11 @@ import android.content.Context;
 import android.util.Log;
 
 import com.fasterxml.jackson.core.JsonGenerationException;
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.inject.Inject;
 
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
 import java.sql.SQLException;
 import java.util.Collection;
 import java.util.List;
@@ -30,6 +28,7 @@ import eu.motogymkhana.competition.api.UpdateTimesRequest;
 import eu.motogymkhana.competition.api.UploadRidersRequest;
 import eu.motogymkhana.competition.api.UploadRidersResponse;
 import eu.motogymkhana.competition.api.UploadRoundsRequest;
+import eu.motogymkhana.competition.api.UploadSettingsRequest;
 import eu.motogymkhana.competition.api.http.HttpResultWrapper;
 import eu.motogymkhana.competition.api.http.MyHttp;
 import eu.motogymkhana.competition.dao.CredentialDao;
@@ -108,8 +107,14 @@ public class ApiManagerImpl implements ApiManager {
     }
 
     @Override
-    public void uploadSettings(Settings settings) {
+    public void uploadSettings(Settings settings) throws IOException {
 
+        UploadSettingsRequest request = new UploadSettingsRequest(settings);
+        setPW(request);
+
+        String json = mapper.writeValueAsString(request);
+
+        http.postStringFromUrl(apiUrlHelper.getUploadSettingsUrl(), json);
     }
 
     @Override

@@ -1,7 +1,5 @@
 package eu.motogymkhana.competition.model;
 
-import android.util.Log;
-
 import java.util.Comparator;
 
 /**
@@ -14,7 +12,7 @@ public class RiderStartNumberComparator implements Comparator<Rider> {
     @Override
     public int compare(Rider rider1, Rider rider2) {
 
-        if(rider1 == null || rider2 == null){
+        if (rider1 == null || rider2 == null) {
             return 0;
         }
 

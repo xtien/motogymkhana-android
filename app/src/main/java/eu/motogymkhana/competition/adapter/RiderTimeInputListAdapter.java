@@ -3,6 +3,7 @@ package eu.motogymkhana.competition.adapter;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Color;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -38,15 +39,13 @@ public class RiderTimeInputListAdapter extends BaseAdapter {
 
     private List<Rider> riders = new ArrayList<Rider>();
     private LayoutInflater inflater;
-    private volatile boolean sorted = false;
-    private volatile boolean registration = false;
-    private volatile boolean result = false;
 
     private Activity activity;
 
     private RiderManager riderManager;
     private RoundManager roundManager;
     private CredentialDao credentialDao;
+    private ChristinePreferences prefs;
 
     private final ChangeListener changeListener = new ChangeListener() {
 
@@ -76,6 +75,7 @@ public class RiderTimeInputListAdapter extends BaseAdapter {
         this.riderManager = riderManager;
         this.roundManager = roundManager;
         this.credentialDao = credentialDao;
+        this.prefs = prefs;
         riderManager.registerRiderResultListener(changeListener);
 
         riderManager.getRegisteredRiders(callback);
@@ -103,12 +103,12 @@ public class RiderTimeInputListAdapter extends BaseAdapter {
 
         convertView = (LinearLayout) inflater.inflate(R.layout.rider_list_row, null);
 
-        long date = roundManager.getDate();
+        long date = prefs.getDate();
 
         final Rider rider = riders.get(position);
         final Times riderTimes = rider.getEUTimes(date);
 
-        ((LinearLayout) convertView.findViewById(R.id.rider_layout)).setOnClickListener(new OnClickListener() {
+        convertView.findViewById(R.id.rider_layout).setOnClickListener(new OnClickListener() {
 
             @Override
             public void onClick(View v) {
@@ -126,7 +126,11 @@ public class RiderTimeInputListAdapter extends BaseAdapter {
 
         //TODO how can riderTimes be null here?
         if (date > 0l && riderTimes != null) {
-            ((TextView) convertView.findViewById(R.id.ridernumber)).setText(riderTimes.getStartNumberString());
+
+            TextView riderNumberView = (TextView) convertView.findViewById(R.id.ridernumber);
+            riderNumberView.setText(riderTimes.getStartNumberString());
+            riderNumberView.setBackgroundColor(rider.getBibColor());
+
             ((TextView) convertView.findViewById(R.id.nationality)).setText(rider.getNationality().toString());
 
             TextView timeView1 = ((TextView) convertView.findViewById(R.id.time1));
@@ -185,36 +189,18 @@ public class RiderTimeInputListAdapter extends BaseAdapter {
 
     public void setRiders(Collection<Rider> collection) {
 
-        if (collection != null || collection.size() == 0) {
-            this.riders.clear();
-            this.riders.addAll(collection);
+        if (riders != null) {
+            riders.clear();
+            riders.addAll(collection);
             Collections.sort(riders, new RiderStartNumberComparator());
         } else {
-            this.riders = new ArrayList<Rider>();
+            riders = new ArrayList<Rider>();
         }
 
         notifyDataSetChanged();
     }
 
-    public void setSorted() {
-        sorted = true;
-        notifyDataSetChanged();
-    }
-
-    public void setRegistration() {
-        registration = true;
-        notifyDataSetChanged();
-    }
-
-    public void setResult() {
-        result = true;
-    }
-
     public void setActivity(Activity activity) {
         this.activity = activity;
-    }
-
-    public interface Factory {
-        RiderTimeInputListAdapter create();
     }
 }

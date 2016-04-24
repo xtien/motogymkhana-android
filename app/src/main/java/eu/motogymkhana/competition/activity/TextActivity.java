@@ -9,12 +9,12 @@ import com.google.inject.Inject;
 
 import eu.motogymkhana.competition.R;
 import eu.motogymkhana.competition.rider.RiderManager;
-import roboguice.activity.RoboActivity;
+import roboguice.RoboGuice;
 
 /**
  * Created by christine on 19-5-15.
  */
-public class TextActivity extends RoboActivity {
+public class TextActivity extends BaseActivity {
 
     @Inject
     private RiderManager riderManager;
@@ -24,6 +24,7 @@ public class TextActivity extends RoboActivity {
         super.onCreate(savedInstanceState);
 
         setContentView(R.layout.activity_text);
+        RoboGuice.getInjector(this).injectMembers(this);
 
         final EditText textView = (EditText) findViewById(R.id.edit_text);
 

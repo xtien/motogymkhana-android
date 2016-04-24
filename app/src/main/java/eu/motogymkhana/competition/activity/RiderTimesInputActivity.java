@@ -13,6 +13,7 @@ import com.google.inject.Inject;
 
 import java.sql.SQLException;
 
+import eu.motogymkhana.competition.Constants;
 import eu.motogymkhana.competition.R;
 import eu.motogymkhana.competition.model.Rider;
 import eu.motogymkhana.competition.model.Times;
@@ -20,19 +21,16 @@ import eu.motogymkhana.competition.rider.RiderManager;
 import eu.motogymkhana.competition.rider.UpdateRiderCallback;
 import eu.motogymkhana.competition.round.RoundManager;
 import eu.motogymkhana.competition.view.PlusMinusView;
-import roboguice.activity.RoboActivity;
-import roboguice.inject.InjectExtra;
+import roboguice.RoboGuice;
 
-public class RiderTimesInputActivity extends RoboActivity {
+public class RiderTimesInputActivity extends BaseActivity {
 
     public static final String RIDER_NUMBER = "rider_number";
     public static final String FOCUS = "focus";
 
-    @InjectExtra(value = RIDER_NUMBER)
     private int riderNumber;
 
-    @InjectExtra(value = FOCUS)
-    private int focus;
+     private int focus;
 
     @Inject
     private RiderManager riderManager;
@@ -48,8 +46,12 @@ public class RiderTimesInputActivity extends RoboActivity {
         super.onCreate(savedInstanceState);
 
         setContentView(R.layout.activity_rider_times_input);
+        RoboGuice.getInjector(this).injectMembers(this);
 
-        ((TextView) findViewById(R.id.date)).setText(roundManager.getDateString());
+        riderNumber = getIntent().getIntExtra(RIDER_NUMBER,0);
+        focus = getIntent().getIntExtra(FOCUS,0);
+
+        ((TextView) findViewById(R.id.date)).setText(Constants.dateFormat.format(roundManager.getDate()));
 
         try {
 

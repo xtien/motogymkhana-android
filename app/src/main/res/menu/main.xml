@@ -28,9 +28,9 @@
         android:showAsAction="never"
         android:title="@string/download_riders"/>
     <item
-        android:id="@+id/upload_file"
+        android:id="@+id/upload_riders"
         android:showAsAction="never"
-        android:title="@string/upload_file"/>
+        android:title="@string/upload_riders"/>
     <item
         android:id="@+id/upload_dates"
         android:showAsAction="never"

@@ -1,13 +1,17 @@
 package eu.motogymkhana.competition.rider;
 
 import android.content.Context;
+import android.os.AsyncTask;
 
 import com.google.inject.Inject;
 
-import eu.motogymkhana.competition.model.Rider;
-import roboguice.util.RoboAsyncTask;
+import java.io.IOException;
+import java.sql.SQLException;
 
-public class UpdateRiderTask extends RoboAsyncTask<Void> {
+import eu.motogymkhana.competition.model.Rider;
+import roboguice.RoboGuice;
+
+public class UpdateRiderTask extends AsyncTask<Void,Void,Void> {
 
     private final UpdateRiderCallback callback;
     @Inject
@@ -16,34 +20,30 @@ public class UpdateRiderTask extends RoboAsyncTask<Void> {
     private Rider rider;
 
     public UpdateRiderTask(Context context, Rider rider, UpdateRiderCallback callback) {
-        super(context);
+        RoboGuice.getInjector(context).injectMembers(this);
         this.rider = rider;
         this.callback = callback;
     }
 
     @Override
-    public Void call() throws Exception {
+    public Void doInBackground(Void... params)   {
 
-        riderManager.update(rider);
+        try {
+            riderManager.update(rider);
+        } catch (SQLException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
 
         return null;
     }
 
     @Override
-    public void onSuccess(Void v) {
+    public void onPostExecute(Void v) {
 
         if (callback != null) {
             callback.onSuccess();
         }
     }
-
-    @Override
-    public void onException(Exception e) {
-
-        if (callback != null) {
-            callback.onError(e.getMessage());
-        }
-        e.printStackTrace();
-    }
-
 }

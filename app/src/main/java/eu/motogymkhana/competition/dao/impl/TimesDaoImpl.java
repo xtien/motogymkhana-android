@@ -1,7 +1,5 @@
 package eu.motogymkhana.competition.dao.impl;
 
-import android.util.Log;
-
 import com.google.inject.Singleton;
 import com.j256.ormlite.dao.BaseDaoImpl;
 import com.j256.ormlite.stmt.DeleteBuilder;

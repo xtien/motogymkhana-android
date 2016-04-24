@@ -3,6 +3,7 @@ package eu.motogymkhana.competition.adapter;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Color;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -15,7 +16,6 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.google.inject.Inject;
-import com.google.inject.assistedinject.Assisted;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -23,7 +23,6 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
-import eu.motogymkhana.competition.Constants;
 import eu.motogymkhana.competition.R;
 import eu.motogymkhana.competition.activity.RiderNewUpdateActivity;
 import eu.motogymkhana.competition.activity.RiderViewActivity;
@@ -147,12 +146,11 @@ public class RiderRegistrationListAdapter extends BaseAdapter {
             rider.setBib(Bib.Y);
         }
 
-        ((TextView) convertView.findViewById(R.id.bib)).setText(rider.getBib().displayString());
-
         TextView startNumber = (TextView) convertView.findViewById(R.id.startnumber);
         TextView editView = ((TextView) convertView.findViewById(R.id.edit));
 
         startNumber.setText(Integer.toString(riderTimes.getStartNumber()));
+        startNumber.setBackgroundColor(rider.getBibColor());
 
         editView.setVisibility(View.VISIBLE);
         editView.setOnClickListener(new OnClickListener() {
@@ -247,9 +245,5 @@ public class RiderRegistrationListAdapter extends BaseAdapter {
 
     public void setActivity(Activity activity) {
         this.activity = activity;
-    }
-
-    public interface Factory {
-        RiderRegistrationListAdapter create(@Assisted Collection<Rider> list);
     }
 }

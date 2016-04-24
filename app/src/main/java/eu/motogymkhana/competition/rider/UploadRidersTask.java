@@ -1,19 +1,21 @@
 package eu.motogymkhana.competition.rider;
 
 import android.content.Context;
+import android.os.AsyncTask;
 
 import com.google.inject.Inject;
 
+import java.io.IOException;
 import java.util.List;
 
 import eu.motogymkhana.competition.api.ApiManager;
 import eu.motogymkhana.competition.model.Rider;
-import roboguice.util.RoboAsyncTask;
+import roboguice.RoboGuice;
 
 /**
  * Created by christine on 13-5-15.
  */
-public class UploadRidersTask extends RoboAsyncTask<Void> {
+public class UploadRidersTask extends AsyncTask<Void,Void,Void> {
 
     private final List<Rider> riders;
     private final UpdateRiderCallback callback;
@@ -22,28 +24,28 @@ public class UploadRidersTask extends RoboAsyncTask<Void> {
     private ApiManager apiManager;
 
     public UploadRidersTask(Context context, List<Rider> riders, UpdateRiderCallback callback) {
-        super(context);
+
+        RoboGuice.getInjector(context).injectMembers(this);
 
         this.riders = riders;
         this.callback = callback;
     }
 
     @Override
-    public Void call() throws Exception {
+    public Void doInBackground(Void... params) {
 
-        apiManager.uploadRiders(riders);
+        try {
+            apiManager.uploadRiders(riders);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
 
         return null;
     }
 
     @Override
-    public void onSuccess(Void v) {
+    public void onPostExecute(Void v) {
 
         callback.onSuccess();
-    }
-
-    @Override
-    public void onException(Exception e) {
-        callback.onError(e.getMessage());
     }
 }

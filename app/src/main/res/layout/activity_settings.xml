@@ -153,6 +153,16 @@
                         android:padding="12px"/>
                 </LinearLayout>
 
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/points"/>
+
+                <EditText
+                    android:id="@+id/points"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"/>
+
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
@@ -178,6 +188,12 @@
                         android:text="@string/test_server"
                         android:visibility="gone"/>
                 </LinearLayout>
+
+                <Button
+                    android:id="@+id/save"
+                    android:text="@string/save"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"/>
             </LinearLayout>
         </LinearLayout>
 
@@ -187,6 +203,19 @@
             android:layout_height="match_parent"
             android:layout_margin="20dp">
         </FrameLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:gravity="center">
+
+            <ProgressBar
+                android:id="@+id/progress_bar"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:visibility="gone"/>
+        </LinearLayout>
 
     </FrameLayout>
 </ScrollView>

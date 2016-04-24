@@ -1,7 +1,9 @@
 package eu.motogymkhana.competition.adapter;
 
 import android.content.Context;
+import android.graphics.Color;
 import android.support.annotation.Nullable;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -10,7 +12,6 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.google.inject.Inject;
-import com.google.inject.assistedinject.Assisted;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -19,12 +20,11 @@ import java.util.List;
 
 import eu.motogymkhana.competition.R;
 import eu.motogymkhana.competition.dao.RoundDao;
-import eu.motogymkhana.competition.dao.SettingsDao;
 import eu.motogymkhana.competition.model.Rider;
 import eu.motogymkhana.competition.model.Round;
 import eu.motogymkhana.competition.rider.RiderManager;
-import eu.motogymkhana.competition.settings.Settings;
 import eu.motogymkhana.competition.settings.SettingsManager;
+import roboguice.RoboGuice;
 
 //import javax.annotation.Nullable;
 
@@ -35,19 +35,19 @@ public class TotalsListAdapter extends BaseAdapter {
     private List<Rider> riders = new ArrayList<Rider>();
     private LayoutInflater inflater;
 
+    @Inject
     private RiderManager riderManager;
+
+    @Inject
     private SettingsManager settingsManager;
 
     @Inject
-    public TotalsListAdapter(@Assisted @Nullable Collection<Rider> riders, Context context,
-                             RiderManager riderManager, SettingsManager settingsManager, RoundDao roundsDao) {
+    public TotalsListAdapter(Context context, Collection<Rider> riders, RoundDao roundDao) {
 
-        this.riderManager = riderManager;
-        this.settingsManager = settingsManager;
+        RoboGuice.getInjector(context).injectMembers(this);
 
         try {
-
-            Collection<Round> rounds = roundsDao.getRounds();
+            Collection<Round> rounds = roundDao.getRounds();
             if (rounds != null && rounds.size() > 1) {
                 if (riders != null && riders.size() > 0) {
                     this.riders.clear();
@@ -56,11 +56,9 @@ public class TotalsListAdapter extends BaseAdapter {
                     this.riders.clear();
                 }
             }
-
         } catch (SQLException e) {
             e.printStackTrace();
         }
-
 
         inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
     }
@@ -91,14 +89,15 @@ public class TotalsListAdapter extends BaseAdapter {
 
         ((TextView) convertView.findViewById(R.id.first_name)).setText(rider.getFirstName());
         ((TextView) convertView.findViewById(R.id.last_name)).setText(rider.getLastName());
-        ((TextView) convertView.findViewById(R.id.ridernumber)).setText(rider
+        TextView riderNumberView = (TextView) convertView.findViewById(R.id.ridernumber);
+        riderNumberView.setText(rider
                 .getRiderNumberString());
+        riderNumberView.setBackgroundColor(rider.getBibColor());
+
         ((TextView) convertView.findViewById(R.id.nationality)).setText(rider.getNationality().toString());
 
         TextView timeView1 = ((TextView) convertView.findViewById(R.id.time1));
         TextView timeView2 = ((TextView) convertView.findViewById(R.id.time2));
-
-        ((TextView) convertView.findViewById(R.id.bib)).setText(rider.getBib().displayString());
 
         timeView2.setVisibility(View.GONE);
         timeView1.setVisibility(View.VISIBLE);
@@ -115,9 +114,5 @@ public class TotalsListAdapter extends BaseAdapter {
             this.riders = riders;
             notifyDataSetChanged();
         }
-    }
-
-    public interface Factory {
-        TotalsListAdapter create(@Assisted @Nullable Collection<Rider> list);
     }
 }

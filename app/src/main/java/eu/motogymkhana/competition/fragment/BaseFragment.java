@@ -1,18 +1,17 @@
 package eu.motogymkhana.competition.fragment;
 
 import android.os.Bundle;
-
-import roboguice.fragment.RoboFragment;
+import android.support.v4.app.Fragment;
 
 /**
  * Created by christine on 6-2-16.
  */
-public abstract class BaseFragment extends RoboFragment{
+public abstract class BaseFragment extends Fragment {
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-  }
+    }
 
     protected void showAlert(final Exception e) {
         e.printStackTrace();

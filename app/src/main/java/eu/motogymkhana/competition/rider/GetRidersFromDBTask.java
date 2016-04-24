@@ -1,19 +1,21 @@
 package eu.motogymkhana.competition.rider;
 
 import android.content.Context;
+import android.os.AsyncTask;
 
 import com.google.inject.Inject;
 
+import java.sql.SQLException;
 import java.util.Collection;
 
 import eu.motogymkhana.competition.dao.RiderDao;
 import eu.motogymkhana.competition.model.Rider;
-import roboguice.util.RoboAsyncTask;
+import roboguice.RoboGuice;
 
 /**
  * Created by christine on 7-9-15.
  */
-public class GetRidersFromDBTask  extends RoboAsyncTask<Collection<Rider>> {
+public class GetRidersFromDBTask  extends AsyncTask<Void,Void,Collection<Rider>> {
 
     @Inject
     private RiderDao riderDao;
@@ -21,18 +23,23 @@ public class GetRidersFromDBTask  extends RoboAsyncTask<Collection<Rider>> {
     private final GetRidersCallback callback;
 
     public GetRidersFromDBTask(Context context, GetRidersCallback callback) {
-        super(context);
+        RoboGuice.getInjector(context).injectMembers(this);
         this.callback = callback;
     }
 
     @Override
-    public Collection<Rider> call() throws Exception {
+    public Collection<Rider> doInBackground(Void... params)  {
 
-        return riderDao.getRiders();
+        try {
+            return riderDao.getRiders();
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return null;
+        }
     }
 
     @Override
-    public void onSuccess(Collection<Rider> riders) {
+    public void onPostExecute(Collection<Rider> riders) {
 
         callback.onSuccess(riders);
     }

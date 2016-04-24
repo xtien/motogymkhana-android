@@ -1,8 +1,8 @@
 package eu.motogymkhana.competition.fragment;
 
-import android.app.Activity;
 import android.content.Context;
 import android.os.Bundle;
+import android.support.v4.app.ListFragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -15,19 +15,25 @@ import java.util.List;
 
 import eu.motogymkhana.competition.R;
 import eu.motogymkhana.competition.adapter.RiderRegistrationListAdapter;
+import eu.motogymkhana.competition.dao.RoundDao;
+import eu.motogymkhana.competition.dao.TimesDao;
 import eu.motogymkhana.competition.model.Rider;
 import eu.motogymkhana.competition.rider.RiderManager;
-import roboguice.fragment.RoboListFragment;
+import eu.motogymkhana.competition.round.RoundManager;
+import roboguice.RoboGuice;
 
-public class RiderRegistrationFragment extends RoboListFragment {
-
-    @Inject
-    private RiderRegistrationListAdapter.Factory riderListAdapterFactory;
+public class RiderRegistrationFragment extends ListFragment {
 
     private List<Rider> riders = new ArrayList<Rider>();
 
     @Inject
     private RiderManager riderManager;
+
+    @Inject
+    private RoundManager roundManager;
+
+    @Inject
+    private TimesDao timesDao;
 
     private RiderRegistrationListAdapter adapter;
     private volatile boolean attached;
@@ -41,12 +47,14 @@ public class RiderRegistrationFragment extends RoboListFragment {
     @Override
     public void onViewCreated(View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
+        RoboGuice.getInjector(getActivity()).injectMembers(this);
 
         TextView titleView = ((TextView) view.findViewById(R.id.title));
         titleView.setVisibility(View.VISIBLE);
         titleView.setText(R.string.registration);
 
-        adapter = riderListAdapterFactory.create(riders);
+        adapter = new RiderRegistrationListAdapter( getActivity(),  riderManager,  roundManager,
+                 timesDao);
         adapter.setRegistration();
         adapter.setActivity(getActivity());
         setListAdapter(adapter);

@@ -4,13 +4,13 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.Spinner;
 import android.widget.TextView;
 
 import com.google.inject.Inject;
 
 import eu.motogymkhana.competition.R;
 import eu.motogymkhana.competition.prefs.ChristinePreferences;
+import roboguice.RoboGuice;
 
 /**
  * Created by christine on 19-5-15.
@@ -25,6 +25,7 @@ public class AdminSettingsActivity extends BaseActivity {
         super.onCreate(savedInstanceState);
 
         setContentView(R.layout.activity_admin_settings);
+        RoboGuice.getInjector(this).injectMembers(this);
 
         final EditText serverView = (EditText) findViewById(R.id.server);
         final EditText portView = (EditText) findViewById(R.id.port);

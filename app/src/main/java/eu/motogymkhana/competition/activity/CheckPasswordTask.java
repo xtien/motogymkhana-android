@@ -1,17 +1,19 @@
 package eu.motogymkhana.competition.activity;
 
 import android.content.Context;
+import android.os.AsyncTask;
 
 import com.google.inject.Inject;
 
-import eu.motogymkhana.competition.Constants;
+import java.io.IOException;
+
 import eu.motogymkhana.competition.api.ApiManager;
-import roboguice.util.RoboAsyncTask;
+import roboguice.RoboGuice;
 
 /**
  * Created by christine on 10-6-15.
  */
-public class CheckPasswordTask extends RoboAsyncTask<Boolean> {
+public class CheckPasswordTask extends AsyncTask<Void,Void,Boolean> {
 
     private final MyPasswordCallback callback;
     private String password;
@@ -21,29 +23,27 @@ public class CheckPasswordTask extends RoboAsyncTask<Boolean> {
 
     public CheckPasswordTask(Context context, String password, MyPasswordCallback callback) {
 
-        super(context);
+        RoboGuice.getInjector(context).injectMembers(this);
 
         this.callback = callback;
         this.password = password;
     }
 
     @Override
-    public Boolean call() throws Exception {
+    public Boolean doInBackground(Void... params)  {
 
-        boolean result = apiManager.checkPassword(password);
+        boolean result = false;
+        try {
+            result = apiManager.checkPassword(password);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
         return result;
     }
 
     @Override
-    public void onSuccess(Boolean result) {
+    public void onPostExecute(Boolean result) {
 
         callback.onResult(result);
-    }
-
-
-    @Override
-    public void onException(Exception e) {
-        e.printStackTrace();
-        callback.onResult(false);
     }
 }

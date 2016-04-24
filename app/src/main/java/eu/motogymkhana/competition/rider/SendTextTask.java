@@ -1,13 +1,16 @@
 package eu.motogymkhana.competition.rider;
 
 import android.content.Context;
+import android.os.AsyncTask;
 
 import com.google.inject.Inject;
 
-import eu.motogymkhana.competition.api.ApiManager;
-import roboguice.util.RoboAsyncTask;
+import java.io.IOException;
 
-public class SendTextTask extends RoboAsyncTask<Void> {
+import eu.motogymkhana.competition.api.ApiManager;
+import roboguice.RoboGuice;
+
+public class SendTextTask extends AsyncTask<Void,Void,Void> {
 
 	@Inject
 	private ApiManager apiManager;
@@ -15,14 +18,19 @@ public class SendTextTask extends RoboAsyncTask<Void> {
 	private String text;
 
 	public SendTextTask(Context context, String text) {
-		super(context);
+
+		RoboGuice.getInjector(context).injectMembers(this);
 		this.text=text;
 	}
 
 	@Override
-	public Void call() throws Exception {
+	public Void doInBackground(Void... params) {
 
-		apiManager.sendText(text);
+		try {
+			apiManager.sendText(text);
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 		return null;
 	}
 }

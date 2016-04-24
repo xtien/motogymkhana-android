@@ -1,11 +1,9 @@
 package eu.motogymkhana.competition.api;
 
 import com.fasterxml.jackson.core.JsonGenerationException;
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonMappingException;
 
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
 import java.sql.SQLException;
 import java.util.Collection;
 import java.util.List;
@@ -44,5 +42,5 @@ public interface ApiManager {
 
 	SettingsResult getSettings() throws IOException;
 
-	void uploadSettings(Settings settings);
+	void uploadSettings(Settings settings) throws IOException;
 }

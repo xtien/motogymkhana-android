@@ -7,6 +7,7 @@ import com.google.inject.Singleton;
 
 import java.io.IOException;
 import java.sql.SQLException;
+import java.util.List;
 
 import eu.motogymkhana.competition.Constants;
 import eu.motogymkhana.competition.api.ApiManager;
@@ -14,6 +15,7 @@ import eu.motogymkhana.competition.api.GetSettingsTask;
 import eu.motogymkhana.competition.api.SettingsResult;
 import eu.motogymkhana.competition.api.impl.RidersCallback;
 import eu.motogymkhana.competition.dao.SettingsDao;
+import eu.motogymkhana.competition.model.Round;
 import eu.motogymkhana.competition.rider.RiderManager;
 import eu.motogymkhana.competition.rider.UpdateRiderCallback;
 import eu.motogymkhana.competition.settings.Settings;
@@ -39,7 +41,7 @@ public class SettingsManagerImpl implements SettingsManager {
     private SettingsDao settingsDao;
 
     @Override
-    public void getSettingsFromServerAsync() throws IOException, SQLException {
+    public void getSettingsFromServerAsync()  {
 
         new GetSettingsTask(context, new RidersCallback() {
 
@@ -52,9 +54,7 @@ public class SettingsManagerImpl implements SettingsManager {
             public void onError() {
 
             }
-
         }).execute();
-
     }
 
     @Override
@@ -144,5 +144,14 @@ public class SettingsManagerImpl implements SettingsManager {
         }
 
         return settings;
+    }
+
+    @Override
+    public void setRounds(List<Round> rounds) throws IOException, SQLException {
+
+        Settings settings = getSettings();
+        settings.setHasRounds(rounds != null && rounds.size() > 0);
+        settingsDao.storeHasRounds(settings.hasRounds());
+        uploadSettingsToServer(settings);
     }
 }

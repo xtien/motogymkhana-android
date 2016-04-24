@@ -11,8 +11,6 @@ import eu.motogymkhana.competition.model.Round;
  */
 public interface RoundManager {
 
-    long getDate();
-
     Round getDate(int number) throws SQLException;
 
     void setDate(long date) throws SQLException;
@@ -25,13 +23,11 @@ public interface RoundManager {
 
     void loadRoundsFromServer();
 
-    void setRound(Round round) throws SQLException;
-
-    Round getRound() throws SQLException;
-
-    String getDateString();
-
-    Integer getRoundNumber() throws SQLException;
+    Round getCurrentRound() throws SQLException;
 
     void save(List<Round> rounds) throws SQLException;
+
+    Round getRoundForDate(long date) throws SQLException;
+
+    long getDate();
 }

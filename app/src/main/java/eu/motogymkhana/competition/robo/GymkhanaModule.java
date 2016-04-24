@@ -1,9 +1,8 @@
 package eu.motogymkhana.competition.robo;
 
-import com.google.inject.AbstractModule;
-import com.google.inject.assistedinject.FactoryModuleBuilder;
+import android.content.Context;
 
-import javax.net.ssl.SSLContext;
+import com.google.inject.AbstractModule;
 
 import eu.motogymkhana.competition.adapter.RiderRegistrationListAdapter;
 import eu.motogymkhana.competition.adapter.RiderResultListAdapter;
@@ -11,7 +10,6 @@ import eu.motogymkhana.competition.adapter.RiderTimeInputListAdapter;
 import eu.motogymkhana.competition.adapter.TotalsListAdapter;
 import eu.motogymkhana.competition.api.ApiManager;
 import eu.motogymkhana.competition.api.ApiUrlHelper;
-import eu.motogymkhana.competition.api.http.SSLContextProvider;
 import eu.motogymkhana.competition.api.impl.ApiManagerImpl;
 import eu.motogymkhana.competition.api.impl.ApiUrlHelperImpl;
 import eu.motogymkhana.competition.dao.CredentialDao;
@@ -40,6 +38,8 @@ public class GymkhanaModule extends AbstractModule {
 	@Override
 	protected void configure() {
 
+		bind(Context.class).toProvider(CtxProvider.class);
+
 		bind(RiderManager.class).to(RiderManagerImpl.class).asEagerSingleton();
 		bind(RoundManager.class).to(RoundManagerImpl.class);
 		bind(SettingsManager.class).to(SettingsManagerImpl.class);
@@ -55,24 +55,5 @@ public class GymkhanaModule extends AbstractModule {
 		bind(TimesDao.class).toProvider(TimesDaoProvider.class).asEagerSingleton();
 		bind(CredentialDao.class).toProvider(CredentialDaoProvider.class).asEagerSingleton();
 		bind(SettingsDao.class).toProvider(SettingsDaoProvider.class).asEagerSingleton();
-
-		// http
-		bind(SSLContext.class).toProvider(SSLContextProvider.class).asEagerSingleton();
-
-		// listadapters
-		install(new FactoryModuleBuilder().implement(RiderTimeInputListAdapter.class, RiderTimeInputListAdapter.class).build
-				(RiderTimeInputListAdapter.Factory.class));
-
-		install(new FactoryModuleBuilder()
-				.implement(RiderResultListAdapter.class, RiderResultListAdapter.class).build(
-						RiderResultListAdapter.Factory.class));
-
-		install(new FactoryModuleBuilder()
-				.implement(RiderRegistrationListAdapter.class, RiderRegistrationListAdapter.class).build(
-						RiderRegistrationListAdapter.Factory.class));
-
-		install(new FactoryModuleBuilder().implement(TotalsListAdapter.class,
-				TotalsListAdapter.class).build(TotalsListAdapter.Factory.class));
-
 	}
 }

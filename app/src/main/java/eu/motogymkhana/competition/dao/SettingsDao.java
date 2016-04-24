@@ -5,8 +5,6 @@ import com.j256.ormlite.dao.Dao;
 import java.sql.SQLException;
 
 import eu.motogymkhana.competition.model.Country;
-import eu.motogymkhana.competition.model.Credential;
-import eu.motogymkhana.competition.model.Rider;
 import eu.motogymkhana.competition.settings.Settings;
 
 /**

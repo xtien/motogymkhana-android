@@ -44,8 +44,8 @@
     <string name="start_numbers">Generate start numbers</string>
     <string name="load_file">Load Riders File</string>
     <string name="download_riders">Download Riders</string>
-    <string name="upload_file">Upload Riders</string>
-    <string name="upload_dates">Upload Dates</string>
+    <string name="upload_riders">Upload Riders</string>
+    <string name="upload_dates">Upload Rounds/Dates</string>
     <string name="admin">Admin</string>
     <string name="text">Text</string>
     <string name="admin_settings">Admin Settings</string>
@@ -76,6 +76,8 @@
     <string name="view_rider">Rider details</string>
     <string name="no_totals_for_one_round">No season totals if there is only one round</string>
     <string name="no_rounds_held">No races were organized.</string>
+    <string name="points">points</string>
+    <string name="upload_rounds_manually">Don\'t forget to upload the rounds manually.</string>
 
 
 </resources>

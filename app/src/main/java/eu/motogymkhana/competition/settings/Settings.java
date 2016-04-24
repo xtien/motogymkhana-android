@@ -22,6 +22,7 @@ public class Settings {
     public static final String COUNTRY = "country";
     public static final String SEASON = "season";
     private static final String HAS_ROUNDS = "has_rounds";
+    public static final String POINTS = "points";
 
     @JsonIgnore
     @DatabaseField(generatedId = true, columnName = ID)
@@ -51,9 +52,17 @@ public class Settings {
     @DatabaseField(columnName = NUMBER_OF_RESULTS_FOR_BIB)
     private int numberOfResultsForBib = 4;
 
+    @JsonProperty(POINTS)
+    @DatabaseField(columnName = POINTS)
+    private String pointsList;
+
     @DatabaseField(columnName = HAS_ROUNDS)
     @JsonIgnore
     private boolean hasRounds = true;
+
+    @DatabaseField(persisted = false)
+    @JsonIgnore
+    private int[] points;
 
     public int getPercentageBlue() {
         return percentageForBlueBib;
@@ -117,5 +126,25 @@ public class Settings {
 
     public boolean hasRounds() {
         return hasRounds;
+    }
+
+    public void setPoints(String string) {
+        this.pointsList = string;
+    }
+
+    public int[] getPoints() {
+
+        if (points == null && pointsList != null && pointsList.length() > 1) {
+            String[] pts = pointsList.split(",");
+            points = new int[pts.length];
+            for (int i = 0; i < pts.length; i++) {
+                points[i] = Integer.parseInt(pts[i]);
+            }
+        }
+        return points;
+    }
+
+    public String getPointsString() {
+        return pointsList;
     }
 }

@@ -1,8 +1,8 @@
 package eu.motogymkhana.competition.fragment;
 
-import android.app.Activity;
 import android.content.Context;
 import android.os.Bundle;
+import android.support.v4.app.ListFragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -10,6 +10,7 @@ import android.widget.TextView;
 
 import com.google.inject.Inject;
 
+import java.io.IOException;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
@@ -17,22 +18,20 @@ import java.util.List;
 import eu.motogymkhana.competition.R;
 import eu.motogymkhana.competition.adapter.ChangeListener;
 import eu.motogymkhana.competition.adapter.TotalsListAdapter;
-import eu.motogymkhana.competition.adapter.TotalsListAdapter.Factory;
 import eu.motogymkhana.competition.dao.RoundDao;
 import eu.motogymkhana.competition.model.Rider;
-import eu.motogymkhana.competition.model.Round;
 import eu.motogymkhana.competition.rider.RiderManager;
-import roboguice.fragment.RoboListFragment;
+import roboguice.RoboGuice;
 
-public class SeasonTotalsFragment extends RoboListFragment {
-
-    @Inject
-    private Factory totalsAdapterFactory;
+public class SeasonTotalsFragment extends ListFragment {
 
     private List<Rider> riders = new ArrayList<Rider>();
 
     @Inject
     private RiderManager riderManager;
+
+    @Inject
+    private RoundDao roundDao;
 
     private TotalsListAdapter adapter;
     private volatile boolean attached;
@@ -47,6 +46,8 @@ public class SeasonTotalsFragment extends RoboListFragment {
                 try {
                     riderManager.getTotals(adapter);
                 } catch (SQLException e) {
+                    e.printStackTrace();
+                } catch (IOException e) {
                     e.printStackTrace();
                 }
             }
@@ -63,11 +64,13 @@ public class SeasonTotalsFragment extends RoboListFragment {
     public void onViewCreated(View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
+        RoboGuice.getInjector(getActivity()).injectMembers(this);
+
         TextView titleView = ((TextView) view.findViewById(R.id.title));
         titleView.setVisibility(View.VISIBLE);
         titleView.setText(R.string.totals);
 
-        adapter = totalsAdapterFactory.create(riders);
+        adapter = new TotalsListAdapter(getActivity(), riders, roundDao);
         setListAdapter(adapter);
 
         riderManager.registerRiderResultListener(riderResultListener);
@@ -75,6 +78,8 @@ public class SeasonTotalsFragment extends RoboListFragment {
         try {
             riderManager.getTotals(adapter);
         } catch (SQLException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
             e.printStackTrace();
         }
     }

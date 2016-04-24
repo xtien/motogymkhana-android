@@ -1,6 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <dimen name="list_text_padding">6dp</dimen>
     <dimen name="list_text_size">14dp</dimen>
+    <dimen name="list_time_text_size">14dp</dimen>
     <dimen name="date_text_size">10pt</dimen>
+    <dimen name="nationality_width">30dp</dimen>
     <dimen name="plusminusminwidth">60dp</dimen>
+    <dimen name="time_box_width">80dp</dimen>
+    <dimen name="bib_width">20dp</dimen>
+    <dimen name="list_time_margin_left">10dp</dimen>
+    <dimen name="list_time_margin_right">10dp</dimen>
+    <dimen name="list_edit_margin_left">20dp</dimen>
+    <dimen name="list_checkbox_margin_left">10dp</dimen>
+    <dimen name="list_checkbox_margin_right">60dp</dimen>
 </resources>

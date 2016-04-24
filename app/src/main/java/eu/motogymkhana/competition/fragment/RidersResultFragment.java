@@ -1,8 +1,8 @@
 package eu.motogymkhana.competition.fragment;
 
-import android.app.Activity;
 import android.content.Context;
 import android.os.Bundle;
+import android.support.v4.app.ListFragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -16,15 +16,23 @@ import java.util.List;
 import eu.motogymkhana.competition.R;
 import eu.motogymkhana.competition.adapter.RiderResultListAdapter;
 import eu.motogymkhana.competition.model.Rider;
-import roboguice.fragment.RoboListFragment;
+import eu.motogymkhana.competition.prefs.ChristinePreferences;
+import eu.motogymkhana.competition.rider.RiderManager;
+import eu.motogymkhana.competition.round.RoundManager;
+import roboguice.RoboGuice;
 
-public class RidersResultFragment extends RoboListFragment {
+public class RidersResultFragment extends ListFragment {
 
     @Inject
-    private RiderResultListAdapter.Factory riderResultListAdapterFactory;
+    private RiderManager riderManager;
+
+    @Inject
+    private RoundManager roundManager;
+
+    @Inject
+    private ChristinePreferences prefs;
 
     private List<Rider> riders = new ArrayList<Rider>();
-    ;
 
     private RiderResultListAdapter adapter;
     private volatile boolean attached;
@@ -38,12 +46,13 @@ public class RidersResultFragment extends RoboListFragment {
     @Override
     public void onViewCreated(View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
+        RoboGuice.getInjector(getActivity()).injectMembers(this);
 
         TextView titleView = ((TextView) view.findViewById(R.id.title));
         titleView.setVisibility(View.VISIBLE);
         titleView.setText(R.string.results);
 
-        adapter = riderResultListAdapterFactory.create();
+        adapter = new RiderResultListAdapter(getActivity(), riderManager, roundManager, prefs);
         adapter.setResult();
         adapter.setActivity(getActivity());
         setListAdapter(adapter);
