@@ -129,7 +129,7 @@ public class RiderNewUpdateActivity extends BaseActivity {
                     rider.setCountry(Constants.country);
                 }
                 for (int i = 0; i < Country.values().length; i++) {
-                    if (Country.values()[i] == rider.getCountry()) {
+                    if (Country.values()[i] == rider.getNationality()) {
                         nationalitySpinner.setSelection(i);
                         break;
                     }
@@ -160,7 +160,7 @@ public class RiderNewUpdateActivity extends BaseActivity {
 
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                rider.setCountry(Country.values()[position]);
+                rider.setNationality(Country.values()[position]);
             }
 
             @Override

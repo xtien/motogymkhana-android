@@ -139,7 +139,7 @@ public class RiderRegistrationListAdapter extends BaseAdapter {
         ((TextView) convertView.findViewById(R.id.ridernumber)).setText(rider.getRiderNumberString());
 
         if (rider.getCountry() != null) {
-            ((TextView) convertView.findViewById(R.id.country)).setText(rider.getCountry().name());
+            ((TextView) convertView.findViewById(R.id.country)).setText(rider.getNationality().name());
         }
 
         if (rider.getBib() == null) {

@@ -97,17 +97,15 @@ public class MainActivity extends FragmentActivity {
     private TextView messageTextView;
     private ProgressBar progressBar;
 
-    private boolean first = true;
-
     private Runnable loadRoundsTask = new Runnable() {
 
         @Override
         public void run() {
             roundManager.loadRoundsFromServer();
             settingsManager.getSettingsFromServerAsync();
-
         }
     };
+
     private Runnable refreshTask = new Runnable() {
 
         @Override
@@ -201,9 +199,6 @@ public class MainActivity extends FragmentActivity {
         Constants.country = prefs.getCountry();
         Constants.season = prefs.getSeason();
 
-        Country c = prefs.getCountry();
-        int s = prefs.getSeason();
-
         getActionBar().setTitle("");
 
         dateView = (TextView) findViewById(R.id.date);
@@ -278,10 +273,7 @@ public class MainActivity extends FragmentActivity {
 
         handler = new Handler();
 
-        if (!isAdmin()) {
-            handler.post(refreshTask);
-        }
-        setFragments();
+         setFragments();
 
         setDate();
 
@@ -312,6 +304,10 @@ public class MainActivity extends FragmentActivity {
 
         if (riderManager != null) {
             riderManager.registerRiderResultListener(dataChangedListener);
+        }
+
+        if (!isAdmin()) {
+            handler.post(refreshTask);
         }
     }
 

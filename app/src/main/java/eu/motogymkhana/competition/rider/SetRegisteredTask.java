@@ -5,6 +5,9 @@ import android.os.AsyncTask;
 
 import com.google.inject.Inject;
 
+import java.io.IOException;
+import java.sql.SQLException;
+
 import eu.motogymkhana.competition.dao.TimesDao;
 import eu.motogymkhana.competition.model.Times;
 import eu.motogymkhana.competition.round.RoundManager;
@@ -13,20 +16,14 @@ import roboguice.RoboGuice;
 /**
  * Created by christine on 28-5-15.
  */
-public class SetRegisteredTask extends AsyncTask<Void,Void,Void> {
+public class SetRegisteredTask extends AsyncTask<Void, Void, Void> {
 
     private final Times times;
     private final boolean registered;
     private final Context context;
 
     @Inject
-    private RoundManager roundManager;
-
-    @Inject
     private RiderManager riderManager;
-
-    @Inject
-    private TimesDao timesDao;
 
     public SetRegisteredTask(Context context, Times times, boolean registered) {
 
@@ -37,10 +34,14 @@ public class SetRegisteredTask extends AsyncTask<Void,Void,Void> {
     }
 
     @Override
-    public Void doInBackground(Void... params)  {
+    public Void doInBackground(Void... params) {
 
         times.setRegistered(registered);
+        return null;
+    }
 
+    @Override
+    public void onPostExecute(Void v) {
         new UpdateTimesTask(context, times, new UpdateRiderCallback() {
 
             @Override
@@ -53,8 +54,5 @@ public class SetRegisteredTask extends AsyncTask<Void,Void,Void> {
 
             }
         }).execute();
-
-
-        return null;
     }
 }

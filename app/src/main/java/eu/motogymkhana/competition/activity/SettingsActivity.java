@@ -531,7 +531,7 @@ public class SettingsActivity extends BaseActivity {
             intent.putExtra(SEASON_CHANGED, true);
         }
 
-        if (prefs.getDate() != orgRound.getDate()) {
+        if (orgRound !=null && prefs.getDate() != orgRound.getDate()) {
             intent.putExtra(ROUND_CHANGED, true);
         }
 

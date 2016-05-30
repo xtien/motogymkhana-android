@@ -10,6 +10,7 @@ dependencies {
     compile fileTree(dir: 'libs', include: ['*.jar'])
     compile fileTree(dir: 'libs/roboguice', include: ['*.jar'])
     compile 'org.roboguice:roboguice:4.0.0'
+    provided 'org.roboguice:roboblender:4.0.0'
 
     compile 'com.jakewharton:butterknife:7.0.1'
     compile 'com.squareup.picasso:picasso:2.5.2'
@@ -72,7 +73,4 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
     }
-}
-dependencies {
-    compile 'com.google.android.gms:play-services-appindexing:8.1.0'
 }

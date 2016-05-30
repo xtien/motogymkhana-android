@@ -38,7 +38,6 @@ public class GymkhanaModule extends AbstractModule {
 	@Override
 	protected void configure() {
 
-		bind(Context.class).toProvider(CtxProvider.class);
 
 		bind(RiderManager.class).to(RiderManagerImpl.class).asEagerSingleton();
 		bind(RoundManager.class).to(RoundManagerImpl.class);

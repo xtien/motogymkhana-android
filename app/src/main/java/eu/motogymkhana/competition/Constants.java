@@ -11,7 +11,7 @@ public class Constants {
     public static final boolean testServer = false;
     public static boolean USE_HTTPS = true;
 
-    public static final long refreshRate = 15000l;
+    public static final long refreshRate = 5000l;
 
     public static boolean test = false;
     public static final int DATABASE_VERSION = 9;

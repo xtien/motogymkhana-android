@@ -1,5 +1,7 @@
 package eu.motogymkhana.competition.robo;
 
+import android.content.Context;
+
 import com.google.inject.AbstractModule;
 
 import eu.motogymkhana.competition.api.http.MyHttp;
@@ -15,6 +17,7 @@ public class LiveModule extends AbstractModule {
     @Override
     protected void configure() {
 
+        bind(Context.class).toProvider(CtxProvider.class);
         bind(MyHttp.class).to(MyHttpImpl.class).asEagerSingleton();
         bind(ContextProvider.class).to(ContextProviderImpl.class);
     }
