@@ -109,18 +109,6 @@ public class SettingsManagerImpl implements SettingsManager {
     }
 
     @Override
-    public int getRoundsForBib() {
-        Settings settings = null;
-        try {
-            settings = settingsDao.get();
-        } catch (SQLException e) {
-            e.printStackTrace();
-            return 0;
-        }
-        return settings.getRoundsForBib();
-    }
-
-    @Override
     public Settings getSettings() throws IOException, SQLException {
 
         Settings settings = null;

@@ -32,6 +32,7 @@ import eu.motogymkhana.competition.api.UploadSettingsRequest;
 import eu.motogymkhana.competition.api.http.HttpResultWrapper;
 import eu.motogymkhana.competition.api.http.MyHttp;
 import eu.motogymkhana.competition.dao.CredentialDao;
+import eu.motogymkhana.competition.log.MyLog;
 import eu.motogymkhana.competition.model.Credential;
 import eu.motogymkhana.competition.model.Rider;
 import eu.motogymkhana.competition.model.Round;
@@ -48,6 +49,9 @@ public class ApiManagerImpl implements ApiManager {
 
     @Inject
     private MyHttp http;
+
+    @Inject
+    private MyLog log;
 
     @Inject
     private Context context;
@@ -100,7 +104,7 @@ public class ApiManagerImpl implements ApiManager {
         if (httpResult != null && httpResult.getStatusCode() == 200) {
             result = mapper.readValue(httpResult.getString(), SettingsResult.class);
         } else {
-            Log.e(TAG, "Settings not found ");
+            log.e(TAG, "Settings not found ");
         }
 
         return result;
@@ -130,7 +134,7 @@ public class ApiManagerImpl implements ApiManager {
         if (httpResult != null && httpResult.getStatusCode() == 200) {
             result = mapper.readValue(httpResult.getString(), ListRidersResult.class);
         } else {
-            Log.e(TAG, "Riders not found ");
+            log.e(TAG, "Riders not found ");
         }
 
         return result;
@@ -190,7 +194,7 @@ public class ApiManagerImpl implements ApiManager {
         if (httpResult != null && httpResult.getStatusCode() == 200) {
             result = mapper.readValue(httpResult.getString(), ListRoundsResult.class);
         } else {
-            Log.e(TAG, "Rounds not found: ");
+            log.e(TAG, "Rounds not found: ");
         }
 
         return result;

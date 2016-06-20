@@ -5,16 +5,18 @@
  * http://www. apache.org/licenses/LICENSE-2.0.
  */
 
-package eu.motogymkhana.competition.country;
-
-import java.util.Collection;
-
-import eu.motogymkhana.competition.model.Country;
+package eu.motogymkhana.competition.log;
 
 /**
- * Created by christine on 10-1-16.
+ * Created by christine on 13-6-16.
  */
-public interface CountryManager {
+public interface MyLog {
 
-    Collection<Country> getCountries();
+    void i(String tag, String message);
+
+    void d(String tag, String message);
+
+    void e(String tag, String message);
+
+    void e(String tag, Exception e);
 }

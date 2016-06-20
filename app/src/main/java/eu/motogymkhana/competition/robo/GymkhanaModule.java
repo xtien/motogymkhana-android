@@ -1,3 +1,10 @@
+/*
+ * Copyright (c) 2015 - 2016, Christine Karman
+ * This project is free software: you can redistribute it and/or modify it under the terms of
+ * the Apache License, Version 2.0. You can find a copy of the license at
+ * http://www. apache.org/licenses/LICENSE-2.0.
+ */
+
 package eu.motogymkhana.competition.robo;
 
 import android.content.Context;
@@ -24,6 +31,8 @@ import eu.motogymkhana.competition.dao.provider.SettingsDaoProvider;
 import eu.motogymkhana.competition.dao.provider.TimesDaoProvider;
 import eu.motogymkhana.competition.db.GymkhanaDatabaseHelper;
 import eu.motogymkhana.competition.db.GymkhanaDatabaseHelperProvider;
+import eu.motogymkhana.competition.log.MyLog;
+import eu.motogymkhana.competition.log.impl.MyLogImpl;
 import eu.motogymkhana.competition.prefs.ChristinePreferences;
 import eu.motogymkhana.competition.prefs.impl.ChristinePreferencesImpl;
 import eu.motogymkhana.competition.rider.RiderManager;
@@ -33,11 +42,16 @@ import eu.motogymkhana.competition.round.impl.RoundManagerImpl;
 import eu.motogymkhana.competition.settings.SettingsManager;
 import eu.motogymkhana.competition.settings.impl.SettingsManagerImpl;
 
+/**
+ * Created by Christine
+ * This module file contains Roboguice bindings for the app that are the same in test and release.
+ */
 public class GymkhanaModule extends AbstractModule {
 
 	@Override
 	protected void configure() {
 
+		bind(MyLog.class).to(MyLogImpl.class);
 
 		bind(RiderManager.class).to(RiderManagerImpl.class).asEagerSingleton();
 		bind(RoundManager.class).to(RoundManagerImpl.class);
@@ -54,5 +68,6 @@ public class GymkhanaModule extends AbstractModule {
 		bind(TimesDao.class).toProvider(TimesDaoProvider.class).asEagerSingleton();
 		bind(CredentialDao.class).toProvider(CredentialDaoProvider.class).asEagerSingleton();
 		bind(SettingsDao.class).toProvider(SettingsDaoProvider.class).asEagerSingleton();
+
 	}
 }

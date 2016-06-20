@@ -1,3 +1,10 @@
+/*
+ * Copyright (c) 2015 - 2016, Christine Karman
+ * This project is free software: you can redistribute it and/or modify it under the terms of
+ * the Apache License, Version 2.0. You can find a copy of the license at
+ * http://www. apache.org/licenses/LICENSE-2.0.
+ */
+
 package eu.motogymkhana.competition.activity;
 
 import android.content.Intent;
@@ -47,6 +54,13 @@ import roboguice.RoboGuice;
 
 /**
  * Created by christine on 19-5-15.
+ * Activity for editing settings. This includes both user settings and admin settings. User can select
+ * season, country and round here,"Round" is the date of a parciular race. Admin can set number of rounds
+ * that counts for season results (like "best 6 of 8 races"), the percentages for bib entitlement and the points
+ * distribution for the end result. Bib entitlement has like "you need to finish within 105% of winner for a blue
+ * bib point", or 115% for a green bib point. Also, admin can specify how many bib points a rider needs to actually
+ * get the bib. "Points distribution" means "first gets 40 points, second gets 37 points, etc" on which the season
+ * results are based.
  */
 public class SettingsActivity extends BaseActivity {
 

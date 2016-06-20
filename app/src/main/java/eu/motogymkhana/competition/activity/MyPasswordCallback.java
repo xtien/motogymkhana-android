@@ -5,5 +5,5 @@ package eu.motogymkhana.competition.activity;
  */
 public interface MyPasswordCallback {
 
-    public void onResult(boolean check);
+    void onResult(boolean check);
 }

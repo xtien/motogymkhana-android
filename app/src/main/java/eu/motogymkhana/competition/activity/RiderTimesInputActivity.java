@@ -1,3 +1,10 @@
+/*
+ * Copyright (c) 2015 - 2016, Christine Karman
+ * This project is free software: you can redistribute it and/or modify it under the terms of
+ * the Apache License, Version 2.0. You can find a copy of the license at
+ * http://www. apache.org/licenses/LICENSE-2.0.
+ */
+
 package eu.motogymkhana.competition.activity;
 
 import android.os.Bundle;
@@ -23,6 +30,10 @@ import eu.motogymkhana.competition.round.RoundManager;
 import eu.motogymkhana.competition.view.PlusMinusView;
 import roboguice.RoboGuice;
 
+/**
+ * created by Christine
+ * Activity for entering times and penalty seconds for a rider.
+ */
 public class RiderTimesInputActivity extends BaseActivity {
 
     public static final String RIDER_NUMBER = "rider_number";

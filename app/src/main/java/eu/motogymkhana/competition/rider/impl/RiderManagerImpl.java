@@ -476,16 +476,6 @@ public class RiderManagerImpl implements RiderManager {
     }
 
     @Override
-    public String getMessageText() {
-
-        if (messageText != null) {
-            return messageText;
-        } else {
-            return "";
-        }
-    }
-
-    @Override
     public void setMessageText(String text) {
 
         if (text != null) {

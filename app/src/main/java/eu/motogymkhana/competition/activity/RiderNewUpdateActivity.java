@@ -1,3 +1,10 @@
+/*
+ * Copyright (c) 2015 - 2016, Christine Karman
+ * This project is free software: you can redistribute it and/or modify it under the terms of
+ * the Apache License, Version 2.0. You can find a copy of the license at
+ * http://www. apache.org/licenses/LICENSE-2.0.
+ */
+
 package eu.motogymkhana.competition.activity;
 
 import android.os.Bundle;
@@ -30,6 +37,11 @@ import eu.motogymkhana.competition.rider.RiderManager;
 import eu.motogymkhana.competition.rider.UpdateRiderCallback;
 import roboguice.RoboGuice;
 
+/**
+ * created by Christine
+ * This activity allows for entering a new rider or updating data of an existing rider. If data have changed,
+ * the new rider data is uploaded to the server.
+ */
 public class RiderNewUpdateActivity extends BaseActivity {
 
     public static final String RIDER_NUMBER = "rider_number";

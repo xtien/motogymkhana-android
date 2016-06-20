@@ -2,6 +2,8 @@ package eu.motogymkhana.competition.api.http.impl;
 
 import android.util.Log;
 
+import com.google.inject.Inject;
+
 import java.io.BufferedInputStream;
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -20,6 +22,7 @@ import javax.net.ssl.HttpsURLConnection;
 import eu.motogymkhana.competition.Constants;
 import eu.motogymkhana.competition.api.http.HttpResultWrapper;
 import eu.motogymkhana.competition.api.http.MyHttp;
+import eu.motogymkhana.competition.log.MyLog;
 
 /**
  * Created by christine on 9-6-15.
@@ -30,6 +33,9 @@ public class MyHttpImpl implements MyHttp {
 
     private static int readTimeout = 10000;
     private static int connectTimeout = 15000;
+
+    @Inject
+    private MyLog log;
 
     @Override
     public HttpResultWrapper getStringFromUrl(String urlString) throws IOException {
@@ -61,7 +67,7 @@ public class MyHttpImpl implements MyHttp {
 
                 int httpResult = urlConnection.getResponseCode();
                 if (httpResult != HttpURLConnection.HTTP_OK) {
-                    Log.e(TAG, urlConnection.getResponseMessage());
+                    log.e(TAG, urlConnection.getResponseMessage());
                 }
 
                 result = new HttpResultWrapper(httpResult, urlConnection.getResponseMessage(), string);
@@ -89,7 +95,7 @@ public class MyHttpImpl implements MyHttp {
 
                 int httpResult = urlConnection.getResponseCode();
                 if (httpResult != HttpURLConnection.HTTP_OK) {
-                    Log.e(TAG, urlConnection.getResponseMessage());
+                    log.e(TAG, urlConnection.getResponseMessage());
                 }
 
                 result = new HttpResultWrapper(httpResult, urlConnection.getResponseMessage(), string);
@@ -140,13 +146,13 @@ public class MyHttpImpl implements MyHttp {
                 wr.close();
                 int HttpResult = ((HttpsURLConnection) urlConnection).getResponseCode();
                 if (HttpResult != HttpURLConnection.HTTP_OK) {
-                    Log.e(TAG, ((HttpsURLConnection) urlConnection).getResponseMessage());
+                    log.e(TAG, ((HttpsURLConnection) urlConnection).getResponseMessage());
                 }
 
                 httpResult = ((HttpsURLConnection) urlConnection).getResponseCode();
                 responseMessage = ((HttpsURLConnection) urlConnection).getResponseMessage();
                 if (httpResult != HttpURLConnection.HTTP_OK) {
-                    Log.e(TAG, ((HttpsURLConnection) urlConnection).getResponseMessage());
+                    log.e(TAG, ((HttpsURLConnection) urlConnection).getResponseMessage());
                 }
 
                 in = new BufferedInputStream(urlConnection.getInputStream());
@@ -164,13 +170,13 @@ public class MyHttpImpl implements MyHttp {
                 wr.close();
                 int HttpResult = ((HttpURLConnection) urlConnection).getResponseCode();
                 if (HttpResult != HttpURLConnection.HTTP_OK) {
-                    Log.e(TAG, ((HttpURLConnection) urlConnection).getResponseMessage());
+                    log.e(TAG, ((HttpURLConnection) urlConnection).getResponseMessage());
                 }
 
                 httpResult = ((HttpURLConnection) urlConnection).getResponseCode();
                 responseMessage = ((HttpURLConnection) urlConnection).getResponseMessage();
                 if (httpResult != HttpURLConnection.HTTP_OK) {
-                    Log.e(TAG, ((HttpURLConnection) urlConnection).getResponseMessage());
+                    log.e(TAG, ((HttpURLConnection) urlConnection).getResponseMessage());
                 }
 
                 in = new BufferedInputStream(urlConnection.getInputStream());

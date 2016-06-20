@@ -1,3 +1,10 @@
+/*
+ * Copyright (c) 2015 - 2016, Christine Karman
+ * This project is free software: you can redistribute it and/or modify it under the terms of
+ * the Apache License, Version 2.0. You can find a copy of the license at
+ * http://www. apache.org/licenses/LICENSE-2.0.
+ */
+
 package eu.motogymkhana.competition.settings;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -10,6 +17,9 @@ import eu.motogymkhana.competition.model.Country;
 
 /**
  * Created by christine on 15-2-16.
+ * Settings for a season of a competition. Settings can be updated per country per season. Settings are distributed
+ * immediately and active immediately, which means a change of settings immediately affects the data in the app and
+ * on the web site.
  */
 @DatabaseTable(tableName = "settings", daoClass = SettingsDaoImpl.class)
 public class Settings {
@@ -36,30 +46,55 @@ public class Settings {
     @DatabaseField(columnName = SEASON)
     private int season;
 
+    /**
+     * when a riders result is within this percentage of the day's winner, they get
+     * one point for a green bib.
+     */
     @JsonProperty(PERCENTAGE_FOR_GREEN_BIB)
     @DatabaseField(columnName = PERCENTAGE_FOR_GREEN_BIB)
     private int percentageForGreenBib = 115;
 
+    /**
+     * when a riders result is within this percentage of the day's winner, they get
+     * one point for a blue bib.
+     */
     @JsonProperty(PERCENTAGE_FOR_BLUE_BIB)
     @DatabaseField(columnName = PERCENTAGE_FOR_BLUE_BIB)
     private int percentageForBlueBib = 105;
 
+    /**
+     * number of results that counts for season results. If this is 6, and the
+     * number of rounds is 8, it means we have "best 6 out of 8"
+     */
     @JsonProperty(NUMBER_OF_RESULTS_FOR_SEASON_RESULT)
     @DatabaseField(columnName = NUMBER_OF_RESULTS_FOR_SEASON_RESULT)
     private int numberOfResultsForSeasonresult = 6;
 
+    /**
+     * number of bib points a rider needs to get a new bib.
+     */
     @JsonProperty(NUMBER_OF_RESULTS_FOR_BIB)
     @DatabaseField(columnName = NUMBER_OF_RESULTS_FOR_BIB)
     private int numberOfResultsForBib = 4;
 
+    /**
+     * A list with integers that are the number of points you get when you end as nth. List
+     * starts with points for nr 1.
+     */
     @JsonProperty(POINTS)
     @DatabaseField(columnName = POINTS)
     private String pointsList;
 
+    /**
+     * utility field
+     */
     @DatabaseField(columnName = HAS_ROUNDS)
     @JsonIgnore
     private boolean hasRounds = true;
 
+    /**
+     * utility field
+     */
     @DatabaseField(persisted = false)
     @JsonIgnore
     private int[] points;

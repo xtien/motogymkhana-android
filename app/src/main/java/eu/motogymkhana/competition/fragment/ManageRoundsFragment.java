@@ -1,3 +1,10 @@
+/*
+ * Copyright (c) 2015 - 2016, Christine Karman
+ * This project is free software: you can redistribute it and/or modify it under the terms of
+ * the Apache License, Version 2.0. You can find a copy of the license at
+ * http://www. apache.org/licenses/LICENSE-2.0.
+ */
+
 package eu.motogymkhana.competition.fragment;
 
 import android.app.DatePickerDialog;
@@ -30,6 +37,8 @@ import roboguice.RoboGuice;
 
 /**
  * Created by christine on 6-2-16.
+ * Fragment for adding rounds to a season, or changing rounds. A "round" is a competition date, it has
+ * a round number and a date.
  */
 public class ManageRoundsFragment extends BaseFragment implements DatePickerDialog.OnDateSetListener {
 

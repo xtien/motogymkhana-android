@@ -4,6 +4,7 @@ import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
 import android.util.Log;
 
+import com.google.inject.Inject;
 import com.j256.ormlite.android.apptools.OrmLiteSqliteOpenHelper;
 import com.j256.ormlite.dao.Dao;
 import com.j256.ormlite.dao.DaoManager;
@@ -15,11 +16,13 @@ import java.util.Collection;
 import java.util.LinkedList;
 
 import eu.motogymkhana.competition.Constants;
+import eu.motogymkhana.competition.log.MyLog;
 import eu.motogymkhana.competition.model.Credential;
 import eu.motogymkhana.competition.model.Rider;
 import eu.motogymkhana.competition.model.Round;
 import eu.motogymkhana.competition.model.Times;
 import eu.motogymkhana.competition.settings.Settings;
+import roboguice.RoboGuice;
 
 /**
  * Database helper class used to manage the creation and upgrading of your
@@ -64,7 +67,6 @@ public class GymkhanaDatabaseHelper extends OrmLiteSqliteOpenHelper {
 	 */
 	@Override
 	public void onCreate(SQLiteDatabase db, ConnectionSource connectionSource) {
-		Log.i(LOGTAG, "onCreate");
 		createTables();
 	}
 
@@ -76,7 +78,6 @@ public class GymkhanaDatabaseHelper extends OrmLiteSqliteOpenHelper {
 	@Override
 	public void onUpgrade(SQLiteDatabase db, ConnectionSource connectionSource, int oldVersion,
 			int newVersion) {
-		Log.i(LOGTAG, "onUpgrade");
 		dropTables();
 		createTables();
 	}
@@ -100,7 +101,6 @@ public class GymkhanaDatabaseHelper extends OrmLiteSqliteOpenHelper {
 				TableUtils.createTable(getConnectionSource(), clazz);
 			}
 		} catch (SQLException e) {
-			Log.e(LOGTAG, "Can't drop databases", e);
 			throw new RuntimeException(e);
 		}
 	}
@@ -112,7 +112,6 @@ public class GymkhanaDatabaseHelper extends OrmLiteSqliteOpenHelper {
 				TableUtils.dropTable(getConnectionSource(), clazz, true);
 			}
 		} catch (SQLException e) {
-			Log.e(LOGTAG, "Can't drop databases", e);
 			throw new RuntimeException(e);
 		}
 	}

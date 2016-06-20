@@ -1,3 +1,10 @@
+/*
+ * Copyright (c) 2015 - 2016, Christine Karman
+ * This project is free software: you can redistribute it and/or modify it under the terms of
+ * the Apache License, Version 2.0. You can find a copy of the license at
+ * http://www. apache.org/licenses/LICENSE-2.0.
+ */
+
 package eu.motogymkhana.competition.fragment;
 
 import android.content.Context;
@@ -22,6 +29,13 @@ import eu.motogymkhana.competition.rider.RiderManager;
 import eu.motogymkhana.competition.round.RoundManager;
 import roboguice.RoboGuice;
 
+/**
+ * Created by Christine
+ * Rider registration means regestring a rider for participation in a race on a particular date. A rider
+ * only shows up in the start list if they have registered. A rider can be licensed for a season, which
+ * makes them automatically appear in this fragment, or they can be added as a "day rider". A "day rider"
+ * can participate in a round, but won't collect points for bibs or season totals.
+ */
 public class RiderRegistrationFragment extends ListFragment {
 
     private List<Rider> riders = new ArrayList<Rider>();

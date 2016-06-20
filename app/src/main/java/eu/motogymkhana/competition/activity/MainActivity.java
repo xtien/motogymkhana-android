@@ -1,3 +1,10 @@
+/*
+ * Copyright (c) 2015 - 2016, Christine Karman
+ * This project is free software: you can redistribute it and/or modify it under the terms of
+ * the Apache License, Version 2.0. You can find a copy of the license at
+ * http://www. apache.org/licenses/LICENSE-2.0.
+ */
+
 package eu.motogymkhana.competition.activity;
 
 import android.content.Intent;
@@ -46,6 +53,14 @@ import eu.motogymkhana.competition.round.RoundManager;
 import eu.motogymkhana.competition.round.RoundManagerProvider;
 import eu.motogymkhana.competition.settings.SettingsManager;
 import roboguice.RoboGuice;
+
+/**
+ * Created by christine on 7-2-16.
+ * MainActivity contains a ViewPager that shows three fragments (four in admin mode) for registration (admin mode only),
+ * start list, day results, season total results.
+ * The menu shows options for "settings" and "admin". In admin mode, it shows additional options. In Settings, user can
+ * select country/region and season.
+ */
 
 public class MainActivity extends FragmentActivity {
 
@@ -273,7 +288,7 @@ public class MainActivity extends FragmentActivity {
 
         handler = new Handler();
 
-         setFragments();
+        setFragments();
 
         setDate();
 

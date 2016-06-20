@@ -11,6 +11,8 @@ import eu.motogymkhana.competition.context.impl.ContextProviderImpl;
 
 /**
  * Created by christine on 24-7-15.
+ * This file contains Roboguice bindings that apply to the live app. These bindings are different
+ * in unit tests.
  */
 public class LiveModule extends AbstractModule {
 

@@ -65,7 +65,7 @@
     <string name="minus_text">-</string>
 
     <!-- ssl -->
-    <string name="keystore_password">xxxxxxx</string>
+    <string name="keystore_password">smndbvr</string>
     <string name="no_rounds_planned">No races planned yet</string>
     <string name="manage_rounds">Manage rounds</string>
     <string name="alertOk">OK</string>
