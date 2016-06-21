@@ -14,6 +14,7 @@ import org.robolectric.manifest.AndroidManifest;
 import org.robolectric.res.FileFsFile;
 import org.robolectric.util.ReflectionHelpers;
 
+import eu.motogymkhana.competition.TestConstants;
 import roboguice.RoboGuice;
 
 public class RoboInjectedTestRunner extends RobolectricTestRunner {
@@ -38,11 +39,9 @@ public class RoboInjectedTestRunner extends RobolectricTestRunner {
             AbstractModule testModule = new TestModule();
 
             RoboGuice.overrideApplicationInjector(application, gossipModule, testModule);
-
             RoboGuice.getInjector(application).injectMembers(test);
         }
     }
-
 
     protected AndroidManifest getAppManifest(Config config) {
 
@@ -55,27 +54,27 @@ public class RoboInjectedTestRunner extends RobolectricTestRunner {
             String packageName = getPackageName(config);
 
             FileFsFile res;
-            if (FileFsFile.from(new String[]{"app/build/intermediates", "res", "merged"}).exists()) {
-                res = FileFsFile.from(new String[]{"app/build/intermediates", "res", "merged", flavor, type});
-            } else if (FileFsFile.from(new String[]{"app/build/intermediates", "res"}).exists()) {
-                res = FileFsFile.from(new String[]{"app/build/intermediates", "res", flavor, type});
+            if (FileFsFile.from(new String[]{TestConstants.ROBO_BASE_DIR, "res", "merged"}).exists()) {
+                res = FileFsFile.from(new String[]{TestConstants.ROBO_BASE_DIR, "res", "merged", flavor, type});
+            } else if (FileFsFile.from(new String[]{TestConstants.ROBO_BASE_DIR, "res"}).exists()) {
+                res = FileFsFile.from(new String[]{TestConstants.ROBO_BASE_DIR, "res", flavor, type});
             } else {
-                res = FileFsFile.from(new String[]{"app/build/intermediates", "bundles", flavor, type, "res"});
+                res = FileFsFile.from(new String[]{TestConstants.ROBO_BASE_DIR, "bundles", flavor, type, "res"});
             }
 
             FileFsFile assets;
-            if (FileFsFile.from(new String[]{"app/build/intermediates", "assets"}).exists()) {
-                assets = FileFsFile.from(new String[]{"app/build/intermediates", "assets", flavor, type});
+            if (FileFsFile.from(new String[]{TestConstants.ROBO_BASE_DIR, "assets"}).exists()) {
+                assets = FileFsFile.from(new String[]{TestConstants.ROBO_BASE_DIR, "assets", flavor, type});
             } else {
-                assets = FileFsFile.from(new String[]{"app/build/intermediates", "bundles", flavor, type, "assets"});
+                assets = FileFsFile.from(new String[]{TestConstants.ROBO_BASE_DIR, "bundles", flavor, type, "assets"});
             }
 
             FileFsFile manifest;
             if (FileFsFile.from(new String[]{"build/intermediates", "manifests"}).exists()) {
-                manifest = FileFsFile.from(new String[]{"app/build/intermediates", "manifests", "full", flavor, type,
+                manifest = FileFsFile.from(new String[]{"build/intermediates", "manifests", "full", flavor, type,
                         "AndroidManifest.xml"});
             } else {
-                manifest = FileFsFile.from(new String[]{"app/build/intermediates", "manifests", "full", flavor, type,
+                manifest = FileFsFile.from(new String[]{TestConstants.ROBO_BASE_DIR, "manifests", "full", flavor, type,
                         "AndroidManifest.xml"});
             }
 

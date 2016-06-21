@@ -8,10 +8,12 @@ import junit.framework.Assert;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.robolectric.annotation.Config;
 
 import java.sql.SQLException;
 import java.util.Collection;
 
+import eu.motogymkhana.competition.BuildConfig;
 import eu.motogymkhana.competition.context.ContextProvider;
 import eu.motogymkhana.competition.http.FakeHttp;
 import eu.motogymkhana.competition.model.Round;
@@ -22,6 +24,7 @@ import eu.motogymkhana.competition.round.RoundManager;
  * Created by christine on 24-7-15.
  */
 @RunWith(RoboInjectedTestRunner.class)
+@Config(constants = BuildConfig.class, sdk = 21)
 public class RoundsApiTest {
 
     @SuppressWarnings("unused")
@@ -37,13 +40,16 @@ public class RoundsApiTest {
     @Inject
     private FakeHttp fakeHttp;
 
-    private String urlString = "https://www.christine.nl:9005/motogymkhana/NL/getRounds/";
+    private String urlString = "https://api.gymcomp.com:9005/motogymkhana/getRounds/";
     private String resultFileName = "get_rounds.json";
+    private String ridersUrlString = "https://api.gymcomp.com:9005/motogymkhana/getRiders/";
+    private String ridersJsonFile = "get_riders.json";
 
     @Test
     public void testGetDates() throws SQLException, InterruptedException {
 
         fakeHttp.put(urlString, 200, "", resultFileName);
+        fakeHttp.put(ridersUrlString, 200, "", ridersJsonFile);
 
         roundManager.loadRoundsFromServer();
 

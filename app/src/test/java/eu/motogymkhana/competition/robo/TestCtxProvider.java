@@ -5,17 +5,21 @@
  * http://www. apache.org/licenses/LICENSE-2.0.
  */
 
-package eu.motogymkhana.competition.context;
+package eu.motogymkhana.competition.robo;
+
+import android.content.Context;
+
+import com.google.inject.Provider;
 
 import org.robolectric.RuntimeEnvironment;
 
 /**
- * Used for injecting a context in a unit test
+ * Created by christine on 21-4-16.
  */
-@Deprecated
-public class TestContextProvider extends ContextProvider {
+public class TestCtxProvider implements Provider<Context> {
 
-    public TestContextProvider() {
-        context = RuntimeEnvironment.application;
+    @Override
+    public Context get() {
+        return RuntimeEnvironment.application;
     }
 }

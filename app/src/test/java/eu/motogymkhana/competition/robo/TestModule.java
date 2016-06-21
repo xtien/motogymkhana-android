@@ -1,5 +1,7 @@
 package eu.motogymkhana.competition.robo;
 
+import android.content.Context;
+
 import com.google.inject.AbstractModule;
 
 import eu.motogymkhana.competition.api.http.MyHttp;
@@ -16,6 +18,7 @@ public class TestModule extends AbstractModule {
 	@Override
 	protected void configure() {
 
+		bind(Context.class).toProvider(TestCtxProvider.class);
 		bind(ContextProvider.class).to(ContextProviderImpl.class);
 
 		bind(MyHttp.class).to(TestMyHttpImpl.class).asEagerSingleton();
