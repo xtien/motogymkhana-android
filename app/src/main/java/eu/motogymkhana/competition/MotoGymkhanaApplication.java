@@ -10,6 +10,7 @@ package eu.motogymkhana.competition;
 
 import android.app.Application;
 import android.content.Context;
+import android.os.Build;
 import android.support.multidex.MultiDex;
 
 import eu.motogymkhana.competition.robo.GymkhanaModule;
@@ -45,7 +46,9 @@ public class MotoGymkhanaApplication extends Application {
     @Override
     protected void attachBaseContext(Context base) {
         super.attachBaseContext(base);
-        MultiDex.install(this);
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
+            MultiDex.install(this);
+        }
     }
 
     public static Context getContext() {
