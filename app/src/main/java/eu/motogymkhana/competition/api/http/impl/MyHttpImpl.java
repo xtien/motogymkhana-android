@@ -32,7 +32,7 @@ public class MyHttpImpl implements MyHttp {
     private static final String TAG = MyHttpImpl.class.getSimpleName();
 
     private static int readTimeout = 10000;
-    private static int connectTimeout = 15000;
+    private static int connectTimeout = 10000;
 
     @Inject
     private MyLog log;
@@ -45,72 +45,40 @@ public class MyHttpImpl implements MyHttp {
         HttpResultWrapper result = null;
         String string = "";
 
-        if (Constants.USE_HTTPS) {
+        HttpURLConnection urlConnection = (HttpURLConnection) url.openConnection();
 
-            HttpsURLConnection urlConnection = (HttpsURLConnection) url.openConnection();
+        try {
 
-            try {
+            setGet(urlConnection);
 
-                setGet(urlConnection);
+            urlConnection.connect();
 
-                urlConnection.connect();
+            InputStream in = new BufferedInputStream(urlConnection.getInputStream());
+            BufferedReader br = new BufferedReader(new InputStreamReader(in), 512);
 
-                InputStream in = new BufferedInputStream(urlConnection.getInputStream());
-                BufferedReader br = new BufferedReader(new InputStreamReader(in), 512);
-
-                String line;
-                while ((line = br.readLine()) != null) {
-                    string = string + line;
-                }
-
-                in.close();
-
-                int httpResult = urlConnection.getResponseCode();
-                if (httpResult != HttpURLConnection.HTTP_OK) {
-                    log.e(TAG, urlConnection.getResponseMessage());
-                }
-
-                result = new HttpResultWrapper(httpResult, urlConnection.getResponseMessage(), string);
-
-            } finally {
-                urlConnection.disconnect();
+            String line;
+            while ((line = br.readLine()) != null) {
+                string = string + line;
             }
-        } else {
-            HttpURLConnection urlConnection = (HttpURLConnection) url.openConnection();
 
-            try {
+            in.close();
 
-                setGet(urlConnection);
-                urlConnection.connect();
-
-                InputStream in = new BufferedInputStream(urlConnection.getInputStream());
-                BufferedReader br = new BufferedReader(new InputStreamReader(in), 512);
-
-                String line;
-                while ((line = br.readLine()) != null) {
-                    string = string + line;
-                }
-
-                in.close();
-
-                int httpResult = urlConnection.getResponseCode();
-                if (httpResult != HttpURLConnection.HTTP_OK) {
-                    log.e(TAG, urlConnection.getResponseMessage());
-                }
-
-                result = new HttpResultWrapper(httpResult, urlConnection.getResponseMessage(), string);
-
-            } finally {
-                urlConnection.disconnect();
+            int httpResult = urlConnection.getResponseCode();
+            if (httpResult != HttpURLConnection.HTTP_OK) {
+                log.e(TAG, urlConnection.getResponseMessage());
             }
+
+            result = new HttpResultWrapper(httpResult, urlConnection.getResponseMessage(), string);
+
+        } finally {
+            urlConnection.disconnect();
         }
 
         return result;
     }
 
     private void setGet(HttpURLConnection urlConnection) throws ProtocolException {
-
-        urlConnection.setConnectTimeout(5000);
+        urlConnection.setConnectTimeout(connectTimeout);
         urlConnection.setRequestMethod("GET");
     }
 
@@ -118,7 +86,7 @@ public class MyHttpImpl implements MyHttp {
     public HttpResultWrapper postStringFromUrl(String urlString, String input) throws UnsupportedEncodingException,
             IOException {
 
-        URL url = new URL(urlString );
+        URL url = new URL(urlString);
         InputStream in;
 
         URLConnection urlConnection = null;
@@ -132,55 +100,28 @@ public class MyHttpImpl implements MyHttp {
 
         try {
 
-            if (Constants.USE_HTTPS) {
+            setPost((HttpURLConnection) urlConnection);
 
-                setPost((HttpsURLConnection) urlConnection);
+            urlConnection.connect();
 
-                urlConnection.connect();
+            OutputStreamWriter wr = new OutputStreamWriter(urlConnection.getOutputStream());
 
-                OutputStreamWriter wr = new OutputStreamWriter(urlConnection.getOutputStream());
+            wr.write(input);
+            wr.flush();
 
-                wr.write(input);
-                wr.flush();
-
-                wr.close();
-                int HttpResult = ((HttpsURLConnection) urlConnection).getResponseCode();
-                if (HttpResult != HttpURLConnection.HTTP_OK) {
-                    log.e(TAG, ((HttpsURLConnection) urlConnection).getResponseMessage());
-                }
-
-                httpResult = ((HttpsURLConnection) urlConnection).getResponseCode();
-                responseMessage = ((HttpsURLConnection) urlConnection).getResponseMessage();
-                if (httpResult != HttpURLConnection.HTTP_OK) {
-                    log.e(TAG, ((HttpsURLConnection) urlConnection).getResponseMessage());
-                }
-
-                in = new BufferedInputStream(urlConnection.getInputStream());
-
-            } else {
-
-                setPost((HttpURLConnection) urlConnection);
-                urlConnection.connect();
-
-                OutputStreamWriter wr = new OutputStreamWriter(urlConnection.getOutputStream());
-
-                wr.write(input);
-                wr.flush();
-
-                wr.close();
-                int HttpResult = ((HttpURLConnection) urlConnection).getResponseCode();
-                if (HttpResult != HttpURLConnection.HTTP_OK) {
-                    log.e(TAG, ((HttpURLConnection) urlConnection).getResponseMessage());
-                }
-
-                httpResult = ((HttpURLConnection) urlConnection).getResponseCode();
-                responseMessage = ((HttpURLConnection) urlConnection).getResponseMessage();
-                if (httpResult != HttpURLConnection.HTTP_OK) {
-                    log.e(TAG, ((HttpURLConnection) urlConnection).getResponseMessage());
-                }
-
-                in = new BufferedInputStream(urlConnection.getInputStream());
+            wr.close();
+            int HttpResult = ((HttpURLConnection) urlConnection).getResponseCode();
+            if (HttpResult != HttpURLConnection.HTTP_OK) {
+                log.e(TAG, ((HttpURLConnection) urlConnection).getResponseMessage());
             }
+
+            httpResult = ((HttpsURLConnection) urlConnection).getResponseCode();
+            responseMessage = ((HttpURLConnection) urlConnection).getResponseMessage();
+            if (httpResult != HttpURLConnection.HTTP_OK) {
+                log.e(TAG, ((HttpURLConnection) urlConnection).getResponseMessage());
+            }
+
+            in = new BufferedInputStream(urlConnection.getInputStream());
 
             BufferedReader br = new BufferedReader(new InputStreamReader(in), 512);
 
@@ -197,18 +138,13 @@ public class MyHttpImpl implements MyHttp {
             e.printStackTrace();
 
         } finally {
-            if (Constants.USE_HTTPS) {
-                ((HttpsURLConnection) urlConnection).disconnect();
-            } else {
-                ((HttpURLConnection) urlConnection).disconnect();
-            }
+            ((HttpURLConnection) urlConnection).disconnect();
         }
 
         return result;
     }
 
     private void setPost(HttpURLConnection urlConnection) throws ProtocolException {
-
         urlConnection.setReadTimeout(readTimeout);
         urlConnection.setConnectTimeout(connectTimeout);
         urlConnection.setRequestMethod("POST");
