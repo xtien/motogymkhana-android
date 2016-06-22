@@ -13,5 +13,5 @@ package eu.motogymkhana.competition;
 public class TestConstants {
 
      public static final String ROBO_BASE_DIR =
-             "/home/christine/christine_git/motogymkhana/Competition_EU/app/build/intermediates";
+             "build/intermediates";
 }
