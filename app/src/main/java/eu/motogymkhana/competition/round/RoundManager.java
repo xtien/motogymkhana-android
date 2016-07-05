@@ -11,6 +11,7 @@ import java.sql.SQLException;
 import java.text.ParseException;
 import java.util.List;
 
+import eu.motogymkhana.competition.api.ResponseHandler;
 import eu.motogymkhana.competition.model.Round;
 
 /**
@@ -37,7 +38,7 @@ public interface RoundManager {
     /**
      * upload all rounds for current season and country to server
      */
-    void uploadRounds() throws SQLException;
+    void uploadRounds(ResponseHandler responseHandler) throws SQLException;
 
     /**
      * get rounds locally
@@ -63,10 +64,4 @@ public interface RoundManager {
      * get a round for a given date
      */
     Round getRoundForDate(long date) throws SQLException;
-
-    /**
-     * get the current round. Deprecated, this should come from elsewhere (like prefs)
-     */
-    @Deprecated
-    long getDate();
 }

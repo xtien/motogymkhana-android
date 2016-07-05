@@ -2,15 +2,14 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
               android:layout_width="fill_parent"
               android:layout_height="wrap_content"
-              android:layout_marginStart="10dp"
               android:layout_marginLeft="10dp"
+              android:layout_marginStart="10dp"
               android:background="@color/list_background"
               android:orientation="horizontal">
 
     <LinearLayout
-        android:layout_width="30dp"
+        android:layout_width="@dimen/ridernumber_layout_width"
         android:layout_height="wrap_content"
-        android:layout_gravity="right"
         android:layout_weight="0"
         android:background="@color/light_gray"
         android:gravity="right"
@@ -23,13 +22,14 @@
             android:layout_height="wrap_content"/>
 
     </LinearLayout>
+
     <LinearLayout
-        android:layout_width="40dp"
+        android:layout_width="@dimen/startnumber_layout_width"
+        android:id="@+id/startnumber_layout"
         android:layout_height="wrap_content"
-        android:layout_gravity="right"
         android:layout_weight="0"
         android:background="@color/light_gray"
-        android:gravity="right"
+        android:gravity="center_horizontal"
         android:orientation="horizontal">
 
         <TextView
@@ -40,17 +40,11 @@
 
     </LinearLayout>
 
-    <TextView
-        android:id="@+id/bib"
-        style="@style/list_text"
-        android:layout_width="20dp"
-        android:layout_height="wrap_content"/>
-
     <LinearLayout
+        android:id="@+id/rider_layout"
         android:layout_width="30dp"
         android:layout_height="wrap_content"
-        android:id="@+id/rider_layout"
-        android:layout_weight="1"
+        android:layout_weight="3"
         android:background="@color/fragment_background"
         android:orientation="horizontal">
 
@@ -76,24 +70,26 @@
         style="@style/list_text"
         android:layout_width="20dp"
         android:layout_height="wrap_content"
-        android:layout_marginEnd="10dp"
-        android:layout_marginRight="10dp"/>
+        android:layout_marginEnd="@dimen/rider_listrow_margin"
+        android:layout_marginRight="@dimen/rider_listrow_margin"
+        android:layout_weight="0"/>
 
     <TextView
         android:id="@+id/country"
         style="@style/list_text"
-        android:layout_width="40dp"
+        android:layout_width="30dp"
         android:layout_height="wrap_content"
-        android:layout_marginEnd="10dp"
-        android:layout_marginRight="10dp"/>
+        android:layout_marginEnd="@dimen/rider_listrow_margin"
+        android:layout_marginRight="@dimen/rider_listrow_margin"
+        android:layout_weight="0"/>
 
     <CheckBox
         android:id="@+id/registered_box"
         style="@style/registered_box"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginEnd="5dp"
-        android:layout_marginRight="5dp"
+        android:layout_marginEnd="@dimen/rider_listrow_margin"
+        android:layout_marginRight="@dimen/rider_listrow_margin"
         android:layout_weight="0"/>
 
     <CheckBox
@@ -101,17 +97,18 @@
         style="@style/registered_box"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginEnd="10dp"
-        android:layout_marginRight="10dp"
+        android:layout_marginEnd="@dimen/rider_listrow_margin"
+        android:layout_marginRight="@dimen/rider_listrow_margin"
         android:layout_weight="0"/>
 
-    <TextView
+    <ImageView
         android:id="@+id/edit"
         style="@style/list_text"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginEnd="20dp"
-        android:layout_marginRight="20dp"
-        android:text="@string/e"/>
+        android:layout_marginEnd="@dimen/rider_listrow_margin"
+        android:layout_marginRight="@dimen/rider_listrow_margin"
+        android:layout_weight="0"
+        android:src="@drawable/edit"/>
 
 </LinearLayout>

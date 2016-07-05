@@ -6,7 +6,7 @@ import com.j256.ormlite.field.DatabaseField;
 import com.j256.ormlite.field.ForeignCollectionField;
 import com.j256.ormlite.table.DatabaseTable;
 
-import org.apache.commons.lang.builder.HashCodeBuilder;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -16,7 +16,7 @@ import java.util.LinkedList;
 import java.util.List;
 
 import eu.motogymkhana.competition.dao.impl.RiderDaoImpl;
-import eu.motogymkhana.competition.round.RoundManagerProvider;
+import eu.motogymkhana.competition.prefs.PrefsProvider;
 
 @DatabaseTable(tableName = "riders", daoClass = RiderDaoImpl.class)
 public class Rider {
@@ -121,6 +121,7 @@ public class Rider {
     @DatabaseField(columnName = SHARING)
     private int sharing;
 
+    @JsonIgnore
     @DatabaseField(persisted = false)
     private int totalPoints;
 
@@ -305,7 +306,7 @@ public class Rider {
     @JsonIgnore
     public int getBestTime() {
 
-        Times times = getEUTimes(RoundManagerProvider.getInstance().getDate());
+        Times times = getEUTimes(PrefsProvider.getInstance().getDate());
 
         if (times != null) {
             return times.getBestTime();
@@ -390,7 +391,7 @@ public class Rider {
 
     @JsonIgnore
     public int getStartNumber() {
-        Times t = getEUTimes(RoundManagerProvider.getInstance().getDate());
+        Times t = getEUTimes(PrefsProvider.getInstance().getDate());
         if (t != null) {
             return t.getStartNumber();
         } else {
@@ -460,15 +461,10 @@ public class Rider {
     }
 
     public int getBibColor() {
-        switch (bib) {
-            case B:
-                return -16724737;
-            case G:
-                return -13314719;
-            case R:
-                return -64508;
-            default:
-                return -656559;
-        }
+        return bib.getColor();
+    }
+
+    public int getSeason() {
+        return season;
     }
 }

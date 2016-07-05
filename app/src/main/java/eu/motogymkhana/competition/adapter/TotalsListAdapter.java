@@ -7,6 +7,7 @@
 
 package eu.motogymkhana.competition.adapter;
 
+import android.app.Activity;
 import android.content.Context;
 import android.graphics.Color;
 import android.support.annotation.Nullable;
@@ -40,6 +41,7 @@ import roboguice.RoboGuice;
 public class TotalsListAdapter extends BaseAdapter {
 
     protected static final int RIDERTIMES = 101;
+    private final Activity activity;
 
     private List<Rider> riders = new ArrayList<Rider>();
     private LayoutInflater inflater;
@@ -51,9 +53,11 @@ public class TotalsListAdapter extends BaseAdapter {
     private SettingsManager settingsManager;
 
     @Inject
-    public TotalsListAdapter(Context context, Collection<Rider> riders, RoundDao roundDao) {
+    public TotalsListAdapter(Activity activity, Collection<Rider> riders, RoundDao roundDao) {
 
-        RoboGuice.getInjector(context).injectMembers(this);
+        this.activity = activity;
+
+        RoboGuice.getInjector(activity).injectMembers(this);
 
         try {
             Collection<Round> rounds = roundDao.getRounds();
@@ -69,7 +73,7 @@ public class TotalsListAdapter extends BaseAdapter {
             e.printStackTrace();
         }
 
-        inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+        inflater = (LayoutInflater) activity.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
     }
 
     @Override
@@ -99,8 +103,7 @@ public class TotalsListAdapter extends BaseAdapter {
         ((TextView) convertView.findViewById(R.id.first_name)).setText(rider.getFirstName());
         ((TextView) convertView.findViewById(R.id.last_name)).setText(rider.getLastName());
         TextView riderNumberView = (TextView) convertView.findViewById(R.id.ridernumber);
-        riderNumberView.setText(rider
-                .getRiderNumberString());
+        riderNumberView.setText("" + (position + 1));
         riderNumberView.setBackgroundColor(rider.getBibColor());
 
         ((TextView) convertView.findViewById(R.id.nationality)).setText(rider.getNationality().toString());
@@ -117,11 +120,18 @@ public class TotalsListAdapter extends BaseAdapter {
         return convertView;
     }
 
-    public void setRiders(List<Rider> riders) {
+    public void setRiders(final List<Rider> riders) {
 
         if (riders != null) {
-            this.riders = riders;
-            notifyDataSetChanged();
+
+            activity.runOnUiThread(new Runnable() {
+
+                @Override
+                public void run() {
+                    TotalsListAdapter.this.riders = riders;
+                    notifyDataSetChanged();
+                }
+            });
         }
     }
 }

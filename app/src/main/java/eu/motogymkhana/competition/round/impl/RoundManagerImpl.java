@@ -12,16 +12,17 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
-import eu.motogymkhana.competition.api.GetRoundsTask;
-import eu.motogymkhana.competition.api.impl.RidersCallback;
+import eu.motogymkhana.competition.api.ApiManager;
+import eu.motogymkhana.competition.api.ResponseHandler;
+import eu.motogymkhana.competition.api.response.ListRoundsResult;
 import eu.motogymkhana.competition.dao.RoundDao;
 import eu.motogymkhana.competition.dao.SettingsDao;
+import eu.motogymkhana.competition.log.MyLog;
 import eu.motogymkhana.competition.model.Round;
-import eu.motogymkhana.competition.prefs.ChristinePreferences;
+import eu.motogymkhana.competition.notify.Notifier;
+import eu.motogymkhana.competition.prefs.MyPreferences;
 import eu.motogymkhana.competition.rider.RiderManager;
-import eu.motogymkhana.competition.rider.UpdateRiderCallback;
 import eu.motogymkhana.competition.round.RoundManager;
-import eu.motogymkhana.competition.round.UploadRoundsTask;
 
 /**
  * Created by christine on 26-5-15.
@@ -31,21 +32,51 @@ public class RoundManagerImpl implements RoundManager {
 
     private static final String LOGTAG = RoundManagerImpl.class.getSimpleName();
 
-    private final ChristinePreferences prefs;
+    private final MyPreferences prefs;
     private final Context context;
     private RoundDao roundDao;
     private RiderManager riderManager;
     private SettingsDao settingsDao;
+    private ApiManager api;
+    private Notifier notifier;
+    private MyLog log;
+
+    private ResponseHandler getRoundsResponseHandler = new ResponseHandler() {
+
+        @Override
+        public void onSuccess(Object object) {
+
+            ListRoundsResult result = (ListRoundsResult) object;
+            try {
+                roundDao.store(result.getRounds());
+            } catch (SQLException e) {
+                onException(e);
+            }
+        }
+
+        @Override
+        public void onException(Exception e) {
+            log.e(LOGTAG, e);
+        }
+
+        @Override
+        public void onError(int statusCode, String string) {
+            log.e(LOGTAG, "" + statusCode + " " + string);
+        }
+    };
 
     @Inject
-    public RoundManagerImpl(Context context, ChristinePreferences prefs, RoundDao roundDao, RiderManager
-            riderManager, SettingsDao settingsDao) {
+    public RoundManagerImpl(Context context, MyPreferences prefs, RoundDao roundDao, RiderManager
+            riderManager, SettingsDao settingsDao, ApiManager api, MyLog log) {
 
         this.prefs = prefs;
         this.context = context;
         this.roundDao = roundDao;
         this.riderManager = riderManager;
         this.settingsDao = settingsDao;
+        this.api = api;
+        this.notifier = notifier;
+        this.log = log;
     }
 
     @Override
@@ -60,7 +91,7 @@ public class RoundManagerImpl implements RoundManager {
             }
         }
 
-        riderManager.notifyDataChanged();
+        notifier.notifyDataChanged();
     }
 
     @Override
@@ -88,22 +119,11 @@ public class RoundManagerImpl implements RoundManager {
     }
 
     @Override
-    public void uploadRounds() throws SQLException {
+    public void uploadRounds(ResponseHandler responseHandler) throws SQLException {
 
         Collection<Round> rounds = roundDao.getRounds();
 
-        new UploadRoundsTask(context, rounds, new UpdateRiderCallback() {
-
-            @Override
-            public void onSuccess() {
-                riderManager.notifyDataChanged();
-            }
-
-            @Override
-            public void onError(String error) {
-            }
-
-        }).execute();
+        api.uploadRounds(rounds, responseHandler);
     }
 
     @Override
@@ -115,20 +135,7 @@ public class RoundManagerImpl implements RoundManager {
 
     @Override
     public void loadRoundsFromServer() {
-
-        new GetRoundsTask(context, new RidersCallback() {
-
-            @Override
-            public void onSuccess() {
-                //riderManager.notifyDataChanged();
-            }
-
-            @Override
-            public void onError() {
-
-            }
-
-        }).execute();
+        api.getRounds(getRoundsResponseHandler);
     }
 
     @Override
@@ -148,23 +155,19 @@ public class RoundManagerImpl implements RoundManager {
     }
 
     @Override
-    public long getDate() {
-        return prefs.getDate();
-    }
-
-    @Override
     public void save(List<Round> rounds) throws SQLException {
 
         Collections.sort(rounds, new Comparator<Round>() {
 
             @Override
             public int compare(Round lhs, Round rhs) {
-                return (int) (lhs.getDate() - rhs.getDate());
+                return (lhs.getDate() - rhs.getDate()) < 0 ? -1 : 1;
             }
         });
 
         int i = 0;
         for (Round r : rounds) {
+            System.out.println("round " + r.getDateString());
             r.setNumber(++i);
         }
 
@@ -175,6 +178,7 @@ public class RoundManagerImpl implements RoundManager {
                 existingRounds.remove(r);
             }
             roundDao.store(r);
+            System.out.println("round " + r.getNumber() + " " + r.getDateString());
         }
 
         for (Round r : existingRounds) {

@@ -9,11 +9,11 @@ package eu.motogymkhana.competition.adapter;
 
 import android.app.Activity;
 import android.content.Context;
-import android.graphics.Color;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.google.inject.Inject;
@@ -29,7 +29,8 @@ import eu.motogymkhana.competition.model.Gender;
 import eu.motogymkhana.competition.model.Rider;
 import eu.motogymkhana.competition.model.RiderBestTimeComparator;
 import eu.motogymkhana.competition.model.Times;
-import eu.motogymkhana.competition.prefs.ChristinePreferences;
+import eu.motogymkhana.competition.notify.Notifier;
+import eu.motogymkhana.competition.prefs.MyPreferences;
 import eu.motogymkhana.competition.rider.GetRidersCallback;
 import eu.motogymkhana.competition.rider.RiderManager;
 import eu.motogymkhana.competition.round.RoundManager;
@@ -41,7 +42,8 @@ import eu.motogymkhana.competition.round.RoundManager;
 public class RiderResultListAdapter extends BaseAdapter {
 
     protected static final int RIDERTIMES = 101;
-    private final ChristinePreferences prefs;
+    private final MyPreferences prefs;
+    private final String femaleText;
 
     private List<Rider> riders = new ArrayList<Rider>();
     private LayoutInflater inflater;
@@ -53,6 +55,7 @@ public class RiderResultListAdapter extends BaseAdapter {
 
     private RiderManager riderManager;
     private RoundManager roundManager;
+    private Notifier notifier;
     private TextView messageTextView;
 
     GetRidersCallback callback = new GetRidersCallback() {
@@ -72,22 +75,24 @@ public class RiderResultListAdapter extends BaseAdapter {
 
         @Override
         public void notifyDataChanged() {
-
             riderManager.getRiders(callback);
         }
     };
 
     @Inject
-    public RiderResultListAdapter(Context context, final RiderManager riderManager, RoundManager roundManager,
-                                  ChristinePreferences prefs) {
+    public RiderResultListAdapter(Activity activity, final RiderManager riderManager, RoundManager roundManager,
+                                  MyPreferences prefs, Notifier notifier) {
 
         this.roundManager = roundManager;
         this.riderManager = riderManager;
         this.prefs = prefs;
+        this.notifier = notifier;
+        this.activity = activity;
 
-        inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+        inflater = (LayoutInflater) activity.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+        femaleText = activity.getResources().getString(R.string.female_sign);
 
-        riderManager.registerRiderResultListener(changeListener);
+        notifier.registerRiderResultListener(changeListener);
 
         riderManager.getRiders(callback);
     }
@@ -118,13 +123,14 @@ public class RiderResultListAdapter extends BaseAdapter {
         convertView.findViewById(R.id.ranking_view).setVisibility(View.VISIBLE);
 
         TextView rankingNumber = (TextView) convertView.findViewById(R.id.rankingnumber);
+        LinearLayout rankingView = (LinearLayout) convertView.findViewById(R.id.ranking_view);
         rankingNumber.setText(Integer.toString(position + 1));
-        rankingNumber.setBackgroundColor(rider.getBibColor());
+        rankingView.setBackgroundColor(rider.getBibColor());
 
         ((TextView) convertView.findViewById(R.id.first_name)).setText(rider.getFirstName());
         ((TextView) convertView.findViewById(R.id.last_name)).setText(rider.getLastName());
         convertView.findViewById(R.id.ridernumber_layout).setVisibility(View.GONE);
-        ((TextView) convertView.findViewById(R.id.gender)).setText(rider.getGender() == Gender.F ? "F" : "");
+        ((TextView) convertView.findViewById(R.id.gender)).setText(rider.getGender() == Gender.F ? femaleText : "");
         ((TextView) convertView.findViewById(R.id.nationality)).setText(rider.getNationality().toString());
 
         TextView timeView1 = (TextView) convertView.findViewById(R.id.time1);
@@ -140,7 +146,7 @@ public class RiderResultListAdapter extends BaseAdapter {
         return convertView;
     }
 
-    public void setRiders(Collection<Rider> riders) {
+    private void setRiders(Collection<Rider> riders) {
 
         this.riders.clear();
         long roundDate = prefs.getDate();
@@ -159,14 +165,16 @@ public class RiderResultListAdapter extends BaseAdapter {
 
         Collections.sort(this.riders, new RiderBestTimeComparator());
 
-        notifyDataSetChanged();
+        activity.runOnUiThread(new Runnable() {
+
+            @Override
+            public void run() {
+                notifyDataSetChanged();
+            }
+        });
     }
 
     public void setResult() {
         result = true;
-    }
-
-    public void setActivity(Activity activity) {
-        this.activity = activity;
     }
 }

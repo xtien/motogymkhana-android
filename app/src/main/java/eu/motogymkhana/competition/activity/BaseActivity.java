@@ -12,9 +12,8 @@ import android.support.v4.app.FragmentActivity;
 
 import com.google.inject.Inject;
 
-import eu.motogymkhana.competition.fragment.MyAlert;
+import eu.motogymkhana.competition.dialog.MyAlert;
 import eu.motogymkhana.competition.log.MyLog;
-import roboguice.RoboGuice;
 
 /**
  * Created by christine on 7-2-16.
@@ -28,7 +27,7 @@ public class BaseActivity extends FragmentActivity {
     private MyLog log;
 
     @Override
-    public void onCreate(Bundle savedInstanceState) {
+    protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         getActionBar().setTitle("");
     }
@@ -36,6 +35,10 @@ public class BaseActivity extends FragmentActivity {
     protected void showAlert(final Exception e) {
         log.e(LOGTAG, e);
         showAlert(e.getClass().getSimpleName() + " " + (e.getMessage() != null ? e.getMessage() : ""));
+    }
+
+    protected void showAlert(int statusCode, String message) {
+        showAlert(statusCode + " " + message);
     }
 
     protected void showAlert(final String text) {

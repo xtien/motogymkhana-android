@@ -12,7 +12,6 @@ import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentActivity;
 import android.support.v4.view.ViewPager;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -35,6 +34,8 @@ import eu.motogymkhana.competition.Constants;
 import eu.motogymkhana.competition.R;
 import eu.motogymkhana.competition.adapter.ChangeListener;
 import eu.motogymkhana.competition.adapter.MyViewPagerAdapter;
+import eu.motogymkhana.competition.api.ResponseHandler;
+import eu.motogymkhana.competition.api.response.SettingsResult;
 import eu.motogymkhana.competition.context.ContextProvider;
 import eu.motogymkhana.competition.dao.CredentialDao;
 import eu.motogymkhana.competition.dao.RiderDao;
@@ -46,11 +47,11 @@ import eu.motogymkhana.competition.fragment.RidersResultFragment;
 import eu.motogymkhana.competition.fragment.SeasonTotalsFragment;
 import eu.motogymkhana.competition.model.Country;
 import eu.motogymkhana.competition.model.Round;
-import eu.motogymkhana.competition.prefs.ChristinePreferences;
+import eu.motogymkhana.competition.notify.Notifier;
+import eu.motogymkhana.competition.prefs.MyPreferences;
+import eu.motogymkhana.competition.prefs.PrefsProvider;
 import eu.motogymkhana.competition.rider.RiderManager;
-import eu.motogymkhana.competition.rider.RiderManagerProvider;
 import eu.motogymkhana.competition.round.RoundManager;
-import eu.motogymkhana.competition.round.RoundManagerProvider;
 import eu.motogymkhana.competition.settings.SettingsManager;
 import roboguice.RoboGuice;
 
@@ -62,13 +63,14 @@ import roboguice.RoboGuice;
  * select country/region and season.
  */
 
-public class MainActivity extends FragmentActivity {
+public class MainActivity extends BaseActivity {
 
     private static final int NEW_RIDER = 101;
     private static final int ADMIN = 102;
     private static final int TEXT = 103;
     private static final int ADMIN_SETTINGS = 104;
     private static final int SETTINGS = 105;
+    public static final int RIDERTIMES = 106;
 
     private static final String LOGTAG = MainActivity.class.getSimpleName();
 
@@ -91,6 +93,9 @@ public class MainActivity extends FragmentActivity {
     @Inject
     private RoundDao roundDao;
 
+    @Inject
+    private Notifier notifier;
+
     private MenuItem menuItem;
 
     @Inject
@@ -106,18 +111,19 @@ public class MainActivity extends FragmentActivity {
     private SettingsDao settingsDao;
 
     @Inject
-    private ChristinePreferences prefs;
+    private MyPreferences prefs;
 
     private TextView dateView;
     private TextView messageTextView;
     private ProgressBar progressBar;
+    private List<Fragment> fragments;
 
     private Runnable loadRoundsTask = new Runnable() {
 
         @Override
         public void run() {
             roundManager.loadRoundsFromServer();
-            settingsManager.getSettingsFromServerAsync();
+            settingsManager.getSettingsFromServer(getSettingsResponseHandler);
         }
     };
 
@@ -128,9 +134,9 @@ public class MainActivity extends FragmentActivity {
 
             if (prefs.loadRounds()) {
                 roundManager.loadRoundsFromServer();
-                settingsManager.getSettingsFromServerAsync();
+                settingsManager.getSettingsFromServer(null);
             } else {
-                riderManager.loadRidersFromServer();
+                riderManager.loadRidersFromServer(downloadRidersResponseHandler);
             }
 
             handler.postDelayed(this, Constants.refreshRate);
@@ -153,8 +159,108 @@ public class MainActivity extends FragmentActivity {
         }
     };
 
+    private ResponseHandler getSettingsResponseHandler = new ResponseHandler() {
+
+        @Override
+        public void onSuccess(Object object) {
+
+            SettingsResult result = (SettingsResult) object;
+            settingsManager.setSettings(result.getSettings());
+        }
+
+        @Override
+        public void onException(Exception e) {
+
+        }
+
+        @Override
+        public void onError(int statusCode, String string) {
+
+        }
+    };
+
+    private ResponseHandler startNumbersResponseHandler = new ResponseHandler() {
+        @Override
+        public void onSuccess(Object object) {
+
+        }
+
+        @Override
+        public void onException(Exception e) {
+
+        }
+
+        @Override
+        public void onError(int statusCode, String string) {
+
+        }
+    };
+
+    private ResponseHandler uploadRidersResponseHandler = new ResponseHandler() {
+
+        @Override
+        public void onSuccess(Object object) {
+
+        }
+
+        @Override
+        public void onException(Exception e) {
+
+        }
+
+        @Override
+        public void onError(int statusCode, String string) {
+
+        }
+    };
+
+    private Runnable notifyDataChangedRunner = new Runnable() {
+
+        @Override
+        public void run() {
+            notifier.notifyDataChanged();
+        }
+    };
+
+    private ResponseHandler downloadRidersResponseHandler = new ResponseHandler() {
+
+        @Override
+        public void onSuccess(Object object) {
+            runOnUiThread(notifyDataChangedRunner);
+        }
+
+        @Override
+        public void onException(Exception e) {
+            showAlert(e);
+        }
+
+        @Override
+        public void onError(int statusCode, String string) {
+            showAlert(statusCode, string);
+        }
+    };
+
+    private ResponseHandler uploadRoundsResponseHandler = new ResponseHandler() {
+        @Override
+        public void onSuccess(Object object) {
+
+        }
+
+        @Override
+        public void onException(Exception e) {
+            showAlert(e);
+        }
+
+        @Override
+        public void onError(int statusCode, String string) {
+            showAlert(statusCode, string);
+        }
+    };
+
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
+
+        super.onActivityResult(requestCode, resultCode, data);
 
         if (menuItem != null) {
             menuItem.setTitle(Constants.country.name() + " " + Constants.season);
@@ -173,7 +279,7 @@ public class MainActivity extends FragmentActivity {
             case SETTINGS:
 
                 dateView.setText(Constants.dateFormat.format(prefs.getDate()));
-                riderManager.notifyDataChanged();
+                notifier.notifyDataChanged();
 
                 if (data.getBooleanExtra(SettingsActivity.COUNTRY_CHANGED, false) || data.getBooleanExtra
                         (SettingsActivity.SEASON_CHANGED, false)) {
@@ -188,6 +294,11 @@ public class MainActivity extends FragmentActivity {
                 break;
 
             default:
+
+                for (Fragment fragment : fragments) {
+                    fragment.onActivityResult(requestCode, resultCode, data);
+                }
+
                 break;
         }
     }
@@ -254,8 +365,7 @@ public class MainActivity extends FragmentActivity {
             }
         }
 
-        RiderManagerProvider.setContext(this);
-        RoundManagerProvider.setContext(this);
+        PrefsProvider.setContext(this);
 
         Collection<Round> rounds = null;
 
@@ -265,25 +375,26 @@ public class MainActivity extends FragmentActivity {
             e.printStackTrace();
         }
 
-        if (isAdmin()) {
 
-            try {
-                roundManager.loadRoundsFromServer();
-                settingsManager.getSettingsFromServerAsync();
+        try {
+            roundManager.loadRoundsFromServer();
+            settingsManager.getSettingsFromServer(getSettingsResponseHandler);
+            riderManager.downloadRiders(downloadRidersResponseHandler);
 
-                if (rounds == null || rounds.size() == 0) {
+            if (rounds == null || rounds.size() == 0) {
 
-                    Round round = roundManager.getNextRound();
-                    if (round != null) {
-                        roundManager.setDate(round.getDate());
-                    }
+                Round round = roundManager.getNextRound();
+                if (round != null) {
+                    roundManager.setDate(round.getDate());
                 }
-
-            } catch (ParseException e) {
-                e.printStackTrace();
-            } catch (SQLException e) {
-                e.printStackTrace();
             }
+
+        } catch (ParseException e) {
+            e.printStackTrace();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
         }
 
         handler = new Handler();
@@ -318,7 +429,7 @@ public class MainActivity extends FragmentActivity {
         super.onResume();
 
         if (riderManager != null) {
-            riderManager.registerRiderResultListener(dataChangedListener);
+            notifier.registerRiderResultListener(dataChangedListener);
         }
 
         if (!isAdmin()) {
@@ -331,13 +442,13 @@ public class MainActivity extends FragmentActivity {
         super.onPause();
         handler.removeCallbacksAndMessages(null);
 
-        if (riderManager != null) {
-            riderManager.unRegisterRiderResultListener(dataChangedListener);
+        if (notifier != null) {
+            notifier.unRegisterRiderResultListener(dataChangedListener);
         }
     }
 
     private void setFragments() {
-        List<Fragment> fragments = new ArrayList<Fragment>();
+        fragments = new ArrayList<Fragment>();
 
         if (isAdmin()) {
             fragments.add(new RiderRegistrationFragment());
@@ -400,11 +511,7 @@ public class MainActivity extends FragmentActivity {
                 return true;
 
             case R.id.start_numbers:
-                try {
-                    riderManager.generateStartNumbers();
-                } catch (SQLException e) {
-                    e.printStackTrace();
-                }
+                riderManager.generateStartNumbers(startNumbersResponseHandler);
                 return true;
 
             case R.id.new_rider:
@@ -423,7 +530,7 @@ public class MainActivity extends FragmentActivity {
 
             case R.id.download_riders:
                 try {
-                    riderManager.downloadRiders();
+                    riderManager.downloadRiders(downloadRidersResponseHandler);
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
@@ -432,7 +539,7 @@ public class MainActivity extends FragmentActivity {
             case R.id.upload_riders:
 
                 try {
-                    riderManager.uploadRiders();
+                    riderManager.uploadRiders(uploadRidersResponseHandler);
                 } catch (IOException e) {
                     e.printStackTrace();
                 } catch (SQLException e) {
@@ -443,7 +550,7 @@ public class MainActivity extends FragmentActivity {
             case R.id.upload_dates:
 
                 try {
-                    roundManager.uploadRounds();
+                    roundManager.uploadRounds(uploadRoundsResponseHandler);
                 } catch (SQLException e) {
                     e.printStackTrace();
                 }

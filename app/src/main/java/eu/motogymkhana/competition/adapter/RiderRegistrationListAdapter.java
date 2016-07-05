@@ -10,7 +10,6 @@ package eu.motogymkhana.competition.adapter;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
-import android.graphics.Color;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -19,6 +18,7 @@ import android.widget.BaseAdapter;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.CompoundButton.OnCheckedChangeListener;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
@@ -33,15 +33,18 @@ import java.util.List;
 import eu.motogymkhana.competition.R;
 import eu.motogymkhana.competition.activity.RiderNewUpdateActivity;
 import eu.motogymkhana.competition.activity.RiderViewActivity;
+import eu.motogymkhana.competition.api.ResponseHandler;
 import eu.motogymkhana.competition.dao.TimesDao;
+import eu.motogymkhana.competition.log.LogProvider;
 import eu.motogymkhana.competition.model.Bib;
 import eu.motogymkhana.competition.model.Gender;
 import eu.motogymkhana.competition.model.Rider;
 import eu.motogymkhana.competition.model.RiderNumberComparator;
 import eu.motogymkhana.competition.model.Times;
+import eu.motogymkhana.competition.notify.Notifier;
+import eu.motogymkhana.competition.prefs.MyPreferences;
 import eu.motogymkhana.competition.rider.GetRidersCallback;
 import eu.motogymkhana.competition.rider.RiderManager;
-import eu.motogymkhana.competition.rider.UpdateRiderCallback;
 import eu.motogymkhana.competition.round.RoundManager;
 
 /**
@@ -51,6 +54,8 @@ import eu.motogymkhana.competition.round.RoundManager;
 public class RiderRegistrationListAdapter extends BaseAdapter {
 
     protected static final int RIDERTIMES = 101;
+    private static final String LOGTAG = RiderRegistrationListAdapter.class.getSimpleName();
+    private final MyPreferences prefs;
 
     private List<Rider> riders = new ArrayList<Rider>();
     private LayoutInflater inflater;
@@ -64,12 +69,13 @@ public class RiderRegistrationListAdapter extends BaseAdapter {
     private RoundManager roundManager;
 
     private TimesDao timesDao;
+    private Notifier notifier;
+    private String femaleText;
 
     private ChangeListener changeListener = new ChangeListener() {
 
         @Override
         public void notifyDataChanged() {
-
             riderManager.getRiders(callback);
         }
     };
@@ -83,22 +89,62 @@ public class RiderRegistrationListAdapter extends BaseAdapter {
 
         @Override
         public void onError(String error) {
+            LogProvider.getLogger().e(LOGTAG, error);
+        }
+    };
+
+    private ResponseHandler setRegisteredResponseHandler = new ResponseHandler() {
+
+        @Override
+        public void onSuccess(Object object) {
+            notifier.notifyDataChanged();
+        }
+
+        @Override
+        public void onException(Exception e) {
+
+        }
+
+        @Override
+        public void onError(int statusCode, String string) {
+
+        }
+    };
+
+    private ResponseHandler updateRiderResponseHandler = new ResponseHandler() {
+
+        @Override
+        public void onSuccess(Object object) {
+            notifier.notifyDataChanged();
+        }
+
+        @Override
+        public void onException(Exception e) {
+
+        }
+
+        @Override
+        public void onError(int statusCode, String string) {
 
         }
     };
 
     @Inject
-    public RiderRegistrationListAdapter(Context context, final RiderManager riderManager, RoundManager roundManager,
-                                        TimesDao timesDao) {
+    public RiderRegistrationListAdapter(Activity activity, final RiderManager riderManager, RoundManager roundManager,
+                                        TimesDao timesDao, Notifier notifier, MyPreferences prefs) {
 
         this.riderManager = riderManager;
         this.roundManager = roundManager;
         this.timesDao = timesDao;
+        this.notifier = notifier;
+        this.activity = activity;
+        this.prefs = prefs;
 
-        inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+        inflater = (LayoutInflater) activity.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 
         riderManager.getRiders(callback);
-        riderManager.registerRiderResultListener(changeListener);
+        notifier.registerRiderResultListener(changeListener);
+        femaleText = activity.getResources().getString(R.string.female_sign);
     }
 
     @Override
@@ -121,7 +167,7 @@ public class RiderRegistrationListAdapter extends BaseAdapter {
 
         convertView = (LinearLayout) inflater.inflate(R.layout.rider_registration_list_row, null);
 
-        long roundDate = roundManager.getDate();
+        long roundDate = prefs.getDate();
 
         final Rider rider = riders.get(position);
         Times riderTimes = rider.getEUTimes(roundDate);
@@ -158,10 +204,11 @@ public class RiderRegistrationListAdapter extends BaseAdapter {
         }
 
         TextView startNumber = (TextView) convertView.findViewById(R.id.startnumber);
-        TextView editView = ((TextView) convertView.findViewById(R.id.edit));
+        LinearLayout startNumberLayout = (LinearLayout) convertView.findViewById(R.id.startnumber_layout);
+        ImageView editView = (ImageView) convertView.findViewById(R.id.edit);
 
         startNumber.setText(Integer.toString(riderTimes.getStartNumber()));
-        startNumber.setBackgroundColor(rider.getBibColor());
+        startNumberLayout.setBackgroundColor(rider.getBibColor());
 
         editView.setVisibility(View.VISIBLE);
         editView.setOnClickListener(new OnClickListener() {
@@ -179,7 +226,7 @@ public class RiderRegistrationListAdapter extends BaseAdapter {
         isDayRider.setVisibility(View.VISIBLE);
         isDayRider.setChecked(rider.isDayRider());
 
-        ((TextView) convertView.findViewById(R.id.gender)).setText(rider.getGender() == Gender.F ? "F" : "");
+        ((TextView) convertView.findViewById(R.id.gender)).setText(rider.getGender() == Gender.F ? femaleText : "");
 
         CheckBox isRegistered = (CheckBox) convertView.findViewById(R.id.registered_box);
         isRegistered.setVisibility(View.VISIBLE);
@@ -192,7 +239,7 @@ public class RiderRegistrationListAdapter extends BaseAdapter {
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
 
                 try {
-                    riderManager.setRegistered(finalRiderTimes, isChecked);
+                    riderManager.setRegistered(finalRiderTimes, isChecked, setRegisteredResponseHandler);
                 } catch (SQLException e) {
                     e.printStackTrace();
                 }
@@ -206,25 +253,19 @@ public class RiderRegistrationListAdapter extends BaseAdapter {
 
                 rider.setDayRider(isChecked);
 
-                riderManager.update(rider, new UpdateRiderCallback() {
-
-                    @Override
-                    public void onSuccess() {
-
-                    }
-
-                    @Override
-                    public void onError(String error) {
-
-                    }
-                });
+                riderManager.update(rider, updateRiderResponseHandler);
             }
         });
 
         return convertView;
     }
 
-    public void setRiders(Collection<Rider> riders) {
+    public void setRegistration() {
+        registration = true;
+        notifyDataSetChanged();
+    }
+
+    private void setRiders(Collection<Rider> riders) {
 
         if (riders != null) {
             this.riders.clear();
@@ -237,24 +278,12 @@ public class RiderRegistrationListAdapter extends BaseAdapter {
             Collections.sort(this.riders, new RiderNumberComparator());
         }
 
-        notifyDataSetChanged();
-    }
+        activity.runOnUiThread(new Runnable() {
 
-    public void setSorted() {
-        sorted = true;
-        notifyDataSetChanged();
-    }
-
-    public void setRegistration() {
-        registration = true;
-        notifyDataSetChanged();
-    }
-
-    public void setResult() {
-        result = true;
-    }
-
-    public void setActivity(Activity activity) {
-        this.activity = activity;
+            @Override
+            public void run() {
+                notifyDataSetChanged();
+            }
+        });
     }
 }

@@ -11,6 +11,7 @@ import java.io.IOException;
 import java.sql.SQLException;
 import java.util.List;
 
+import eu.motogymkhana.competition.api.ResponseHandler;
 import eu.motogymkhana.competition.model.Round;
 
 /**
@@ -19,15 +20,15 @@ import eu.motogymkhana.competition.model.Round;
  */
 public interface SettingsManager {
 
-    void getSettingsFromServerAsync();
+    void getSettingsFromServer(ResponseHandler responseHandler) ;
 
-    Settings getSettingsFromServer() throws IOException, SQLException;
-
-    void uploadSettingsToServer(Settings settings);
+    void uploadSettingsToServer(Settings settings, ResponseHandler responseHandler);
 
     int getRoundsCountingForSeasonResult();
 
     Settings getSettings() throws IOException, SQLException;
 
     void setRounds(List<Round> rounds) throws IOException, SQLException;
+
+    void setSettings(Settings settings);
 }

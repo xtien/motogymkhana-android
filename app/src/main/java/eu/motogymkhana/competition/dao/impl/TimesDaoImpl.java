@@ -34,13 +34,21 @@ public class TimesDaoImpl extends BaseDaoImpl<Times, Integer> implements TimesDa
     @Override
     public void storeRiderTimes(Rider rider) throws SQLException {
 
+        List<Times> existingRiderTimes = getTimes(rider.get_id());
+
         Iterator<Times> iterator = rider.getTimes().iterator();
 
         while (iterator.hasNext()) {
-
             Times times = iterator.next();
             times.setRider(rider);
             store(times);
+            if(existingRiderTimes.contains(times)){
+                existingRiderTimes.remove(times);
+            }
+        }
+
+        for(Times times :existingRiderTimes){
+            delete(times);
         }
     }
 
@@ -63,6 +71,20 @@ public class TimesDaoImpl extends BaseDaoImpl<Times, Integer> implements TimesDa
         } else {
             return null;
         }
+    }
+
+    private List<Times> getTimes(int rider_id) throws SQLException {
+
+        List<Times> list = null;
+        QueryBuilder<Times, Integer> statementBuilder = queryBuilder();
+
+        statementBuilder.where()
+                .eq(Times.RIDER, rider_id).and()
+                .eq(Times.COUNTRY, Constants.country).and()
+                .eq(Times.SEASON, Constants.season);
+
+        list = query(statementBuilder.prepare());
+        return list;
     }
 
     @Override
@@ -187,9 +209,7 @@ public class TimesDaoImpl extends BaseDaoImpl<Times, Integer> implements TimesDa
     public void delete(Country country, int season) throws SQLException {
 
         DeleteBuilder<Times, Integer> statementBuilder = deleteBuilder();
-
         statementBuilder.where().eq(Times.COUNTRY, country).and().eq(Times.SEASON, season);
-
         statementBuilder.delete();
     }
 

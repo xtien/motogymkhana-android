@@ -2,6 +2,7 @@ package eu.motogymkhana.competition.api;
 
 import com.fasterxml.jackson.core.JsonGenerationException;
 import com.fasterxml.jackson.databind.JsonMappingException;
+import com.squareup.picasso.Downloader;
 
 import java.io.IOException;
 import java.sql.SQLException;
@@ -9,6 +10,9 @@ import java.util.Collection;
 import java.util.List;
 
 import eu.motogymkhana.competition.api.impl.RidersCallback;
+import eu.motogymkhana.competition.api.response.ListRidersResult;
+import eu.motogymkhana.competition.api.response.ListRoundsResult;
+import eu.motogymkhana.competition.api.response.SettingsResult;
 import eu.motogymkhana.competition.model.Rider;
 import eu.motogymkhana.competition.model.Round;
 import eu.motogymkhana.competition.model.Times;
@@ -16,31 +20,25 @@ import eu.motogymkhana.competition.settings.Settings;
 
 public interface ApiManager {
 
-	ListRidersResult getRiders() throws SQLException, JsonGenerationException, JsonMappingException,
-			IOException;
+	void getRiders(ResponseHandler responseHandler);
 
-	void getRiders(RidersCallback callback) throws SQLException, JsonGenerationException,
-			JsonMappingException, IOException;
+	void updateRider(Rider rider, ResponseHandler responseHandler);
 
-	void updateRider(Rider rider) throws IOException;
+	void uploadRiders(List<Rider> riders, ResponseHandler responseHandler);
 
-	void uploadRiders(List<Rider> riders) throws IOException;
+	void delete(Rider rider, ResponseHandler responseHandler) ;
 
-	void delete(Rider rider) throws IOException;
+	void sendText(String text, ResponseHandler responseHandler);
 
-	void sendText(String text) throws IOException;
+	void uploadRounds(Collection<Round> rounds, ResponseHandler responseHandler);
 
-	void updateRiders(List<Rider> riders) throws IOException;
+	void getRounds(ResponseHandler responseHandler);
 
-	void uploadRounds(Collection<Round> rounds) throws IOException;
+    void checkPassword(String password,ResponseHandler responseHandler);
 
-	ListRoundsResult getRounds() throws IOException;
+	void updateTimes(Times times, ResponseHandler responseHandler);
 
-    boolean checkPassword(String password) throws IOException;
+	void getSettings( ResponseHandler responseHandler);
 
-	void updateTimes(Times times) throws IOException;
-
-	SettingsResult getSettings() throws IOException;
-
-	void uploadSettings(Settings settings) throws IOException;
+	void uploadSettings(Settings settings, ResponseHandler responseHandler);
 }

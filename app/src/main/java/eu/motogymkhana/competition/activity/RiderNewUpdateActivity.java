@@ -22,19 +22,21 @@ import android.widget.TextView;
 import com.google.inject.Inject;
 import com.squareup.picasso.Picasso;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 
 import java.sql.SQLException;
 
 import eu.motogymkhana.competition.Constants;
 import eu.motogymkhana.competition.R;
+import eu.motogymkhana.competition.api.ResponseHandler;
 import eu.motogymkhana.competition.api.impl.RidersCallback;
+import eu.motogymkhana.competition.api.response.UpdateRiderResponse;
 import eu.motogymkhana.competition.model.Bib;
 import eu.motogymkhana.competition.model.Country;
 import eu.motogymkhana.competition.model.Gender;
 import eu.motogymkhana.competition.model.Rider;
+import eu.motogymkhana.competition.notify.Notifier;
 import eu.motogymkhana.competition.rider.RiderManager;
-import eu.motogymkhana.competition.rider.UpdateRiderCallback;
 import roboguice.RoboGuice;
 
 /**
@@ -46,12 +48,62 @@ public class RiderNewUpdateActivity extends BaseActivity {
 
     public static final String RIDER_NUMBER = "rider_number";
     public static final String FOCUS = "focus";
+    private TextView errorText;
 
     @Inject
     private RiderManager riderManager;
-    private int number = 99;
+
+    @Inject
+    private Notifier notifier;
 
     Rider rider = null;
+    private ResponseHandler updateRiderResponseHandler = new ResponseHandler() {
+
+        @Override
+        public void onSuccess(Object object) {
+
+            UpdateRiderResponse response = (UpdateRiderResponse) object;
+
+            if (response.isOK()) {
+                finish();
+                notifier.notifyDataChanged();
+            }
+        }
+
+        @Override
+        public void onException(Exception e) {
+
+        }
+
+        @Override
+        public void onError(int statusCode, String error) {
+            errorText.setText(error);
+        }
+    };
+
+    private ResponseHandler deleteRiderResponseHandler = new ResponseHandler() {
+
+        @Override
+        public void onSuccess(Object object) {
+
+            UpdateRiderResponse response = (UpdateRiderResponse) object;
+
+            if (response.isOK()) {
+                finish();
+                notifier.notifyDataChanged();
+            }
+        }
+
+        @Override
+        public void onException(Exception e) {
+
+        }
+
+        @Override
+        public void onError(int statusCode, String string) {
+            errorText.setText("Delete failed....");
+        }
+    };
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -60,15 +112,15 @@ public class RiderNewUpdateActivity extends BaseActivity {
         setContentView(R.layout.activity_new_rider_input);
         RoboGuice.getInjector(this).injectMembers(this);
 
+        final int riderNumber = getIntent().getIntExtra(RIDER_NUMBER, -1);
+
         final EditText firstNameView = (EditText) findViewById(R.id.first_name);
         final EditText lastNameView = (EditText) findViewById(R.id.last_name);
         final EditText numberView = (EditText) findViewById(R.id.number);
         final Spinner nationalitySpinner = (Spinner) findViewById(R.id.country);
         final Spinner bibSpinner = (Spinner) findViewById(R.id.bib);
         final CheckBox genderButton = (CheckBox) findViewById(R.id.gender);
-        numberView.setText(Integer.toString(number));
-        final TextView errorText = (TextView) findViewById(R.id.error_text);
-        final int riderNumber = getIntent().getIntExtra(RIDER_NUMBER, -1);
+        errorText = (TextView) findViewById(R.id.error_text);
         final EditText sharingWithView = (EditText) findViewById(R.id.sharing_with);
         final EditText bikeView = (EditText) findViewById(R.id.bike);
         final EditText riderTextView = (EditText) findViewById(R.id.rider_text);
@@ -76,23 +128,23 @@ public class RiderNewUpdateActivity extends BaseActivity {
         final ImageView riderImage = (ImageView) findViewById(R.id.rider_image);
         final ImageView bikeImage = (ImageView) findViewById(R.id.bike_image);
 
-        Button b2016 = (Button)findViewById(R.id.up_2016);
+        Button b2016 = (Button) findViewById(R.id.up_2016);
         b2016.setVisibility(View.GONE);
         b2016.setOnClickListener(new OnClickListener() {
 
             @Override
             public void onClick(View v) {
-                riderManager.updateTo2016(rider);
+                riderManager.updateTo2016(rider, null);
             }
         });
 
-        Button buttonEU = (Button)findViewById(R.id.button_eu);
+        Button buttonEU = (Button) findViewById(R.id.button_eu);
         buttonEU.setVisibility(View.GONE);
         buttonEU.setOnClickListener(new OnClickListener() {
 
             @Override
             public void onClick(View v) {
-                riderManager.updateToEU(rider);
+                riderManager.updateToEU(rider, null);
             }
         });
 
@@ -105,14 +157,9 @@ public class RiderNewUpdateActivity extends BaseActivity {
 
         nationalitySpinner.setAdapter(countrySpinAdapter);
 
-        ArrayAdapter<CharSequence> bibSpinAdapter = new ArrayAdapter(this, android.R.layout.simple_spinner_item);
         countrySpinAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
 
-
-        for (Bib item : Bib.values()) {
-            bibSpinAdapter.add(item.name());
-        }
-
+        BibSpinAdapter bibSpinAdapter = new BibSpinAdapter(this);
         bibSpinner.setAdapter(bibSpinAdapter);
 
         if (riderNumber >= 0) {
@@ -166,6 +213,8 @@ public class RiderNewUpdateActivity extends BaseActivity {
 
         } else {
             rider = new Rider();
+            rider.setRiderNumber(riderManager.newRiderNumber());
+            numberView.setText(rider.getRiderNumberString());
         }
 
         nationalitySpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
@@ -198,19 +247,7 @@ public class RiderNewUpdateActivity extends BaseActivity {
 
             @Override
             public void onClick(View v) {
-
-                riderManager.deleteRider(rider, new RidersCallback() {
-
-                    @Override
-                    public void onSuccess() {
-                        finish();
-                    }
-
-                    @Override
-                    public void onError() {
-                        errorText.setText("Delete failed....");
-                    }
-                });
+                riderManager.deleteRider(rider, deleteRiderResponseHandler);
             }
         });
 
@@ -225,7 +262,7 @@ public class RiderNewUpdateActivity extends BaseActivity {
                 Gender gender = genderButton.isChecked() ? Gender.F : Gender.M;
                 String numberString = numberView.getText().toString();
                 String nationalityString = (String) nationalitySpinner.getSelectedItem();
-                String bibString = (String) bibSpinner.getSelectedItem();
+                Bib bib = (Bib) bibSpinner.getSelectedItem();
                 String bike = bikeView.getText().toString();
                 String riderText = riderTextView.getText().toString();
 
@@ -239,19 +276,13 @@ public class RiderNewUpdateActivity extends BaseActivity {
                     nationality = Country.valueOf(nationalityString);
                 }
 
-                Bib bib = Bib.Y;
-                if (bibString != null) {
-                    bib = Bib.valueOf(bibString);
-                }
-
                 if (numberString != null && StringUtils.isNumeric(numberString)) {
-                    number = Integer.parseInt(numberString);
+                    rider.setRiderNumber(Integer.parseInt(numberString));
                 }
 
                 rider.setFirstName(firstName);
                 rider.setLastName(lastName);
                 rider.setGender(gender);
-                rider.setRiderNumber(number);
                 rider.setNationality(nationality);
                 rider.setCountry(Constants.country);
                 rider.setSeason(Constants.season);
@@ -261,24 +292,7 @@ public class RiderNewUpdateActivity extends BaseActivity {
                 rider.setBib(bib);
 
                 if (firstName != null && lastName != null) {
-
-                    try {
-                        riderManager.createOrUpdate(rider, new UpdateRiderCallback() {
-
-                            @Override
-                            public void onSuccess() {
-                                finish();
-                            }
-
-                            @Override
-                            public void onError(String error) {
-                                errorText.setText(error);
-                            }
-                        });
-                    } catch (SQLException e) {
-                        e.printStackTrace();
-                    }
-
+                    riderManager.update(rider, updateRiderResponseHandler);
                 }
             }
         });

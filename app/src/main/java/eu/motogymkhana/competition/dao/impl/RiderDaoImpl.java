@@ -36,7 +36,6 @@ public class RiderDaoImpl extends BaseDaoImpl<Rider, Integer> implements RiderDa
         Rider existingRider = getRiderByNumber(rider.getRiderNumber(), country, season);
 
         if (existingRider == null) {
-
             create(rider);
 
         } else {

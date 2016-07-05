@@ -3,7 +3,6 @@ package eu.motogymkhana.competition.adapter;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
-import android.graphics.Color;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -20,13 +19,15 @@ import java.util.Collections;
 import java.util.List;
 
 import eu.motogymkhana.competition.R;
+import eu.motogymkhana.competition.activity.MainActivity;
 import eu.motogymkhana.competition.activity.RiderTimesInputActivity;
 import eu.motogymkhana.competition.activity.RiderViewActivity;
 import eu.motogymkhana.competition.dao.CredentialDao;
 import eu.motogymkhana.competition.model.Rider;
 import eu.motogymkhana.competition.model.RiderStartNumberComparator;
 import eu.motogymkhana.competition.model.Times;
-import eu.motogymkhana.competition.prefs.ChristinePreferences;
+import eu.motogymkhana.competition.notify.Notifier;
+import eu.motogymkhana.competition.prefs.MyPreferences;
 import eu.motogymkhana.competition.rider.GetRidersCallback;
 import eu.motogymkhana.competition.rider.RiderManager;
 import eu.motogymkhana.competition.round.RoundManager;
@@ -35,8 +36,7 @@ import eu.motogymkhana.competition.round.RoundManager;
 
 public class RiderTimeInputListAdapter extends BaseAdapter {
 
-    protected static final int RIDERTIMES = 101;
-
+    public static final int RIDER_CHANGED = 101;
     private List<Rider> riders = new ArrayList<Rider>();
     private LayoutInflater inflater;
 
@@ -45,7 +45,8 @@ public class RiderTimeInputListAdapter extends BaseAdapter {
     private RiderManager riderManager;
     private RoundManager roundManager;
     private CredentialDao credentialDao;
-    private ChristinePreferences prefs;
+    private MyPreferences prefs;
+    private Notifier notifier;
 
     private final ChangeListener changeListener = new ChangeListener() {
 
@@ -69,18 +70,21 @@ public class RiderTimeInputListAdapter extends BaseAdapter {
     };
 
     @Inject
-    public RiderTimeInputListAdapter(Context context, final RiderManager riderManager, final RoundManager
-            roundManager, final ChristinePreferences prefs, final CredentialDao credentialDao) {
+    public RiderTimeInputListAdapter(Activity activity, final RiderManager riderManager, final RoundManager
+            roundManager, final MyPreferences prefs, final CredentialDao credentialDao, Notifier notifier) {
 
         this.riderManager = riderManager;
         this.roundManager = roundManager;
         this.credentialDao = credentialDao;
         this.prefs = prefs;
-        riderManager.registerRiderResultListener(changeListener);
+        this.notifier = notifier;
+        this.activity = activity;
+
+        notifier.registerRiderResultListener(changeListener);
 
         riderManager.getRegisteredRiders(callback);
 
-        inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+        inflater = (LayoutInflater) activity.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
     }
 
     @Override
@@ -128,10 +132,21 @@ public class RiderTimeInputListAdapter extends BaseAdapter {
         if (date > 0l && riderTimes != null) {
 
             TextView riderNumberView = (TextView) convertView.findViewById(R.id.ridernumber);
+            LinearLayout riderNumberLayout = (LinearLayout) convertView.findViewById(R.id.ridernumber_layout);
             riderNumberView.setText(riderTimes.getStartNumberString());
-            riderNumberView.setBackgroundColor(rider.getBibColor());
+            riderNumberLayout.setBackgroundColor(rider.getBibColor());
 
             ((TextView) convertView.findViewById(R.id.nationality)).setText(rider.getNationality().toString());
+            TextView pointsView1 = ((TextView) convertView.findViewById(R.id.points1));
+            TextView pointsView2 = ((TextView) convertView.findViewById(R.id.points2));
+            if (pointsView1 != null) {
+                pointsView1.setText(riderTimes.getPenalties1String());
+                pointsView1.setVisibility(View.VISIBLE);
+            }
+            if (pointsView2 != null) {
+                pointsView2.setText(riderTimes.getPenalties2String());
+                pointsView2.setVisibility(View.VISIBLE);
+            }
 
             TextView timeView1 = ((TextView) convertView.findViewById(R.id.time1));
             TextView timeView2 = ((TextView) convertView.findViewById(R.id.time2));
@@ -166,7 +181,7 @@ public class RiderTimeInputListAdapter extends BaseAdapter {
                         Intent intent = new Intent(activity, RiderTimesInputActivity.class);
                         intent.putExtra(RiderTimesInputActivity.RIDER_NUMBER, rider.getRiderNumber());
                         intent.putExtra(RiderTimesInputActivity.FOCUS, 0);
-                        activity.startActivityForResult(intent, RIDERTIMES);
+                        activity.startActivityForResult(intent, MainActivity.RIDERTIMES);
                     }
                 });
 
@@ -178,7 +193,7 @@ public class RiderTimeInputListAdapter extends BaseAdapter {
                         Intent intent = new Intent(activity, RiderTimesInputActivity.class);
                         intent.putExtra(RiderTimesInputActivity.RIDER_NUMBER, rider.getRiderNumber());
                         intent.putExtra(RiderTimesInputActivity.FOCUS, 0);
-                        activity.startActivityForResult(intent, RIDERTIMES);
+                        activity.startActivityForResult(intent, MainActivity.RIDERTIMES);
                     }
                 });
             }
@@ -197,10 +212,18 @@ public class RiderTimeInputListAdapter extends BaseAdapter {
             riders = new ArrayList<Rider>();
         }
 
-        notifyDataSetChanged();
+        activity.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                notifyDataSetChanged();
+            }
+        });
     }
 
-    public void setActivity(Activity activity) {
-        this.activity = activity;
+    public void onActivityResult(int resultCode, Intent data) {
+
+        if (resultCode == RIDER_CHANGED) {
+            riderManager.getRegisteredRiders(callback);
+        }
     }
 }

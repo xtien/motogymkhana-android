@@ -7,9 +7,12 @@
 
 package eu.motogymkhana.competition.activity;
 
+import android.app.Activity;
+import android.content.Context;
 import android.os.Bundle;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.EditText;
@@ -22,10 +25,17 @@ import java.sql.SQLException;
 
 import eu.motogymkhana.competition.Constants;
 import eu.motogymkhana.competition.R;
+import eu.motogymkhana.competition.adapter.RiderTimeInputListAdapter;
+import eu.motogymkhana.competition.api.ApiManager;
+import eu.motogymkhana.competition.api.ResponseHandler;
+import eu.motogymkhana.competition.api.response.GymkhanaResult;
+import eu.motogymkhana.competition.api.response.UpdateRiderResponse;
+import eu.motogymkhana.competition.log.MyLog;
 import eu.motogymkhana.competition.model.Rider;
 import eu.motogymkhana.competition.model.Times;
+import eu.motogymkhana.competition.notify.Notifier;
+import eu.motogymkhana.competition.prefs.MyPreferences;
 import eu.motogymkhana.competition.rider.RiderManager;
-import eu.motogymkhana.competition.rider.UpdateRiderCallback;
 import eu.motogymkhana.competition.round.RoundManager;
 import eu.motogymkhana.competition.view.PlusMinusView;
 import roboguice.RoboGuice;
@@ -38,19 +48,59 @@ public class RiderTimesInputActivity extends BaseActivity {
 
     public static final String RIDER_NUMBER = "rider_number";
     public static final String FOCUS = "focus";
+    private static final String LOGTAG = RiderTimesInputActivity.class.getSimpleName();
 
     private int riderNumber;
 
-     private int focus;
+    private int focus;
+
+    @Inject
+    private Notifier notifier;
+
+    @Inject
+    private MyPreferences prefs;
+
+    @Inject
+    private MyLog log;
 
     @Inject
     private RiderManager riderManager;
+
+    @Inject
+    private ApiManager api;
 
     @Inject
     private RoundManager roundManager;
 
     Rider rider = null;
     Times riderTimes = null;
+
+    private ResponseHandler updateRiderResponseHandler = new ResponseHandler() {
+
+        @Override
+        public void onSuccess(Object object) {
+
+            UpdateRiderResponse result = (UpdateRiderResponse) object;
+
+            if (result.isOK()) {
+                notifier.notifyDataChanged();
+                setResult(RiderTimeInputListAdapter.RIDER_CHANGED);
+                finish();
+            }
+        }
+
+        @Override
+        public void onException(Exception e) {
+            log.e(LOGTAG, e);
+            finish();
+        }
+
+        @Override
+        public void onError(int statusCode, String error) {
+            log.e(LOGTAG, error);
+            Toast.makeText(RiderTimesInputActivity.this, error, Toast.LENGTH_LONG).show();
+        }
+    };
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -59,15 +109,15 @@ public class RiderTimesInputActivity extends BaseActivity {
         setContentView(R.layout.activity_rider_times_input);
         RoboGuice.getInjector(this).injectMembers(this);
 
-        riderNumber = getIntent().getIntExtra(RIDER_NUMBER,0);
-        focus = getIntent().getIntExtra(FOCUS,0);
+        riderNumber = getIntent().getIntExtra(RIDER_NUMBER, 0);
+        focus = getIntent().getIntExtra(FOCUS, 0);
 
-        ((TextView) findViewById(R.id.date)).setText(Constants.dateFormat.format(roundManager.getDate()));
+        ((TextView) findViewById(R.id.date)).setText(Constants.dateFormat.format(prefs.getDate()));
 
         try {
 
             rider = riderManager.getRiderByNumber(riderNumber);
-            riderTimes = rider.getEUTimes(roundManager.getDate());
+            riderTimes = rider.getEUTimes(prefs.getDate());
 
         } catch (SQLException e) {
             e.printStackTrace();
@@ -127,6 +177,12 @@ public class RiderTimesInputActivity extends BaseActivity {
             @Override
             public void onClick(View v) {
 
+                InputMethodManager imm = (InputMethodManager) getSystemService(Activity.INPUT_METHOD_SERVICE);
+                View view = getCurrentFocus();
+                if (view != null) {
+                    imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
+                }
+
                 if (rider != null && riderTimes != null) {
 
                     riderTimes.setPenalties1(penalties1.getNumber());
@@ -138,23 +194,12 @@ public class RiderTimesInputActivity extends BaseActivity {
                     riderTimes.setDisqualified1(disqualified1.isChecked());
                     riderTimes.setDisqualified2(disqualified2.isChecked());
 
-                    riderManager.update(rider, new UpdateRiderCallback() {
+                    riderManager.update(riderTimes, updateRiderResponseHandler);
 
-                        @Override
-                        public void onSuccess() {
-                            riderManager.notifyDataChanged();
-                        }
-
-                        @Override
-                        public void onError(String error) {
-                            Toast.makeText(RiderTimesInputActivity.this, error, Toast.LENGTH_LONG).show();
-                        }
-                    });
+                } else {
+                    finish();
                 }
-
-                finish();
             }
         });
-
     }
 }

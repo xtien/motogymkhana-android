@@ -32,6 +32,7 @@ public class RoboInjectedTestLiveServerRunner extends RobolectricTestRunner {
         @Override
         public void prepareTest(Object test) {
             Application application = RuntimeEnvironment.application;
+            RoboGuice.overrideApplicationInjector(application, new TestLiveServerModule(), new GymkhanaModule());
             RoboGuice.getInjector(application).injectMembers(test);
         }
     }

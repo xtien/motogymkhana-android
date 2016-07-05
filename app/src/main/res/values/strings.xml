@@ -78,6 +78,6 @@
     <string name="no_rounds_held">No races were organized.</string>
     <string name="points">points</string>
     <string name="upload_rounds_manually">Don\'t forget to upload the rounds manually.</string>
-
+    <string name="female_sign">\u2640</string>
 
 </resources>

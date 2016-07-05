@@ -25,10 +25,10 @@ import roboguice.RoboGuice;
  * The app communicates with a server, by default this is the server at www.gymcomp.com. The server records results
  * that are uploaded by the app (in admin mode) and distributes race results to app users (in non admin mode). The server
  * also publishes an API through which a web site can show the results.
- * <p>
+ * <p/>
  * The app usually shows MainActivity, which has a ViewPager to show three fragments (non admin mode) or four fragments
  * (admin mode). Fragments contain registration of riders (admin mode only), start list, day results, season results.
- * <p>
+ * <p/>
  * From the menu, additional screens and functions are available.
  */
 public class MotoGymkhanaApplication extends Application {

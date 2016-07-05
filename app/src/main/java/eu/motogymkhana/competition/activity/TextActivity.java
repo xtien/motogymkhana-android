@@ -44,7 +44,7 @@ public class TextActivity extends BaseActivity {
             @Override
             public void onClick(View v) {
 
-                riderManager.sendText(textView.getText().toString());
+                riderManager.sendText(textView.getText().toString(),null);
                      finish();
             }
         });

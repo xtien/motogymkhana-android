@@ -23,13 +23,15 @@ import java.util.List;
 import eu.motogymkhana.competition.R;
 import eu.motogymkhana.competition.adapter.RiderResultListAdapter;
 import eu.motogymkhana.competition.model.Rider;
-import eu.motogymkhana.competition.prefs.ChristinePreferences;
+import eu.motogymkhana.competition.notify.Notifier;
+import eu.motogymkhana.competition.prefs.MyPreferences;
 import eu.motogymkhana.competition.rider.RiderManager;
 import eu.motogymkhana.competition.round.RoundManager;
 import roboguice.RoboGuice;
 
 /**
  * created by Christine
+ * Fragment 2, or screen 2, in the viewpager
  * Fragment shows results for the current round.
  */
 public class RidersResultFragment extends ListFragment {
@@ -41,7 +43,10 @@ public class RidersResultFragment extends ListFragment {
     private RoundManager roundManager;
 
     @Inject
-    private ChristinePreferences prefs;
+    private Notifier notifier;
+
+    @Inject
+    private MyPreferences prefs;
 
     private List<Rider> riders = new ArrayList<Rider>();
 
@@ -63,9 +68,8 @@ public class RidersResultFragment extends ListFragment {
         titleView.setVisibility(View.VISIBLE);
         titleView.setText(R.string.results);
 
-        adapter = new RiderResultListAdapter(getActivity(), riderManager, roundManager, prefs);
+        adapter = new RiderResultListAdapter(getActivity(), riderManager, roundManager, prefs, notifier);
         adapter.setResult();
-        adapter.setActivity(getActivity());
         setListAdapter(adapter);
     }
 

@@ -20,11 +20,14 @@
     <dimen name="date_text_size">10pt</dimen>
     <dimen name="plusminusminwidth">60dp</dimen>
     <dimen name="time_box_width">80dp</dimen>
-    <dimen name="bib_width">20dp</dimen>
+    <dimen name="points_width">30dp</dimen>
     <dimen name="list_time_margin_left">10dp</dimen>
     <dimen name="list_time_margin_right">10dp</dimen>
     <dimen name="list_edit_margin_left">20dp</dimen>
     <dimen name="list_checkbox_margin_left">10dp</dimen>
     <dimen name="list_checkbox_margin_right">60dp</dimen>
+    <dimen name="rider_listrow_margin">6dp</dimen>
+    <dimen name="ridernumber_layout_width">40dp</dimen>
+    <dimen name="startnumber_layout_width">40dp</dimen>
 
 </resources>

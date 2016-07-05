@@ -12,7 +12,9 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.j256.ormlite.field.DatabaseField;
 import com.j256.ormlite.table.DatabaseTable;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
 
 import eu.motogymkhana.competition.Constants;
 import eu.motogymkhana.competition.dao.impl.TimesDaoImpl;
@@ -309,12 +311,12 @@ public class Times {
 
     @JsonIgnore
     public String getPenalties1String() {
-        return Integer.toString(penalties1);
+        return penalties1 == 0 ? "" : Integer.toString(penalties1);
     }
 
     @JsonIgnore
     public String getPenalties2String() {
-        return Integer.toString(penalties2);
+        return penalties2 == 0 ? "" : Integer.toString(penalties2);
     }
 
     public void setPenalties1(int i) {
@@ -401,5 +403,50 @@ public class Times {
 
     public void setRiderNumber(int riderNumber) {
         this.riderNumber = riderNumber;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+
+        if (obj == null) {
+            return false;
+        }
+        if (obj == this) {
+            return true;
+        }
+        if (obj.getClass() != getClass()) {
+            return false;
+        }
+        Times other = (Times) obj;
+        boolean result = new EqualsBuilder()
+                .append(date, other.getDate())
+                .append(country, other.getCountry())
+                .append(season, other.getSeason())
+                .isEquals();
+
+        return result;
+    }
+
+    @Override
+    public int hashCode() {
+        return new HashCodeBuilder(17, 37).
+                append(date)
+                .append(season)
+                .append(country)
+                .toHashCode();
+    }
+
+    public Country getCountry() {
+        return country;
+    }
+
+    public int getSeason() {
+        return season;
+    }
+
+    public void setRiderNumber() {
+        if (rider != null) {
+            riderNumber = rider.getRiderNumber();
+        }
     }
 }

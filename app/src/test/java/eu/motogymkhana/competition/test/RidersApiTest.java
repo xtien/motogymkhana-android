@@ -20,16 +20,17 @@ import java.util.List;
 import eu.motogymkhana.competition.BuildConfig;
 import eu.motogymkhana.competition.Constants;
 import eu.motogymkhana.competition.adapter.ChangeListener;
+import eu.motogymkhana.competition.api.ResponseHandler;
 import eu.motogymkhana.competition.context.ContextProvider;
+import eu.motogymkhana.competition.dao.RiderDao;
 import eu.motogymkhana.competition.dao.RoundDao;
 import eu.motogymkhana.competition.http.FakeHttp;
 import eu.motogymkhana.competition.model.Rider;
 import eu.motogymkhana.competition.model.Round;
+import eu.motogymkhana.competition.notify.Notifier;
 import eu.motogymkhana.competition.rider.GetRidersCallback;
 import eu.motogymkhana.competition.rider.RiderManager;
-import eu.motogymkhana.competition.rider.RiderManagerProvider;
 import eu.motogymkhana.competition.robo.RoboInjectedTestRunner;
-import eu.motogymkhana.competition.round.RoundManagerProvider;
 
 /**
  * Created by christine on 24-7-15.
@@ -53,6 +54,12 @@ public class RidersApiTest {
 
     @Inject
     private RoundDao roundDao;
+
+    @Inject
+    private Notifier notifier;
+
+    @Inject
+    private RiderDao riderDao;
 
     String dateOne = "01-06-2016";
     String dateTwo = "01-07-2016";
@@ -79,13 +86,28 @@ public class RidersApiTest {
         }
     };
 
+    private ResponseHandler downloadRidersResponseHandler = new ResponseHandler() {
+
+        @Override
+        public void onSuccess(Object object) {
+            done = true;
+        }
+
+        @Override
+        public void onException(Exception e) {
+            done = true;
+        }
+
+        @Override
+        public void onError(int statusCode, String string) {
+            done = true;
+        }
+    };
+
     @Test
     public void testGetRiders() throws IOException, InterruptedException, ParseException, SQLException {
 
         Assert.assertNotNull(context);
-
-        RiderManagerProvider.setContext(context);
-        RoundManagerProvider.setContext(context);
 
         Round roundOne = new Round();
         roundOne.setDate(Constants.dateFormat.parse(dateOne).getTime());
@@ -101,7 +123,7 @@ public class RidersApiTest {
 
         fakeHttp.put(ridersUrlString, 200, "", ridersJsonFile);
 
-        riderManager.registerRiderResultListener(new ChangeListener() {
+        notifier.registerRiderResultListener(new ChangeListener() {
 
             @Override
             public void notifyDataChanged() {
@@ -109,11 +131,12 @@ public class RidersApiTest {
             }
         });
 
-        riderManager.downloadRiders();
+        riderManager.downloadRiders(downloadRidersResponseHandler);
 
         while (!done) {
             Thread.sleep(1000);
         }
+
         done = false;
 
         riderManager.getRiders(callback);
@@ -121,6 +144,6 @@ public class RidersApiTest {
             Thread.sleep(1000);
         }
 
-        Assert.assertEquals(25, riders.size());
+        Assert.assertEquals(31, riders.size());
     }
 }

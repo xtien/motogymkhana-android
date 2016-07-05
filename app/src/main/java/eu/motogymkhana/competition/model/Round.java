@@ -6,8 +6,8 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.j256.ormlite.field.DatabaseField;
 import com.j256.ormlite.table.DatabaseTable;
 
-import org.apache.commons.lang.builder.EqualsBuilder;
-import org.apache.commons.lang.builder.HashCodeBuilder;
+import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
 
 import java.text.ParseException;
 
@@ -122,6 +122,7 @@ public class Round {
 
     @Override
     public boolean equals(Object obj) {
+
         if (obj == null) {
             return false;
         }
@@ -132,8 +133,10 @@ public class Round {
             return false;
         }
         Round other = (Round) obj;
-        boolean result =  new EqualsBuilder()
+        boolean result = new EqualsBuilder()
                 .append(date, other.date)
+                .append(country, other.getCountry())
+                .append(season, other.getSeason())
                 .isEquals();
 
         return result;
@@ -142,8 +145,10 @@ public class Round {
     @Override
     public int hashCode() {
         return new HashCodeBuilder(17, 37).
-                append(date).
-                toHashCode();
+                append(date)
+                .append(season)
+                .append(country)
+                .toHashCode();
     }
 
     public Country getCountry() {

@@ -29,7 +29,8 @@ import eu.motogymkhana.competition.Constants;
 import eu.motogymkhana.competition.R;
 import eu.motogymkhana.competition.adapter.ManageRoundsAdapter;
 import eu.motogymkhana.competition.model.Round;
-import eu.motogymkhana.competition.prefs.ChristinePreferences;
+import eu.motogymkhana.competition.notify.Notifier;
+import eu.motogymkhana.competition.prefs.MyPreferences;
 import eu.motogymkhana.competition.rider.RiderManager;
 import eu.motogymkhana.competition.round.RoundManager;
 import eu.motogymkhana.competition.settings.SettingsManager;
@@ -49,6 +50,9 @@ public class ManageRoundsFragment extends BaseFragment implements DatePickerDial
     private RoundManager roundManager;
 
     @Inject
+    private Notifier notifier;
+
+    @Inject
     private RiderManager riderManager;
 
     @Inject
@@ -57,7 +61,7 @@ public class ManageRoundsFragment extends BaseFragment implements DatePickerDial
     private DatePicker datePicker;
     private Button addButton;
     private ManageRoundsAdapter adapter;
-    private ChristinePreferences prefs;
+    private MyPreferences prefs;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -124,7 +128,7 @@ public class ManageRoundsFragment extends BaseFragment implements DatePickerDial
             roundManager.save(adapter.getRounds());
             settingsManager.setRounds(adapter.getRounds());
 
-            riderManager.notifyDataChanged();
+            notifier.notifyDataChanged();
 
             Toast.makeText(getActivity(), R.string.upload_rounds_manually, Toast.LENGTH_LONG).show();
 

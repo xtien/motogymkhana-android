@@ -13,6 +13,7 @@ import java.util.List;
 
 import eu.motogymkhana.competition.adapter.ChangeListener;
 import eu.motogymkhana.competition.adapter.TotalsListAdapter;
+import eu.motogymkhana.competition.api.ResponseHandler;
 import eu.motogymkhana.competition.api.impl.RidersCallback;
 import eu.motogymkhana.competition.model.Country;
 import eu.motogymkhana.competition.model.Rider;
@@ -29,16 +30,6 @@ public interface RiderManager {
      */
     void getRiders(GetRidersCallback callback);
 
-    /**
-     * register a listener for changes in rider data. This is also used for other changes, I should probably
-     * rename it to "changeListener"
-     */
-    void registerRiderResultListener(ChangeListener listener);
-
-    /**
-     * unregister listener for rider changes
-     */
-    void unRegisterRiderResultListener(ChangeListener listener);
 
     /**
      * get a rider, given their rider number.
@@ -46,25 +37,20 @@ public interface RiderManager {
     Rider getRiderByNumber(int riderNumber) throws SQLException;
 
     /**
-     * update a rider on the server asynchronously
-     */
-    void update(Rider rider, UpdateRiderCallback callback);
-
-    /**
      * copy a rider to the EU data. This was used for copying all NL riders to the EU database section.
      */
     @Deprecated
-    void updateToEU(Rider rider);
+    void updateToEU(Rider rider, ResponseHandler responseHandler);
 
     /**
      * update rider locally and on server synchronously
      */
-    void update(Rider rider) throws SQLException, IOException;
+    void update(Rider rider, ResponseHandler responseHandler);
 
     /**
      * update rider times sync
      */
-    void update(Times times) throws SQLException, IOException;
+    void update(Times times, ResponseHandler responseHandler) ;
 
     /**
      * store rider object locally
@@ -77,11 +63,6 @@ public interface RiderManager {
     void getTotals(TotalsListAdapter totalsListAdapter) throws SQLException, IOException;
 
     /**
-     * create a new rider or update an existing rider on server
-     */
-    void createOrUpdate(Rider rider, UpdateRiderCallback callback) throws SQLException;
-
-    /**
      * loads a file with today's riders. This is used to load a file that was created by a Witty Time computer.
      */
     void loadRidersFile() throws IOException, SQLException;
@@ -89,12 +70,12 @@ public interface RiderManager {
     /**
      * upload riders to server (this season and country)
      */
-    void uploadRiders() throws IOException, SQLException;
+    void uploadRiders(ResponseHandler responseHandler) throws IOException, SQLException;
 
     /**
      * download riders from server fro this season and country
      */
-    void downloadRiders() throws IOException;
+    void downloadRiders(ResponseHandler responseHandler) throws IOException;
 
     /**
      * get a rider by their rider number, for current season and country.
@@ -104,18 +85,18 @@ public interface RiderManager {
     /**
      * load all riders from server.
      */
-    void loadRidersFromServer();
+    void loadRidersFromServer(ResponseHandler responseHandler);
 
     /**
      * delete a rider locally and remotely
      */
-    void deleteRider(Rider rider, RidersCallback callback);
+    void deleteRider(Rider rider, ResponseHandler responseHandler);
 
     /**
      * Send a text to the server to be displayed in the app heading and in the web page heading. This should
      * be refactored, it's not a rider thing.
      */
-    void sendText(String text);
+    void sendText(String text, ResponseHandler responseHandler);
 
     /**
      * set message text in ridermanager. This is an implementation thing, should probably go.
@@ -143,22 +124,18 @@ public interface RiderManager {
      * set a rider as registered for a date. The Times object contains the rider and the date
      * isChecked: rider is registered/unregisterd
      */
-    void setRegistered(Times times, boolean isChecked) throws SQLException;
+    void setRegistered(Times times, boolean isChecked, ResponseHandler responseHandler) throws SQLException;
 
     /**
      * Attribute random start numbers to riders for current round
      */
-    void generateStartNumbers() throws SQLException;
-
-    /**
-     * notify rider manager that data has changed so it can notify its registered listeners. This is an implementation
-     * thing, should probably refactored.
-     */
-    void notifyDataChanged();
+    void generateStartNumbers(ResponseHandler responseHandler);
 
     /**
      * copy a rider from the 2015 list to the 2016 list.
      */
     @Deprecated
-    void updateTo2016(Rider rider);
+    void updateTo2016(Rider rider, ResponseHandler responseHandler);
+
+    int newRiderNumber();
 }

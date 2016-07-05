@@ -26,7 +26,7 @@ import android.widget.TextView;
 
 import com.google.inject.Inject;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 
 import java.io.IOException;
 import java.sql.SQLException;
@@ -39,13 +39,18 @@ import butterknife.ButterKnife;
 import eu.motogymkhana.competition.Constants;
 import eu.motogymkhana.competition.R;
 import eu.motogymkhana.competition.adapter.ChangeListener;
+import eu.motogymkhana.competition.api.ResponseHandler;
+import eu.motogymkhana.competition.api.response.GymkhanaResult;
+import eu.motogymkhana.competition.api.response.UpdateSettingsResponse;
 import eu.motogymkhana.competition.dao.CredentialDao;
 import eu.motogymkhana.competition.dao.SettingsDao;
 import eu.motogymkhana.competition.fragment.BaseFragment;
 import eu.motogymkhana.competition.fragment.ManageRoundsFragment;
+import eu.motogymkhana.competition.log.MyLog;
 import eu.motogymkhana.competition.model.Country;
 import eu.motogymkhana.competition.model.Round;
-import eu.motogymkhana.competition.prefs.ChristinePreferences;
+import eu.motogymkhana.competition.notify.Notifier;
+import eu.motogymkhana.competition.prefs.MyPreferences;
 import eu.motogymkhana.competition.rider.RiderManager;
 import eu.motogymkhana.competition.round.RoundManager;
 import eu.motogymkhana.competition.settings.Settings;
@@ -79,7 +84,10 @@ public class SettingsActivity extends BaseActivity {
     private CredentialDao credentialDao;
 
     @Inject
-    private ChristinePreferences prefs;
+    private MyPreferences prefs;
+
+    @Inject
+    private Notifier notifier;
 
     final int[] seasons = {2015, 2016, 2017};
 
@@ -142,6 +150,9 @@ public class SettingsActivity extends BaseActivity {
     private SettingsManager settingsManager;
 
     @Inject
+    private MyLog log;
+
+    @Inject
     private RiderManager riderManager;
 
     private Settings settings;
@@ -151,9 +162,31 @@ public class SettingsActivity extends BaseActivity {
 
         @Override
         public void notifyDataChanged() {
-
             setRounds();
+        }
+    };
 
+    private ResponseHandler uploadSettingsResponseHandler = new ResponseHandler() {
+
+        @Override
+        public void onSuccess(Object object) {
+
+            UpdateSettingsResponse settingsResponse = (UpdateSettingsResponse) object;
+
+            if(settingsResponse.isOK()){
+                notifier.notifyDataChanged();
+            }
+        }
+
+        @Override
+        public void onException(Exception e) {
+            log.e(LOGTAG,e);
+        }
+
+        @Override
+        public void onError(int statusCode, String string) {
+            log.e(LOGTAG,string);
+            showAlert(statusCode,string);
         }
     };
 
@@ -201,7 +234,7 @@ public class SettingsActivity extends BaseActivity {
                 e.printStackTrace();
             }
 
-            settingsManager.uploadSettingsToServer(settings);
+            settingsManager.uploadSettingsToServer(settings, uploadSettingsResponseHandler);
         }
     };
 
@@ -481,13 +514,13 @@ public class SettingsActivity extends BaseActivity {
     @Override
     public void onResume() {
         super.onResume();
-        riderManager.registerRiderResultListener(listener);
+        notifier.registerRiderResultListener(listener);
     }
 
     @Override
     public void onPause() {
         super.onPause();
-        riderManager.unRegisterRiderResultListener(listener);
+        notifier.unRegisterRiderResultListener(listener);
     }
 
     private int getCountryNumber() {
@@ -545,7 +578,7 @@ public class SettingsActivity extends BaseActivity {
             intent.putExtra(SEASON_CHANGED, true);
         }
 
-        if (orgRound !=null && prefs.getDate() != orgRound.getDate()) {
+        if (orgRound != null && prefs.getDate() != orgRound.getDate()) {
             intent.putExtra(ROUND_CHANGED, true);
         }
 

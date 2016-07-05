@@ -1,43 +1,43 @@
 package eu.motogymkhana.competition.api.impl;
 
 import android.content.Context;
-import android.util.Log;
 
-import com.fasterxml.jackson.core.JsonGenerationException;
-import com.fasterxml.jackson.databind.JsonMappingException;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.inject.Inject;
 
-import java.io.IOException;
 import java.sql.SQLException;
 import java.util.Collection;
 import java.util.List;
 
 import eu.motogymkhana.competition.Constants;
+import eu.motogymkhana.competition.api.ApiAsync;
 import eu.motogymkhana.competition.api.ApiManager;
 import eu.motogymkhana.competition.api.ApiUrlHelper;
-import eu.motogymkhana.competition.api.GetRidersFromServerTask;
-import eu.motogymkhana.competition.api.GymkhanaRequest;
-import eu.motogymkhana.competition.api.GymkhanaResult;
-import eu.motogymkhana.competition.api.ListRidersResult;
-import eu.motogymkhana.competition.api.ListRoundsResult;
-import eu.motogymkhana.competition.api.SettingsResult;
-import eu.motogymkhana.competition.api.UpdateRiderRequest;
-import eu.motogymkhana.competition.api.UpdateTextRequest;
-import eu.motogymkhana.competition.api.UpdateTimesRequest;
-import eu.motogymkhana.competition.api.UploadRidersRequest;
-import eu.motogymkhana.competition.api.UploadRidersResponse;
-import eu.motogymkhana.competition.api.UploadRoundsRequest;
-import eu.motogymkhana.competition.api.UploadSettingsRequest;
-import eu.motogymkhana.competition.api.http.HttpResultWrapper;
+import eu.motogymkhana.competition.api.ResponseHandler;
 import eu.motogymkhana.competition.api.http.MyHttp;
+import eu.motogymkhana.competition.api.request.GymkhanaRequest;
+import eu.motogymkhana.competition.api.response.GymkhanaResult;
+import eu.motogymkhana.competition.api.response.ListRidersResult;
+import eu.motogymkhana.competition.api.response.ListRoundsResult;
+import eu.motogymkhana.competition.api.response.SettingsResult;
+import eu.motogymkhana.competition.api.request.UpdateRiderRequest;
+import eu.motogymkhana.competition.api.request.UpdateTextRequest;
+import eu.motogymkhana.competition.api.request.UpdateTimesRequest;
+import eu.motogymkhana.competition.api.request.UploadRidersRequest;
+import eu.motogymkhana.competition.api.response.UpdateRiderResponse;
+import eu.motogymkhana.competition.api.response.UpdateSettingsResponse;
+import eu.motogymkhana.competition.api.response.UploadRidersResponse;
+import eu.motogymkhana.competition.api.request.UploadRoundsRequest;
+import eu.motogymkhana.competition.api.request.UploadSettingsRequest;
+import eu.motogymkhana.competition.api.response.UploadRoundsResponse;
 import eu.motogymkhana.competition.dao.CredentialDao;
 import eu.motogymkhana.competition.log.MyLog;
 import eu.motogymkhana.competition.model.Credential;
 import eu.motogymkhana.competition.model.Rider;
 import eu.motogymkhana.competition.model.Round;
 import eu.motogymkhana.competition.model.Times;
-import eu.motogymkhana.competition.prefs.ChristinePreferences;
+import eu.motogymkhana.competition.prefs.MyPreferences;
 import eu.motogymkhana.competition.settings.Settings;
 
 public class ApiManagerImpl implements ApiManager {
@@ -60,180 +60,157 @@ public class ApiManagerImpl implements ApiManager {
     private ObjectMapper mapper;
 
     @Inject
-    private ChristinePreferences prefs;
+    private MyPreferences prefs;
 
     @Inject
     private CredentialDao credentialDao;
 
-    @Override
-    public void getRiders(RidersCallback callback) throws SQLException, JsonGenerationException,
-            JsonMappingException, IOException {
-
-        new GetRidersFromServerTask(context, callback).execute();
-    }
+    @Inject
+    private ApiAsync apiAsync;
 
     @Override
-    public void updateRider(Rider rider) throws IOException {
-
+    public void updateRider(Rider rider, ResponseHandler responseHandler)  {
         UpdateRiderRequest request = new UpdateRiderRequest(rider);
         setPW(request);
-        String json = mapper.writeValueAsString(request);
-
-        http.postStringFromUrl(apiUrlHelper.getUpdateRiderUrl(), json);
+        String input = null;
+        try {
+            input = mapper.writeValueAsString(request);
+        } catch (JsonProcessingException e) {
+            responseHandler.onException(e);
+        }
+        apiAsync.post(apiUrlHelper.getUpdateRiderUrl(), input, responseHandler, UpdateRiderResponse.class);
     }
 
     @Override
-    public void updateTimes(Times times) throws IOException {
-
+    public void updateTimes(Times times, ResponseHandler responseHandler)  {
         UpdateTimesRequest request = new UpdateTimesRequest(times);
         setPW(request);
-        String json = mapper.writeValueAsString(request);
-
-        http.postStringFromUrl(apiUrlHelper.getUpdateTimesUrl(), json);
+        String input = null;
+        try {
+            input = mapper.writeValueAsString(request);
+        } catch (JsonProcessingException e) {
+            responseHandler.onException(e);
+        }
+        apiAsync.post(apiUrlHelper.getUpdateTimesUrl(), input, responseHandler, UpdateRiderResponse.class);
     }
 
     @Override
-    public SettingsResult getSettings() throws IOException {
-
+    public void getSettings(ResponseHandler responseHandler) {
         SettingsResult result = null;
         GymkhanaRequest request = new GymkhanaRequest(Constants.country, Constants.season);
-        String input = mapper.writeValueAsString(request);
-
-        HttpResultWrapper httpResult = http.postStringFromUrl(apiUrlHelper.getSettingsUrl(), input);
-
-        if (httpResult != null && httpResult.getStatusCode() == 200) {
-            result = mapper.readValue(httpResult.getString(), SettingsResult.class);
-        } else {
-            log.e(TAG, "Settings not found ");
+        String input = null;
+        try {
+            input = mapper.writeValueAsString(request);
+        } catch (JsonProcessingException e) {
+            responseHandler.onException(e);
         }
-
-        return result;
+        apiAsync.post(apiUrlHelper.getSettingsUrl(), input, responseHandler, SettingsResult.class);
     }
 
     @Override
-    public void uploadSettings(Settings settings) throws IOException {
-
+    public void uploadSettings(Settings settings, ResponseHandler responseHandler) {
         UploadSettingsRequest request = new UploadSettingsRequest(settings);
         setPW(request);
-
-        String json = mapper.writeValueAsString(request);
-
-        http.postStringFromUrl(apiUrlHelper.getUploadSettingsUrl(), json);
+        String input = null;
+        try {
+            input = mapper.writeValueAsString(request);
+        } catch (JsonProcessingException e) {
+            responseHandler.onException(e);
+        }
+        apiAsync.post(apiUrlHelper.getUploadSettingsUrl(), input, responseHandler, UpdateSettingsResponse.class);
     }
 
     @Override
-    public ListRidersResult getRiders() throws SQLException, JsonGenerationException, JsonMappingException,
-            IOException {
-
+    public void getRiders(ResponseHandler responseHandler) {
         ListRidersResult result = null;
         GymkhanaRequest request = new GymkhanaRequest(Constants.country, Constants.season);
-        String input = mapper.writeValueAsString(request);
-
-        HttpResultWrapper httpResult = http.postStringFromUrl(apiUrlHelper.getRidersUrl(), input);
-
-        if (httpResult != null && httpResult.getStatusCode() == 200) {
-            result = mapper.readValue(httpResult.getString(), ListRidersResult.class);
-        } else {
-            log.e(TAG, "Riders not found ");
+        String input = null;
+        try {
+            input = mapper.writeValueAsString(request);
+        } catch (JsonProcessingException e) {
+            responseHandler.onException(e);
         }
-
-        return result;
+        apiAsync.post(apiUrlHelper.getRidersUrl(), input, responseHandler, ListRidersResult.class);
     }
 
     @Override
-    public void uploadRiders(List<Rider> riders) throws IOException {
-
+    public void uploadRiders(List<Rider> riders, ResponseHandler responseHandler)  {
         UploadRidersRequest request = new UploadRidersRequest(riders);
         setPW(request);
-
-        String json = mapper.writeValueAsString(request);
-
-        http.postStringFromUrl(apiUrlHelper.getUploadRidersUrl(), json);
-    }
-
-    @Override
-    public void updateRiders(List<Rider> riders) throws IOException {
-
-        UploadRidersRequest request = new UploadRidersRequest(riders);
-        setPW(request);
-
-        String json = mapper.writeValueAsString(request);
-
-        HttpResultWrapper result = http.postStringFromUrl(apiUrlHelper.getUpdateRidersUrl(), json);
-
-        if (result != null && result.getStatusCode() == 200) {
-            UploadRidersResponse response = mapper.readValue(result.getString(), UploadRidersResponse.class);
+        String input = null;
+        try {
+            input = mapper.writeValueAsString(request);
+        } catch (JsonProcessingException e) {
+            responseHandler.onException(e);
         }
+        apiAsync.post(apiUrlHelper.getUploadRidersUrl(), input, responseHandler, UploadRidersResponse.class);
     }
 
     @Override
-    public void uploadRounds(Collection<Round> rounds) throws IOException {
-
+    public void uploadRounds(Collection<Round> rounds, ResponseHandler responseHandler)  {
         UploadRoundsRequest request = new UploadRoundsRequest(rounds);
         setPW(request);
-
-        String json = mapper.writeValueAsString(request);
-
-        HttpResultWrapper result = http.postStringFromUrl(apiUrlHelper.getUploadRoundsUrl(), json);
-
-        if (result != null && result.getStatusCode() == 200) {
-            UploadRidersResponse response = mapper.readValue(result.getString(), UploadRidersResponse.class);
+        String input = null;
+        try {
+            input = mapper.writeValueAsString(request);
+        } catch (JsonProcessingException e) {
+            responseHandler.onException(e);
         }
+        apiAsync.post(apiUrlHelper.getUploadRoundsUrl(), input, responseHandler, UploadRoundsResponse.class);
     }
 
     @Override
-    public ListRoundsResult getRounds() throws IOException {
-
-        ListRoundsResult result = null;
-
+    public void getRounds(ResponseHandler responseHandler) {
         GymkhanaRequest request = new GymkhanaRequest(Constants.country, Constants.season);
-        String input = mapper.writeValueAsString(request);
-
-        HttpResultWrapper httpResult = http.postStringFromUrl(apiUrlHelper.getRoundsUrl(), input);
-
-        if (httpResult != null && httpResult.getStatusCode() == 200) {
-            result = mapper.readValue(httpResult.getString(), ListRoundsResult.class);
-        } else {
-            log.e(TAG, "Rounds not found: ");
+        String input = null;
+        try {
+            input = mapper.writeValueAsString(request);
+        } catch (JsonProcessingException e) {
+            responseHandler.onException(e);
         }
-
-        return result;
+        apiAsync.post(apiUrlHelper.getRoundsUrl(), input, responseHandler, ListRoundsResult.class);
     }
 
     @Override
-    public boolean checkPassword(String password) throws IOException {
+    public void checkPassword(String password, ResponseHandler responseHandler) {
 
         GymkhanaRequest request = new GymkhanaRequest(Constants.country, Constants.season);
         request.setPassword(password);
-        String json = mapper.writeValueAsString(request);
-
-        HttpResultWrapper result = http.postStringFromUrl(apiUrlHelper.getCheckPasswordUrl(), json);
-
-        if (result != null && result.getStatusCode() == 200) {
-            GymkhanaResult passwordResult = mapper.readValue(result.getString(), GymkhanaResult.class);
-            return passwordResult != null && passwordResult.getResultCode() == 0;
-        } else {
-            return false;
+        String input = null;
+        try {
+            input = mapper.writeValueAsString(request);
+        } catch (JsonProcessingException e) {
+            responseHandler.onException(e);
         }
+        apiAsync.post(apiUrlHelper.getCheckPasswordUrl(), input, responseHandler, GymkhanaResult.class);
     }
 
     @Override
-    public void delete(Rider rider) throws IOException {
+    public void delete(Rider rider, ResponseHandler responseHandler)  {
 
         UpdateRiderRequest request = new UpdateRiderRequest(rider);
         setPW(request);
-        String json = mapper.writeValueAsString(request);
-
-        http.postStringFromUrl(apiUrlHelper.getDeleteRiderUrl(), json);
+        String input = null;
+        try {
+            input = mapper.writeValueAsString(request);
+        } catch (JsonProcessingException e) {
+            responseHandler.onException(e);
+        }
+        apiAsync.post(apiUrlHelper.getDeleteRiderUrl(), input, responseHandler, UpdateRiderResponse.class);
     }
 
     @Override
-    public void sendText(String text) throws IOException {
+    public void sendText(String text, ResponseHandler responseHandler)  {
 
         UpdateTextRequest request = new UpdateTextRequest(text);
         setPW(request);
-        String json = mapper.writeValueAsString(request);
-        http.postStringFromUrl(apiUrlHelper.getSendTextUrl(), json);
+        String input = null;
+        try {
+            input = mapper.writeValueAsString(request);
+        } catch (JsonProcessingException e) {
+            responseHandler.onException(e);
+        }
+        apiAsync.post(apiUrlHelper.getSendTextUrl(), input, responseHandler, GymkhanaResult.class);
     }
 
     private void setPW(GymkhanaRequest request) {

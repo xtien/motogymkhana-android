@@ -27,11 +27,13 @@ import eu.motogymkhana.competition.adapter.ChangeListener;
 import eu.motogymkhana.competition.adapter.TotalsListAdapter;
 import eu.motogymkhana.competition.dao.RoundDao;
 import eu.motogymkhana.competition.model.Rider;
+import eu.motogymkhana.competition.notify.Notifier;
 import eu.motogymkhana.competition.rider.RiderManager;
 import roboguice.RoboGuice;
 
 /**
  * created by Christine
+ * Fragment 3, or screen 3, in the viewpager.
  * Season totals contains the total results (sum of points for each round) per rider.
  */
 public class SeasonTotalsFragment extends ListFragment {
@@ -40,6 +42,9 @@ public class SeasonTotalsFragment extends ListFragment {
 
     @Inject
     private RiderManager riderManager;
+
+    @Inject
+    private Notifier notifier;
 
     @Inject
     private RoundDao roundDao;
@@ -84,7 +89,7 @@ public class SeasonTotalsFragment extends ListFragment {
         adapter = new TotalsListAdapter(getActivity(), riders, roundDao);
         setListAdapter(adapter);
 
-        riderManager.registerRiderResultListener(riderResultListener);
+        notifier.registerRiderResultListener(riderResultListener);
 
         try {
             riderManager.getTotals(adapter);

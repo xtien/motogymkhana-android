@@ -16,4 +16,18 @@ public enum Bib {
     public String displayString(){
         return string;
     }
+
+    public int getColor(){
+
+        switch (this) {
+            case B:
+                return -16724737;
+            case G:
+                return -13314719;
+            case R:
+                return -64508;
+            default:
+                return -656559;
+        }
+    }
 }

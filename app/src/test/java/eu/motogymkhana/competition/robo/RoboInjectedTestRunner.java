@@ -14,6 +14,8 @@ import org.robolectric.manifest.AndroidManifest;
 import org.robolectric.res.FileFsFile;
 import org.robolectric.util.ReflectionHelpers;
 
+import java.io.File;
+
 import eu.motogymkhana.competition.TestConstants;
 import roboguice.RoboGuice;
 
@@ -34,11 +36,7 @@ public class RoboInjectedTestRunner extends RobolectricTestRunner {
         @Override
         public void prepareTest(Object test) {
             Application application = RuntimeEnvironment.application;
-
-            AbstractModule gossipModule = new GymkhanaModule();
-            AbstractModule testModule = new TestModule();
-
-            RoboGuice.overrideApplicationInjector(application, gossipModule, testModule);
+            RoboGuice.overrideApplicationInjector(application, new TestModule(), new GymkhanaModule());
             RoboGuice.getInjector(application).injectMembers(test);
         }
     }
@@ -66,7 +64,8 @@ public class RoboInjectedTestRunner extends RobolectricTestRunner {
             if (FileFsFile.from(new String[]{TestConstants.ROBO_BASE_DIR, "assets"}).exists()) {
                 assets = FileFsFile.from(new String[]{TestConstants.ROBO_BASE_DIR, "assets", flavor, type});
             } else {
-                assets = FileFsFile.from(new String[]{TestConstants.ROBO_BASE_DIR, "bundles", flavor, type, "assets"});
+                assets = FileFsFile.from(new String[]{TestConstants.ROBO_BASE_DIR, "bundles", flavor, type,
+                        "assets"});
             }
 
             FileFsFile manifest;

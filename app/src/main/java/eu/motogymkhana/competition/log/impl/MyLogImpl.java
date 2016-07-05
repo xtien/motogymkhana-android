@@ -12,6 +12,7 @@ import android.util.Log;
 import com.google.inject.Singleton;
 
 import eu.motogymkhana.competition.BuildConfig;
+import eu.motogymkhana.competition.log.LogProvider;
 import eu.motogymkhana.competition.log.MyLog;
 
 /**
@@ -29,6 +30,7 @@ public class MyLogImpl implements MyLog {
         } else {
             logging = false;
         }
+        LogProvider.setLogger(this);
     }
 
     @Override

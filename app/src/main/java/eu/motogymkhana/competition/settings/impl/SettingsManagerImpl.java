@@ -11,16 +11,12 @@ import java.util.List;
 
 import eu.motogymkhana.competition.Constants;
 import eu.motogymkhana.competition.api.ApiManager;
-import eu.motogymkhana.competition.api.GetSettingsTask;
-import eu.motogymkhana.competition.api.SettingsResult;
-import eu.motogymkhana.competition.api.impl.RidersCallback;
+import eu.motogymkhana.competition.api.ResponseHandler;
 import eu.motogymkhana.competition.dao.SettingsDao;
 import eu.motogymkhana.competition.model.Round;
 import eu.motogymkhana.competition.rider.RiderManager;
-import eu.motogymkhana.competition.rider.UpdateRiderCallback;
 import eu.motogymkhana.competition.settings.Settings;
 import eu.motogymkhana.competition.settings.SettingsManager;
-import eu.motogymkhana.competition.settings.UploadSettingsTask;
 
 /**
  * Created by christine on 21-2-16.
@@ -40,60 +36,69 @@ public class SettingsManagerImpl implements SettingsManager {
     @Inject
     private SettingsDao settingsDao;
 
-    @Override
-    public void getSettingsFromServerAsync()  {
+    private ResponseHandler getSettingsFromServerResponseHandler = new ResponseHandler() {
 
-        new GetSettingsTask(context, new RidersCallback() {
-
-            @Override
-            public void onSuccess() {
-                riderManager.notifyDataChanged();
+        @Override
+        public void onSuccess(Object object) {
+            try {
+                settingsDao.store((Settings) object);
+            } catch (SQLException e) {
+                e.printStackTrace();
             }
-
-            @Override
-            public void onError() {
-
-            }
-        }).execute();
-    }
-
-    @Override
-    public Settings getSettingsFromServer() throws IOException, SQLException {
-
-        SettingsResult result = apiManager.getSettings();
-        Settings settings = null;
-
-        if (result != null) {
-
-            settings = result.getSettings();
-
-            if (result.getSettings() == null) {
-                settings = new Settings();
-                settings.setCountry(Constants.country);
-                settings.setSeason(Constants.season);
-            }
-            settingsDao.store(settings);
         }
 
-        return settings;
+        @Override
+        public void onException(Exception e) {
+
+        }
+
+        @Override
+        public void onError(int statusCode, String string) {
+
+        }
+    };
+
+    private ResponseHandler uploadSettingsResponseHandler = new ResponseHandler() {
+
+        @Override
+        public void onSuccess(Object object) {
+
+        }
+
+        @Override
+        public void onException(Exception e) {
+
+        }
+
+        @Override
+        public void onError(int statusCode, String string) {
+
+        }
+    };
+
+    @Override
+    public void getSettingsFromServer(ResponseHandler responseHandler) {
+        apiManager.getSettings(responseHandler);
+     }
+
+    @Override
+    public void setSettings(Settings settings){
+
+        if (settings == null) {
+            settings = new Settings();
+            settings.setCountry(Constants.country);
+            settings.setSeason(Constants.season);
+        }
+        try {
+            settingsDao.store(settings);
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
     }
 
     @Override
-    public void uploadSettingsToServer(Settings settings) {
-
-        new UploadSettingsTask(context, settings, new UpdateRiderCallback() {
-
-            @Override
-            public void onSuccess() {
-                //riderManager.notifyDataChanged();
-            }
-
-            @Override
-            public void onError(String error) {
-            }
-
-        }).execute();
-
+    public void uploadSettingsToServer(Settings settings, ResponseHandler responseHandler) {
+        apiManager.uploadSettings(settings, responseHandler);
     }
 
     @Override
@@ -120,7 +125,7 @@ public class SettingsManagerImpl implements SettingsManager {
         }
 
         if (settings == null) {
-            getSettingsFromServerAsync();
+            getSettingsFromServer(getSettingsFromServerResponseHandler);
             settings = new Settings();
             settings.setSeason(Constants.season);
             settings.setCountry(Constants.country);
@@ -140,6 +145,6 @@ public class SettingsManagerImpl implements SettingsManager {
         Settings settings = getSettings();
         settings.setHasRounds(rounds != null && rounds.size() > 0);
         settingsDao.storeHasRounds(settings.hasRounds());
-        uploadSettingsToServer(settings);
+        uploadSettingsToServer(settings, uploadSettingsResponseHandler);
     }
 }

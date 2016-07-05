@@ -56,10 +56,6 @@
             android:name=".activity.RiderNewUpdateActivity"
             android:label="@string/app_name" >
         </activity>
-
-        <meta-data
-            android:name="roboguice.modules"
-            android:value="eu.motogymkhana.competition.robo.GymkhanaModule,eu.motogymkhana.competition.robo.LiveModule"/>
      </application>
 
 </manifest>

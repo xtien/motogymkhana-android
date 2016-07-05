@@ -20,9 +20,12 @@ import java.sql.SQLException;
 
 import eu.motogymkhana.competition.Constants;
 import eu.motogymkhana.competition.R;
+import eu.motogymkhana.competition.api.ApiManager;
+import eu.motogymkhana.competition.api.ResponseHandler;
+import eu.motogymkhana.competition.api.response.GymkhanaResult;
 import eu.motogymkhana.competition.dao.CredentialDao;
 import eu.motogymkhana.competition.model.Credential;
-import eu.motogymkhana.competition.prefs.ChristinePreferences;
+import eu.motogymkhana.competition.prefs.MyPreferences;
 import roboguice.RoboGuice;
 
 /**
@@ -35,11 +38,66 @@ public class AdminActivity extends BaseActivity {
     private String pwShort;
 
     @Inject
-    private ChristinePreferences prefs;
+    private MyPreferences prefs;
 
     @Inject
     private CredentialDao credentialDao;
+
+    @Inject
+    private ApiManager api;
+
     private Credential credential;
+    private ProgressBar progressBar;
+    private TextView errorView;
+    private EditText pwView;
+
+    private ResponseHandler checkPasswordResponseHandler = new ResponseHandler() {
+
+        @Override
+        public void onSuccess(Object object) {
+
+            final GymkhanaResult result = (GymkhanaResult) object;
+
+            runOnUiThread(new Runnable() {
+
+                @Override
+                public void run() {
+
+                    try {
+                        progressBar.setVisibility(View.GONE);
+
+                        if (result.isOK()) {
+                            credential.setAdmin(true);
+                            credential.setPassword(pwView.getText().toString());
+                            credentialDao.store(credential);
+                            finish();
+                        } else {
+                            errorView.setText(noPw);
+                        }
+                    } catch (Exception e) {
+                        credential.setAdmin(false);
+                        credential.setPassword(pwView.getText().toString());
+                        try {
+                            credentialDao.store(credential);
+                        } catch (SQLException e1) {
+                            e1.printStackTrace();
+                            showAlert(e);
+                        }
+                    }
+                }
+            });
+        }
+
+        @Override
+        public void onException(Exception e) {
+
+        }
+
+        @Override
+        public void onError(int statusCode, String string) {
+
+        }
+    };
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -52,10 +110,10 @@ public class AdminActivity extends BaseActivity {
         pwShort = getString(R.string.password_too_short);
 
 
-        final EditText pwView = (EditText) findViewById(R.id.password);
-        final TextView errorView = (TextView) findViewById(R.id.error_text);
+        pwView = (EditText) findViewById(R.id.password);
+        errorView = (TextView) findViewById(R.id.error_text);
 
-        final ProgressBar progressBar = (ProgressBar) findViewById(R.id.progress_bar);
+        progressBar = (ProgressBar) findViewById(R.id.progress_bar);
 
         try {
             credential = credentialDao.get();
@@ -81,35 +139,7 @@ public class AdminActivity extends BaseActivity {
                 } else {
 
                     progressBar.setVisibility(View.VISIBLE);
-
-                    new CheckPasswordTask(AdminActivity.this, pwView.getText().toString(), new MyPasswordCallback() {
-
-                        @Override
-                        public void onResult(boolean check) {
-
-                            try {
-                                progressBar.setVisibility(View.GONE);
-
-                                if (check) {
-                                    credential.setAdmin(true);
-                                    credential.setPassword(pwView.getText().toString());
-                                    credentialDao.store(credential);
-                                    finish();
-                                } else {
-                                    errorView.setText(noPw);
-                                }
-                            } catch (Exception e) {
-                                credential.setAdmin(false);
-                                credential.setPassword(pwView.getText().toString());
-                                try {
-                                    credentialDao.store(credential);
-                                } catch (SQLException e1) {
-                                    e1.printStackTrace();
-                                    showAlert(e);
-                                }
-                            }
-                        }
-                    }).execute();
+                    api.checkPassword(pwView.getText().toString(), checkPasswordResponseHandler);
                 }
             }
         });

@@ -42,6 +42,8 @@ public class RoundsApiTest {
 
     private String urlString = "https://api.gymcomp.com:9005/motogymkhana/getRounds/";
     private String resultFileName = "get_rounds.json";
+    private String uploadRoundsUrlString = "https://api.gymcomp.com:9005/motogymkhana/uploadRounds/";
+    private String uploadRoundsResultFileName = "get_rounds.json";
     private String ridersUrlString = "https://api.gymcomp.com:9005/motogymkhana/getRiders/";
     private String ridersJsonFile = "get_riders.json";
 
@@ -50,6 +52,7 @@ public class RoundsApiTest {
 
         fakeHttp.put(urlString, 200, "", resultFileName);
         fakeHttp.put(ridersUrlString, 200, "", ridersJsonFile);
+        fakeHttp.put(uploadRoundsUrlString, 200, "", uploadRoundsResultFileName);
 
         roundManager.loadRoundsFromServer();
 

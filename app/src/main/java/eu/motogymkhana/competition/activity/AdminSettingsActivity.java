@@ -16,7 +16,7 @@ import android.widget.TextView;
 import com.google.inject.Inject;
 
 import eu.motogymkhana.competition.R;
-import eu.motogymkhana.competition.prefs.ChristinePreferences;
+import eu.motogymkhana.competition.prefs.MyPreferences;
 import roboguice.RoboGuice;
 
 /**
@@ -26,7 +26,7 @@ import roboguice.RoboGuice;
 public class AdminSettingsActivity extends BaseActivity {
 
     @Inject
-    private ChristinePreferences prefs;
+    private MyPreferences prefs;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {

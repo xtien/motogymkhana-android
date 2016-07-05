@@ -97,8 +97,19 @@ public class RoundDaoImpl extends BaseDaoImpl<Round, Integer> implements RoundDa
 
     @Override
     public void store(Collection<Round> rounds) throws SQLException {
+
+        Collection<Round> existingRounds = getRounds();
+
+
         for (Round round : rounds) {
             store(round);
+            if(existingRounds.contains(round)){
+                existingRounds.remove(round);
+            }
+        }
+
+        for(Round round : existingRounds){
+            delete(round);
         }
     }
 

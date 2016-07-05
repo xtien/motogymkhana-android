@@ -4,7 +4,7 @@ import com.google.inject.Inject;
 
 import eu.motogymkhana.competition.Constants;
 import eu.motogymkhana.competition.api.ApiUrlHelper;
-import eu.motogymkhana.competition.prefs.ChristinePreferences;
+import eu.motogymkhana.competition.prefs.MyPreferences;
 
 public class ApiUrlHelperImpl implements ApiUrlHelper {
 
@@ -13,7 +13,7 @@ public class ApiUrlHelperImpl implements ApiUrlHelper {
 	private String hostName = Constants.hostName;
 
 	@Inject
-	public ApiUrlHelperImpl(ChristinePreferences prefs){
+	public ApiUrlHelperImpl(MyPreferences prefs){
 		hostName = prefs.getServer();
 	}
 

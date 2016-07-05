@@ -25,12 +25,15 @@ import eu.motogymkhana.competition.adapter.RiderRegistrationListAdapter;
 import eu.motogymkhana.competition.dao.RoundDao;
 import eu.motogymkhana.competition.dao.TimesDao;
 import eu.motogymkhana.competition.model.Rider;
+import eu.motogymkhana.competition.notify.Notifier;
+import eu.motogymkhana.competition.prefs.MyPreferences;
 import eu.motogymkhana.competition.rider.RiderManager;
 import eu.motogymkhana.competition.round.RoundManager;
 import roboguice.RoboGuice;
 
 /**
  * Created by Christine
+ * Fragment 0, or screen 0, in the viewpager. Only for admin mode.
  * Rider registration means regestring a rider for participation in a race on a particular date. A rider
  * only shows up in the start list if they have registered. A rider can be licensed for a season, which
  * makes them automatically appear in this fragment, or they can be added as a "day rider". A "day rider"
@@ -45,6 +48,12 @@ public class RiderRegistrationFragment extends ListFragment {
 
     @Inject
     private RoundManager roundManager;
+
+    @Inject
+    private Notifier notifier;
+
+    @Inject
+    private MyPreferences prefs;
 
     @Inject
     private TimesDao timesDao;
@@ -68,10 +77,9 @@ public class RiderRegistrationFragment extends ListFragment {
         titleView.setText(R.string.registration);
 
         adapter = new RiderRegistrationListAdapter( getActivity(),  riderManager,  roundManager,
-                 timesDao);
+                 timesDao, notifier, prefs);
         adapter.setRegistration();
-        adapter.setActivity(getActivity());
-        setListAdapter(adapter);
+       setListAdapter(adapter);
     }
 
     @Override
