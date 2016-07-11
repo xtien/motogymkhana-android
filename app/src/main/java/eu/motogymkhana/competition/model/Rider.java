@@ -467,4 +467,8 @@ public class Rider {
     public int getSeason() {
         return season;
     }
+
+    public void setEmail(String email) {
+        this.email = email;
+    }
 }

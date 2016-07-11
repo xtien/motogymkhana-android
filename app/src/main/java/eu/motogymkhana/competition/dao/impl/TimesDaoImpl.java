@@ -198,7 +198,9 @@ public class TimesDaoImpl extends BaseDaoImpl<Times, Integer> implements TimesDa
         List<Rider> riders = new ArrayList<Rider>();
 
         for (Times times : timesList) {
-            riders.add(times.getRider());
+            if(times.hasRider()){
+                riders.add(times.getRider());
+            }
         }
 
         return riders;

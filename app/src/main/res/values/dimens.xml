@@ -29,5 +29,6 @@
     <dimen name="rider_listrow_margin">6dp</dimen>
     <dimen name="ridernumber_layout_width">40dp</dimen>
     <dimen name="startnumber_layout_width">40dp</dimen>
+    <dimen name="newrider_margin_top">10dp</dimen>
 
 </resources>

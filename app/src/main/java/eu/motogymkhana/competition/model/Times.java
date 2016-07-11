@@ -449,4 +449,8 @@ public class Times {
             riderNumber = rider.getRiderNumber();
         }
     }
+
+    public boolean hasRider() {
+        return rider != null;
+    }
 }

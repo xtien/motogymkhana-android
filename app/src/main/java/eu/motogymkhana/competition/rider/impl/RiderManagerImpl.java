@@ -29,6 +29,7 @@ import eu.motogymkhana.competition.api.response.ListRidersResult;
 import eu.motogymkhana.competition.dao.RiderDao;
 import eu.motogymkhana.competition.dao.TimesDao;
 import eu.motogymkhana.competition.db.GymkhanaDatabaseHelper;
+import eu.motogymkhana.competition.log.MyLog;
 import eu.motogymkhana.competition.model.Bib;
 import eu.motogymkhana.competition.model.Country;
 import eu.motogymkhana.competition.model.Rider;
@@ -46,6 +47,8 @@ import eu.motogymkhana.competition.settings.SettingsManager;
 @Singleton
 public class RiderManagerImpl implements RiderManager {
 
+    private static final String LOGTAG = RiderManagerImpl.class.getSimpleName();
+
     private final Context context;
     private final SettingsManager settingsManager;
     private ApiManager api;
@@ -59,6 +62,9 @@ public class RiderManagerImpl implements RiderManager {
     private String messageText = "";
     private RoundManager roundManager;
     private List<Integer> riderMap = new ArrayList<Integer>();
+
+    @Inject
+    private MyLog log;
 
     @Inject
     public RiderManagerImpl(RiderDao riderDao, Context context, TimesDao timesDao, MyPreferences prefs,
@@ -135,7 +141,13 @@ public class RiderManagerImpl implements RiderManager {
     public List<Rider> getRiders(long date) {
 
         try {
-            return timesDao.getRiders(date);
+            List<Rider> riders = timesDao.getRiders(date);
+            if (riderMap.size() == 0) {
+                for (Rider r : riders) {
+                    riderMap.add(r.getRiderNumber());
+                }
+            }
+            return riders;
         } catch (SQLException e) {
             e.printStackTrace();
             return new ArrayList<Rider>();
@@ -253,6 +265,16 @@ public class RiderManagerImpl implements RiderManager {
 
     @Override
     public int newRiderNumber() {
+
+        if (riderMap.size() == 0) {
+            try {
+                for (Rider r : riderDao.getRiders()) {
+                    riderMap.add(r.getRiderNumber());
+                }
+            } catch (SQLException e) {
+                log.e(LOGTAG, e);
+            }
+        }
 
         for (int i = 1; i < riderMap.size() + 1; i++) {
             if (!riderMap.contains(i)) {

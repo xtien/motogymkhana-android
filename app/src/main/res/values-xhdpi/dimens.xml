@@ -12,4 +12,5 @@
     <dimen name="list_edit_margin_left">20dp</dimen>
     <dimen name="list_checkbox_margin_left">10dp</dimen>
     <dimen name="list_checkbox_margin_right">60dp</dimen>
+    <dimen name="newrider_margin_top">10dp</dimen>
 </resources>

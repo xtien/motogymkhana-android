@@ -83,24 +83,29 @@ public class ApiAsyncImpl implements ApiAsync {
 
                     result = http.doPutPost(method, urlString, input, params);
 
-                    if (result.getStatusCode() == 200) {
+                    if (responseHandler != null) {
 
-                        if (clazz != null) {
-                            if (clazz instanceof Class) {
-                                responseHandler.onSuccess(mapper.readValue(result.getString(), (Class<?>) clazz));
+                        if (result.getStatusCode() == 200) {
+
+                            if (clazz != null) {
+                                if (clazz instanceof Class) {
+                                    responseHandler.onSuccess(mapper.readValue(result.getString(), (Class<?>) clazz));
+                                } else {
+                                    responseHandler.onSuccess(mapper.readValue(result.getString(), (JavaType) clazz));
+                                }
                             } else {
-                                responseHandler.onSuccess(mapper.readValue(result.getString(), (JavaType) clazz));
+                                responseHandler.onSuccess(result.getString());
                             }
-                        } else {
-                            responseHandler.onSuccess(result.getString());
-                        }
 
-                    } else if (result.getString() != null) {
-                        responseHandler.onError(result.getStatusCode(), result.getString());
+                        } else if (result.getString() != null) {
+                            responseHandler.onError(result.getStatusCode(), result.getString());
+                        }
                     }
 
                 } catch (Exception e) {
-                    responseHandler.onException(e);
+                    if (responseHandler != null) {
+                        responseHandler.onException(e);
+                    }
                     e.printStackTrace();
                 }
                 return null;

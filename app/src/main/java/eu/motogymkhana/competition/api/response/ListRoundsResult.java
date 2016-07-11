@@ -11,6 +11,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import java.util.Collection;
+import java.util.List;
 
 import eu.motogymkhana.competition.model.Round;
 
@@ -23,13 +24,13 @@ public class ListRoundsResult extends GymkhanaResult {
     private int result;
 
     @JsonProperty("rounds")
-    private Collection<Round> rounds;
+    private List<Round> rounds;
 
-    public Collection<Round> getRounds() {
+    public List<Round> getRounds() {
         return rounds;
     }
 
-    public void setRounds(Collection<Round> rounds) {
+    public void setRounds(List<Round> rounds) {
         this.rounds = rounds;
     }
 

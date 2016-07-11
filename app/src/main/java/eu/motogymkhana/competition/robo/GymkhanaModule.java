@@ -46,28 +46,28 @@ import eu.motogymkhana.competition.settings.impl.SettingsManagerImpl;
  */
 public class GymkhanaModule extends AbstractModule {
 
-	@Override
-	protected void configure() {
+    @Override
+    protected void configure() {
 
-		bind(MyLog.class).to(MyLogImpl.class);
-        bind (Notifier.class).to(NotifierImpl.class);
+        bind(MyLog.class).to(MyLogImpl.class);
+        bind(Notifier.class).to(NotifierImpl.class);
 
-		bind(RiderManager.class).to(RiderManagerImpl.class).asEagerSingleton();
-		bind(RoundManager.class).to(RoundManagerImpl.class);
-		bind(SettingsManager.class).to(SettingsManagerImpl.class);
-		bind(MyPreferences.class).to(MyPreferencesImpl.class).asEagerSingleton();
-		bind(GymkhanaDatabaseHelper.class).toProvider(GymkhanaDatabaseHelperProvider.class);
+        bind(RiderManager.class).to(RiderManagerImpl.class).asEagerSingleton();
+        bind(RoundManager.class).to(RoundManagerImpl.class);
+        bind(SettingsManager.class).to(SettingsManagerImpl.class);
+        bind(MyPreferences.class).to(MyPreferencesImpl.class).asEagerSingleton();
+        bind(GymkhanaDatabaseHelper.class).toProvider(GymkhanaDatabaseHelperProvider.class);
 
-		bind(ApiManager.class).to(ApiManagerImpl.class).asEagerSingleton();
-		bind(ApiUrlHelper.class).to(ApiUrlHelperImpl.class).asEagerSingleton();
+        bind(ApiManager.class).to(ApiManagerImpl.class).asEagerSingleton();
+        bind(ApiUrlHelper.class).to(ApiUrlHelperImpl.class).asEagerSingleton();
 
-		// db
-		bind(RiderDao.class).toProvider(RiderDaoProvider.class).asEagerSingleton();
-		bind(RoundDao.class).toProvider(RoundDaoProvider.class).asEagerSingleton();
-		bind(TimesDao.class).toProvider(TimesDaoProvider.class).asEagerSingleton();
-		bind(CredentialDao.class).toProvider(CredentialDaoProvider.class).asEagerSingleton();
-		bind(SettingsDao.class).toProvider(SettingsDaoProvider.class).asEagerSingleton();
+        // db
+        bind(RiderDao.class).toProvider(RiderDaoProvider.class).asEagerSingleton();
+        bind(RoundDao.class).toProvider(RoundDaoProvider.class).asEagerSingleton();
+        bind(TimesDao.class).toProvider(TimesDaoProvider.class).asEagerSingleton();
+        bind(CredentialDao.class).toProvider(CredentialDaoProvider.class).asEagerSingleton();
+        bind(SettingsDao.class).toProvider(SettingsDaoProvider.class).asEagerSingleton();
 
-		bind(ApiAsync.class).to(ApiAsyncImpl.class);
-	}
+        bind(ApiAsync.class).to(ApiAsyncImpl.class);
+    }
 }

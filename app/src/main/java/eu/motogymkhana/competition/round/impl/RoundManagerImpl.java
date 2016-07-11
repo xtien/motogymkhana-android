@@ -9,7 +9,6 @@ import java.sql.SQLException;
 import java.text.ParseException;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.List;
 
 import eu.motogymkhana.competition.api.ApiManager;
@@ -22,6 +21,7 @@ import eu.motogymkhana.competition.model.Round;
 import eu.motogymkhana.competition.notify.Notifier;
 import eu.motogymkhana.competition.prefs.MyPreferences;
 import eu.motogymkhana.competition.rider.RiderManager;
+import eu.motogymkhana.competition.round.RoundComparatorByDate;
 import eu.motogymkhana.competition.round.RoundManager;
 
 /**
@@ -49,6 +49,7 @@ public class RoundManagerImpl implements RoundManager {
             ListRoundsResult result = (ListRoundsResult) object;
             try {
                 roundDao.store(result.getRounds());
+                notifier.notifyDataChanged();
             } catch (SQLException e) {
                 onException(e);
             }
@@ -67,7 +68,7 @@ public class RoundManagerImpl implements RoundManager {
 
     @Inject
     public RoundManagerImpl(Context context, MyPreferences prefs, RoundDao roundDao, RiderManager
-            riderManager, SettingsDao settingsDao, ApiManager api, MyLog log) {
+            riderManager, SettingsDao settingsDao, ApiManager api, MyLog log, Notifier notifier) {
 
         this.prefs = prefs;
         this.context = context;
@@ -157,13 +158,7 @@ public class RoundManagerImpl implements RoundManager {
     @Override
     public void save(List<Round> rounds) throws SQLException {
 
-        Collections.sort(rounds, new Comparator<Round>() {
-
-            @Override
-            public int compare(Round lhs, Round rhs) {
-                return (lhs.getDate() - rhs.getDate()) < 0 ? -1 : 1;
-            }
-        });
+        Collections.sort(rounds, new RoundComparatorByDate());
 
         int i = 0;
         for (Round r : rounds) {

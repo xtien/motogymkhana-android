@@ -41,6 +41,7 @@ import eu.motogymkhana.competition.R;
 import eu.motogymkhana.competition.adapter.ChangeListener;
 import eu.motogymkhana.competition.api.ResponseHandler;
 import eu.motogymkhana.competition.api.response.GymkhanaResult;
+import eu.motogymkhana.competition.api.response.ListRoundsResult;
 import eu.motogymkhana.competition.api.response.UpdateSettingsResponse;
 import eu.motogymkhana.competition.dao.CredentialDao;
 import eu.motogymkhana.competition.dao.SettingsDao;
@@ -162,11 +163,17 @@ public class SettingsActivity extends BaseActivity {
 
         @Override
         public void notifyDataChanged() {
-            setRounds();
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    progressBar.setVisibility(View.GONE);
+                    setRounds();
+                }
+            });
         }
     };
 
-    private ResponseHandler uploadSettingsResponseHandler = new ResponseHandler() {
+     private ResponseHandler uploadSettingsResponseHandler = new ResponseHandler() {
 
         @Override
         public void onSuccess(Object object) {

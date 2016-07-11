@@ -190,6 +190,7 @@ public class ApiManagerImpl implements ApiManager {
 
         UpdateRiderRequest request = new UpdateRiderRequest(rider);
         setPW(request);
+        request.setSeason(Constants.season);
         String input = null;
         try {
             input = mapper.writeValueAsString(request);
@@ -223,7 +224,6 @@ public class ApiManagerImpl implements ApiManager {
         } catch (SQLException e) {
             e.printStackTrace();
         }
-
         request.setCountry(Constants.country);
     }
 }

@@ -19,7 +19,7 @@ import eu.motogymkhana.competition.model.Country;
  */
 public class Constants {
 
-    public static final boolean testServer = true;
+    public static final boolean testServer = false;
     public static boolean USE_HTTPS = true;
 
     public static final long refreshRate = 5000l;

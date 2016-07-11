@@ -35,6 +35,7 @@ import javax.net.ssl.HttpsURLConnection;
 import eu.motogymkhana.competition.api.RequestParams;
 import eu.motogymkhana.competition.api.http.HttpResultWrapper;
 import eu.motogymkhana.competition.api.http.MyHttp;
+import eu.motogymkhana.competition.log.MyLog;
 
 /**
  * Created by christine on 9-6-15.
@@ -53,11 +54,14 @@ public class MyHttpImpl implements MyHttp {
     String authString = "ugo_basic_auth_user:Xg139qTL1JapdNgoFYQ1";
 
     @Inject
-    Context context;
+    private Context context;
+
+    @Inject
+    private MyLog log;
 
     @Override
     public HttpResultWrapper get(String urlString, RequestParams params) throws IOException {
-        return doPutPost("GET", urlString,null,params);
+        return doPutPost("GET", urlString, null, params);
     }
 
     @Override
@@ -84,7 +88,7 @@ public class MyHttpImpl implements MyHttp {
     public HttpResultWrapper doPutPost(String method, String urlString, String input, RequestParams params) throws
             IOException {
 
-        Log.d(LOGTAG, "urlString " + method + " "  + urlString + " " + input);
+        log.d(LOGTAG, "urlString " + method + " " + urlString + " " + input);
 
         if (params == null) {
             params = new RequestParams();
@@ -115,7 +119,7 @@ public class MyHttpImpl implements MyHttp {
             } else {
                 ((HttpURLConnection) urlConnection).setRequestMethod(method);
             }
-            if(!"GET".equals(method)){
+            if (!"GET".equals(method)) {
                 urlConnection.setDoOutput(true);
             }
             urlConnection.setUseCaches(false);
@@ -148,7 +152,7 @@ public class MyHttpImpl implements MyHttp {
                 }
             }
 
-            Log.d(LOGTAG, "url = " + urlString + " statuscode " + httpResult);
+            log.d(LOGTAG, "url = " + urlString + " statuscode " + httpResult);
 
             BufferedReader br = null;
             if (httpResult == HttpURLConnection.HTTP_OK) {
@@ -185,7 +189,7 @@ public class MyHttpImpl implements MyHttp {
             }
         }
 
-        Log.d(LOGTAG, "response PUT/POST " + responseMessage + "\n\n" + string);
+        log.d(LOGTAG, "response PUT/POST " + responseMessage + "\n\n" + string);
 
         return new HttpResultWrapper(httpResult, responseMessage, resultString);
     }

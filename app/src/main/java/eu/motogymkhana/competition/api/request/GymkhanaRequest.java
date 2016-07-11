@@ -45,4 +45,8 @@ public class GymkhanaRequest {
     public void setCountry(Country country) {
         this.country = country;
     }
+
+    public void setSeason(int season) {
+        this.season = season;
+    }
 }

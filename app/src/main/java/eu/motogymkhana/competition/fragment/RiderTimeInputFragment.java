@@ -25,6 +25,7 @@ import eu.motogymkhana.competition.R;
 import eu.motogymkhana.competition.activity.MainActivity;
 import eu.motogymkhana.competition.adapter.RiderTimeInputListAdapter;
 import eu.motogymkhana.competition.dao.CredentialDao;
+import eu.motogymkhana.competition.log.MyLog;
 import eu.motogymkhana.competition.model.Rider;
 import eu.motogymkhana.competition.notify.Notifier;
 import eu.motogymkhana.competition.prefs.MyPreferences;
@@ -53,6 +54,9 @@ public class RiderTimeInputFragment extends ListFragment {
 
     @Inject
     private Notifier notifier;
+
+    @Inject
+    private MyLog log;
 
     private RiderTimeInputListAdapter adapter;
 
@@ -91,7 +95,7 @@ public class RiderTimeInputFragment extends ListFragment {
         resultSorted = prefs.isResultSorted();
 
         adapter = new RiderTimeInputListAdapter(getActivity(), riderManager,
-                roundManager, prefs, credentialDao, notifier);
+                roundManager, prefs, credentialDao, notifier, log);
 
         setListAdapter(adapter);
     }

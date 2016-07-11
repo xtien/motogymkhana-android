@@ -23,6 +23,7 @@ import eu.motogymkhana.competition.activity.MainActivity;
 import eu.motogymkhana.competition.activity.RiderTimesInputActivity;
 import eu.motogymkhana.competition.activity.RiderViewActivity;
 import eu.motogymkhana.competition.dao.CredentialDao;
+import eu.motogymkhana.competition.log.MyLog;
 import eu.motogymkhana.competition.model.Rider;
 import eu.motogymkhana.competition.model.RiderStartNumberComparator;
 import eu.motogymkhana.competition.model.Times;
@@ -37,6 +38,7 @@ import eu.motogymkhana.competition.round.RoundManager;
 public class RiderTimeInputListAdapter extends BaseAdapter {
 
     public static final int RIDER_CHANGED = 101;
+    private static final String LOGTAG = RiderTimeInputListAdapter.class.getSimpleName();
     private List<Rider> riders = new ArrayList<Rider>();
     private LayoutInflater inflater;
 
@@ -47,6 +49,7 @@ public class RiderTimeInputListAdapter extends BaseAdapter {
     private CredentialDao credentialDao;
     private MyPreferences prefs;
     private Notifier notifier;
+    private final MyLog log;
 
     private final ChangeListener changeListener = new ChangeListener() {
 
@@ -65,13 +68,13 @@ public class RiderTimeInputListAdapter extends BaseAdapter {
 
         @Override
         public void onError(String error) {
-
+            log.e(LOGTAG, error);
         }
     };
 
     @Inject
     public RiderTimeInputListAdapter(Activity activity, final RiderManager riderManager, final RoundManager
-            roundManager, final MyPreferences prefs, final CredentialDao credentialDao, Notifier notifier) {
+            roundManager, final MyPreferences prefs, final CredentialDao credentialDao, Notifier notifier, MyLog log) {
 
         this.riderManager = riderManager;
         this.roundManager = roundManager;
@@ -79,6 +82,7 @@ public class RiderTimeInputListAdapter extends BaseAdapter {
         this.prefs = prefs;
         this.notifier = notifier;
         this.activity = activity;
+        this.log=log;
 
         notifier.registerRiderResultListener(changeListener);
 

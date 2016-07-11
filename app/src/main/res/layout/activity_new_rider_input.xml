@@ -38,7 +38,7 @@
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="30dp"
+            android:layout_marginTop="@dimen/newrider_margin_top"
             android:orientation="horizontal">
 
             <TextView
@@ -63,7 +63,7 @@
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="30dp"
+            android:layout_marginTop="@dimen/newrider_margin_top"
             android:orientation="horizontal">
 
             <TextView
@@ -88,7 +88,32 @@
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="30dp"
+            android:layout_marginTop="@dimen/newrider_margin_top"
+            android:orientation="horizontal">
+
+            <TextView
+                style="@style/time_view"
+                android:layout_width="100dp"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="10dp"
+                android:layout_marginStart="10dp"
+                android:text="@string/email"/>
+
+            <EditText
+                android:id="@+id/email"
+                style="@style/time_edit"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="10dp"
+                android:layout_marginStart="10dp"
+                android:inputType="text"
+                android:minWidth="200dp"/>
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/newrider_margin_top"
             android:orientation="horizontal">
 
             <TextView
@@ -202,7 +227,7 @@
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="30dp"
+            android:layout_marginTop="@dimen/newrider_margin_top"
             android:orientation="horizontal">
 
             <TextView
@@ -272,7 +297,7 @@
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="30dp"
+            android:layout_marginTop="@dimen/newrider_margin_top"
             android:orientation="horizontal">
 
             <TextView

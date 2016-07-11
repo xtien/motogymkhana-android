@@ -31,6 +31,7 @@ import eu.motogymkhana.competition.R;
 import eu.motogymkhana.competition.api.ResponseHandler;
 import eu.motogymkhana.competition.api.impl.RidersCallback;
 import eu.motogymkhana.competition.api.response.UpdateRiderResponse;
+import eu.motogymkhana.competition.log.MyLog;
 import eu.motogymkhana.competition.model.Bib;
 import eu.motogymkhana.competition.model.Country;
 import eu.motogymkhana.competition.model.Gender;
@@ -48,6 +49,7 @@ public class RiderNewUpdateActivity extends BaseActivity {
 
     public static final String RIDER_NUMBER = "rider_number";
     public static final String FOCUS = "focus";
+    private static final String LOGTAG = RiderNewUpdateActivity.class.getSimpleName();
     private TextView errorText;
 
     @Inject
@@ -55,6 +57,9 @@ public class RiderNewUpdateActivity extends BaseActivity {
 
     @Inject
     private Notifier notifier;
+
+    @Inject
+    private MyLog log;
 
     Rider rider = null;
     private ResponseHandler updateRiderResponseHandler = new ResponseHandler() {
@@ -72,7 +77,7 @@ public class RiderNewUpdateActivity extends BaseActivity {
 
         @Override
         public void onException(Exception e) {
-
+            log.e(LOGTAG, e);
         }
 
         @Override
@@ -96,7 +101,7 @@ public class RiderNewUpdateActivity extends BaseActivity {
 
         @Override
         public void onException(Exception e) {
-
+            showAlert(e);
         }
 
         @Override
@@ -115,6 +120,7 @@ public class RiderNewUpdateActivity extends BaseActivity {
         final int riderNumber = getIntent().getIntExtra(RIDER_NUMBER, -1);
 
         final EditText firstNameView = (EditText) findViewById(R.id.first_name);
+        final EditText emailView = (EditText) findViewById(R.id.email);
         final EditText lastNameView = (EditText) findViewById(R.id.last_name);
         final EditText numberView = (EditText) findViewById(R.id.number);
         final Spinner nationalitySpinner = (Spinner) findViewById(R.id.country);
@@ -166,6 +172,10 @@ public class RiderNewUpdateActivity extends BaseActivity {
 
             try {
                 rider = riderManager.getRider(riderNumber);
+                if (rider == null) {
+                    // can happen when debugging.
+                    finish();
+                }
 
                 firstNameView.setText(rider.getFirstName());
                 lastNameView.setText(rider.getLastName());
@@ -257,6 +267,7 @@ public class RiderNewUpdateActivity extends BaseActivity {
             @Override
             public void onClick(View v) {
 
+                String email = emailView.getText().toString();
                 String firstName = firstNameView.getText().toString();
                 String lastName = lastNameView.getText().toString();
                 Gender gender = genderButton.isChecked() ? Gender.F : Gender.M;
@@ -290,6 +301,7 @@ public class RiderNewUpdateActivity extends BaseActivity {
                 rider.setBike(bike);
                 rider.setText(riderText);
                 rider.setBib(bib);
+                rider.setEmail(email);
 
                 if (firstName != null && lastName != null) {
                     riderManager.update(rider, updateRiderResponseHandler);
