@@ -22,20 +22,20 @@ import eu.motogymkhana.competition.settings.Settings;
  */
 public class SettingsDaoProvider implements Provider<SettingsDao> {
 
-	@Inject
-	private GymkhanaDatabaseHelper helper;
+    @Inject
+    private GymkhanaDatabaseHelper helper;
 
-	@Override
-	public SettingsDao get() {
+    @Override
+    public SettingsDao get() {
 
-		SettingsDao dao = null;
+        SettingsDao dao = null;
 
-		try {
-			dao = (SettingsDao) helper.getDAO(Settings.class);
-		} catch (SQLException e) {
-			e.printStackTrace();
-		}
+        try {
+            dao = (SettingsDao) helper.getDAO(Settings.class);
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
 
-		return dao;
-	}
+        return dao;
+    }
 }

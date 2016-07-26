@@ -45,6 +45,7 @@ import eu.motogymkhana.competition.fragment.RiderRegistrationFragment;
 import eu.motogymkhana.competition.fragment.RiderTimeInputFragment;
 import eu.motogymkhana.competition.fragment.RidersResultFragment;
 import eu.motogymkhana.competition.fragment.SeasonTotalsFragment;
+import eu.motogymkhana.competition.log.MyLog;
 import eu.motogymkhana.competition.model.Country;
 import eu.motogymkhana.competition.model.Round;
 import eu.motogymkhana.competition.notify.Notifier;
@@ -113,6 +114,9 @@ public class MainActivity extends BaseActivity {
     @Inject
     private MyPreferences prefs;
 
+    @Inject
+    private MyLog log;
+
     private TextView dateView;
     private TextView messageTextView;
     private ProgressBar progressBar;
@@ -180,19 +184,26 @@ public class MainActivity extends BaseActivity {
     };
 
     private ResponseHandler startNumbersResponseHandler = new ResponseHandler() {
+
         @Override
         public void onSuccess(Object object) {
 
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    notifier.notifyDataChanged();
+                }
+            });
         }
 
         @Override
         public void onException(Exception e) {
-
+            showAlert(e);
         }
 
         @Override
         public void onError(int statusCode, String string) {
-
+            showAlert(statusCode, string);
         }
     };
 
@@ -581,9 +592,10 @@ public class MainActivity extends BaseActivity {
 
         if (date == 0l) {
             try {
-                date = roundDao.getCurrentDate();
-                if (date != 0l) {
-                    prefs.setDate(date);
+                Round round = roundDao.getCurrentRound();
+                if (round != null) {
+                    prefs.setDate(round.getDate());
+                    date = round.getDate();
                 }
             } catch (SQLException e) {
                 e.printStackTrace();

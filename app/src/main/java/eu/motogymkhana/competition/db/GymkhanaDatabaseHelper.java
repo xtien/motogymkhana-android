@@ -31,92 +31,92 @@ import roboguice.RoboGuice;
  */
 public class GymkhanaDatabaseHelper extends OrmLiteSqliteOpenHelper {
 
-	private static final String DATABASE_NAME = Constants.DATABASE_NAME;
-	private static final int DATABASE_VERSION = Constants.DATABASE_VERSION;
-	private static final String TAG = GymkhanaDatabaseHelper.class.getSimpleName();
+    private static final String DATABASE_NAME = Constants.DATABASE_NAME;
+    private static final int DATABASE_VERSION = Constants.DATABASE_VERSION;
+    private static final String TAG = GymkhanaDatabaseHelper.class.getSimpleName();
 
-	private final String LOGTAG = getClass().getSimpleName();
-	private final Collection<Class<?>> classList = new LinkedList<Class<?>>();
+    private final String LOGTAG = getClass().getSimpleName();
+    private final Collection<Class<?>> classList = new LinkedList<Class<?>>();
 
-	private static GymkhanaDatabaseHelper instance;
+    private static GymkhanaDatabaseHelper instance;
 
-	public GymkhanaDatabaseHelper(Context context) {
-		super(context, DATABASE_NAME, null, DATABASE_VERSION);
+    public GymkhanaDatabaseHelper(Context context) {
+        super(context, DATABASE_NAME, null, DATABASE_VERSION);
 
-		instance = this;
+        instance = this;
 
-		try {
-			classList.add(Rider.class);
-			classList.add(Round.class);
-			classList.add(Times.class);
-			classList.add(Credential.class);
-			classList.add(Settings.class);
+        try {
+            classList.add(Rider.class);
+            classList.add(Round.class);
+            classList.add(Times.class);
+            classList.add(Credential.class);
+            classList.add(Settings.class);
 
-			for (Class<?> clazz : classList) {
-				DaoManager.createDao(getConnectionSource(), clazz);
-			}
-		} catch (SQLException sqle) {
-			sqle.printStackTrace();
-		}
-	}
+            for (Class<?> clazz : classList) {
+                DaoManager.createDao(getConnectionSource(), clazz);
+            }
+        } catch (SQLException sqle) {
+            sqle.printStackTrace();
+        }
+    }
 
-	/**
-	 * This is called when the database is first created. Usually you should
-	 * call createTable statements here to create the tables that will store
-	 * your data.
-	 */
-	@Override
-	public void onCreate(SQLiteDatabase db, ConnectionSource connectionSource) {
-		createTables();
-	}
+    /**
+     * This is called when the database is first created. Usually you should
+     * call createTable statements here to create the tables that will store
+     * your data.
+     */
+    @Override
+    public void onCreate(SQLiteDatabase db, ConnectionSource connectionSource) {
+        createTables();
+    }
 
-	/**
-	 * This is called when your application is upgraded and it has a higher
-	 * version number. This allows you to adjust the various data to match the
-	 * new version number.
-	 */
-	@Override
-	public void onUpgrade(SQLiteDatabase db, ConnectionSource connectionSource, int oldVersion,
-			int newVersion) {
-		dropTables();
-		createTables();
-	}
+    /**
+     * This is called when your application is upgraded and it has a higher
+     * version number. This allows you to adjust the various data to match the
+     * new version number.
+     */
+    @Override
+    public void onUpgrade(SQLiteDatabase db, ConnectionSource connectionSource, int oldVersion,
+                          int newVersion) {
+        dropTables();
+        createTables();
+    }
 
-	public Dao<?, ?> getDAO(Class<?> type) throws SQLException {
-		return DaoManager.createDao(connectionSource, type);
-	}
+    public Dao<?, ?> getDAO(Class<?> type) throws SQLException {
+        return DaoManager.createDao(connectionSource, type);
+    }
 
-	/**
-	 * Close the database connections and clear any cached DAOs.
-	 */
-	@Override
-	public void close() {
-		super.close();
-	}
+    /**
+     * Close the database connections and clear any cached DAOs.
+     */
+    @Override
+    public void close() {
+        super.close();
+    }
 
-	private void createTables() {
+    private void createTables() {
 
-		try {
-			for (Class<?> clazz : classList) {
-				TableUtils.createTable(getConnectionSource(), clazz);
-			}
-		} catch (SQLException e) {
-			throw new RuntimeException(e);
-		}
-	}
+        try {
+            for (Class<?> clazz : classList) {
+                TableUtils.createTable(getConnectionSource(), clazz);
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
 
-	private void dropTables() {
+    private void dropTables() {
 
-		try {
-			for (Class<?> clazz : classList) {
-				TableUtils.dropTable(getConnectionSource(), clazz, true);
-			}
-		} catch (SQLException e) {
-			throw new RuntimeException(e);
-		}
-	}
+        try {
+            for (Class<?> clazz : classList) {
+                TableUtils.dropTable(getConnectionSource(), clazz, true);
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
 
-	public static GymkhanaDatabaseHelper getInstance() {
-		return instance;
-	}
+    public static GymkhanaDatabaseHelper getInstance() {
+        return instance;
+    }
 }

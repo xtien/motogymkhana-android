@@ -22,21 +22,21 @@ import eu.motogymkhana.competition.model.Round;
  */
 public class RoundDaoProvider implements Provider<RoundDao> {
 
-	@Inject
-	private GymkhanaDatabaseHelper helper;
+    @Inject
+    private GymkhanaDatabaseHelper helper;
 
-	@Override
-	public RoundDao get() {
+    @Override
+    public RoundDao get() {
 
-		RoundDao dao = null;
+        RoundDao dao = null;
 
-		try {
-			dao = (RoundDao) helper.getDAO(Round.class);
-		} catch (SQLException e) {
-			e.printStackTrace();
-		}
+        try {
+            dao = (RoundDao) helper.getDAO(Round.class);
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
 
-		return dao;
-	}
+        return dao;
+    }
 
 }

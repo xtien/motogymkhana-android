@@ -15,7 +15,7 @@ import roboguice.RoboGuice;
 /**
  * Created by christine on 7-9-15.
  */
-public class GetRegisteredRidersFromDBTask extends AsyncTask<Void,Void, Collection<Rider>> {
+public class GetRegisteredRidersFromDBTask extends AsyncTask<Void, Void, Collection<Rider>> {
 
     @Inject
     private TimesDao timesDao;

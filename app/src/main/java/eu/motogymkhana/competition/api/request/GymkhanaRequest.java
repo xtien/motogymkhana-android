@@ -14,10 +14,10 @@ import eu.motogymkhana.competition.model.Country;
 public class GymkhanaRequest {
 
     @JsonProperty("country")
-    private Country country;
+    protected Country country;
 
     @JsonProperty("season")
-    private int season;
+    protected int season;
 
     @JsonProperty("password")
     private String password;

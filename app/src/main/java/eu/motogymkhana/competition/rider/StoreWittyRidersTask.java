@@ -12,7 +12,7 @@ import eu.motogymkhana.competition.round.RoundManager;
 /**
  * Created by christine on 17-5-15.
  */
-public class StoreWittyRidersTask extends AsyncTask<Void,Void,Void> {
+public class StoreWittyRidersTask extends AsyncTask<Void, Void, Void> {
 
     private Context context;
 
@@ -26,7 +26,7 @@ public class StoreWittyRidersTask extends AsyncTask<Void,Void,Void> {
     private TimesDao timesDao;
 
     public StoreWittyRidersTask(Context context) {
-         this.context = context;
+        this.context = context;
     }
 
     @Override

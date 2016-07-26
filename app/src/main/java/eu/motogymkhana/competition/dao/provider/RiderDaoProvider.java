@@ -22,21 +22,20 @@ import eu.motogymkhana.competition.model.Rider;
  */
 public class RiderDaoProvider implements Provider<RiderDao> {
 
-	@Inject
-	private GymkhanaDatabaseHelper helper;
+    @Inject
+    private GymkhanaDatabaseHelper helper;
 
-	@Override
-	public RiderDao get() {
+    @Override
+    public RiderDao get() {
 
-		RiderDao dao = null;
+        RiderDao dao = null;
 
-		try {
-			dao = (RiderDao) helper.getDAO(Rider.class);
-		} catch (SQLException e) {
-			e.printStackTrace();
-		}
+        try {
+            dao = (RiderDao) helper.getDAO(Rider.class);
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
 
-		return dao;
-	}
-
+        return dao;
+    }
 }

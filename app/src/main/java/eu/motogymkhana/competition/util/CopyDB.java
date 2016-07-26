@@ -40,6 +40,7 @@ public class CopyDB {
             e.printStackTrace();
         }
     }
+
     public static void restoreDB(Context context, String dbName, String importDirName) {
 
         File dbFile = new File(Environment.getDataDirectory() + "/data/" + context.getPackageName()

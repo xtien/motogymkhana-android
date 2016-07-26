@@ -67,7 +67,6 @@ public class GymkhanaModule extends AbstractModule {
         bind(TimesDao.class).toProvider(TimesDaoProvider.class).asEagerSingleton();
         bind(CredentialDao.class).toProvider(CredentialDaoProvider.class).asEagerSingleton();
         bind(SettingsDao.class).toProvider(SettingsDaoProvider.class).asEagerSingleton();
-
         bind(ApiAsync.class).to(ApiAsyncImpl.class);
     }
 }

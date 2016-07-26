@@ -12,21 +12,21 @@ import eu.motogymkhana.competition.model.Times;
 
 public interface TimesDao extends Dao<Times, Integer> {
 
-	void storeRiderTimes(Rider rider) throws SQLException;
+    void storeRiderTimes(Rider rider) throws SQLException;
 
-	Times getTimes(int riderId, long date) throws SQLException;
+    Times getTimes(int riderId, long date) throws SQLException;
 
-	List<Rider> getRegisteredRiders(long date) throws SQLException;
+    List<Rider> getRegisteredRiders(long date) throws SQLException;
 
-	List<Times> getTimesSortedOnResult(long date) throws SQLException;
+    List<Times> getTimesSortedOnResult(long date) throws SQLException;
 
-	List<Rider> getRiders(long date) throws SQLException;
+    List<Rider> getRiders(long date) throws SQLException;
 
-	void store(Times times) throws SQLException;
+    void store(Times times) throws SQLException;
 
-	void clear() throws SQLException;
+    void clear() throws SQLException;
 
-	List<Rider> getRegisteredRiders(long date, Bib bib) throws SQLException;
+    List<Rider> getRegisteredRiders(long date, Bib bib) throws SQLException;
 
-	void delete(Country country, int season) throws SQLException;
+    void delete(Country country, int season) throws SQLException;
 }

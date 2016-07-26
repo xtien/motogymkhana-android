@@ -19,30 +19,30 @@ import java.util.List;
  */
 public class MyViewPagerAdapter extends FragmentStatePagerAdapter {
 
-	private List<Fragment> fragments;
+    private List<Fragment> fragments;
 
-	public MyViewPagerAdapter(FragmentManager fragmentManager, List<Fragment> fragments) {
-		super(fragmentManager);
-		this.fragments = fragments;
-	}
+    public MyViewPagerAdapter(FragmentManager fragmentManager, List<Fragment> fragments) {
+        super(fragmentManager);
+        this.fragments = fragments;
+    }
 
-	@Override
-	public int getCount() {
-		return fragments.size();
-	}
+    @Override
+    public int getCount() {
+        return fragments.size();
+    }
 
-	@Override
-	public Fragment getItem(int position) {
-		return fragments.get(position);
-	}
+    @Override
+    public Fragment getItem(int position) {
+        return fragments.get(position);
+    }
 
-	public void push(Fragment fragment) {
-		fragments.add(fragment);
-	}
+    public void push(Fragment fragment) {
+        fragments.add(fragment);
+    }
 
-	public void pop() {
+    public void pop() {
 
-		fragments.remove(fragments.size() - 1);
-		notifyDataSetChanged();
-	}
+        fragments.remove(fragments.size() - 1);
+        notifyDataSetChanged();
+    }
 }

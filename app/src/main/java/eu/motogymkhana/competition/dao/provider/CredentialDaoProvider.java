@@ -22,20 +22,20 @@ import eu.motogymkhana.competition.model.Credential;
  */
 public class CredentialDaoProvider implements Provider<CredentialDao> {
 
-	@Inject
-	private GymkhanaDatabaseHelper helper;
+    @Inject
+    private GymkhanaDatabaseHelper helper;
 
-	@Override
-	public CredentialDao get() {
+    @Override
+    public CredentialDao get() {
 
-		CredentialDao dao = null;
+        CredentialDao dao = null;
 
-		try {
-			dao = (CredentialDao) helper.getDAO(Credential.class);
-		} catch (SQLException e) {
-			e.printStackTrace();
-		}
+        try {
+            dao = (CredentialDao) helper.getDAO(Credential.class);
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
 
-		return dao;
-	}
+        return dao;
+    }
 }

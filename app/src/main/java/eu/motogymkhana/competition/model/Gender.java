@@ -5,5 +5,5 @@ package eu.motogymkhana.competition.model;
  */
 public enum Gender {
 
-    F,M;
+    F, M;
 }

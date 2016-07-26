@@ -207,16 +207,6 @@ public class RiderManagerImpl implements RiderManager {
                 int startNumber = (int) (Math.random() * startNumbers.size());
                 times.setStartNumber(startNumbers.remove(startNumber));
                 timesDao.store(times);
-
-                if (rider.getSharing() != 0) {
-                    if (previousRider != null) {
-                        if (previousRider.getRiderNumber() == rider.getSharing()) {
-                            if (prePreviousRider != null) {
-                                swapStartNumbers(previousRider, prePreviousRider);
-                            }
-                        }
-                    }
-                }
             }
 
             api.uploadRiders(registeredRiders, responseHandler);
@@ -224,17 +214,6 @@ public class RiderManagerImpl implements RiderManager {
         } catch (Exception e) {
             responseHandler.onException(e);
         }
-    }
-
-    private void swapStartNumbers(Rider previousRider, Rider prePreviousRider) throws SQLException {
-
-        long date = prefs.getDate();
-
-        int startNumber = prePreviousRider.getStartNumber();
-        prePreviousRider.getEUTimes(date).setStartNumber(previousRider.getStartNumber());
-        previousRider.getEUTimes(date).setStartNumber(startNumber);
-        timesDao.store(prePreviousRider.getEUTimes(date));
-        timesDao.store(previousRider.getEUTimes(date));
     }
 
     @Override

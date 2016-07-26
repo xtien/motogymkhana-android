@@ -96,7 +96,6 @@ public class ApiManagerImpl implements ApiManager {
 
     @Override
     public void getSettings(ResponseHandler responseHandler) {
-        SettingsResult result = null;
         GymkhanaRequest request = new GymkhanaRequest(Constants.country, Constants.season);
         String input = null;
         try {
@@ -122,7 +121,6 @@ public class ApiManagerImpl implements ApiManager {
 
     @Override
     public void getRiders(ResponseHandler responseHandler) {
-        ListRidersResult result = null;
         GymkhanaRequest request = new GymkhanaRequest(Constants.country, Constants.season);
         String input = null;
         try {
@@ -137,6 +135,7 @@ public class ApiManagerImpl implements ApiManager {
     public void uploadRiders(List<Rider> riders, ResponseHandler responseHandler)  {
         UploadRidersRequest request = new UploadRidersRequest(riders);
         setPW(request);
+        request.setSeason(Constants.season);
         String input = null;
         try {
             input = mapper.writeValueAsString(request);
@@ -148,7 +147,7 @@ public class ApiManagerImpl implements ApiManager {
 
     @Override
     public void uploadRounds(Collection<Round> rounds, ResponseHandler responseHandler)  {
-        UploadRoundsRequest request = new UploadRoundsRequest(rounds);
+        UploadRoundsRequest request = new UploadRoundsRequest(rounds, Constants.country, Constants.season);
         setPW(request);
         String input = null;
         try {
@@ -203,7 +202,7 @@ public class ApiManagerImpl implements ApiManager {
     @Override
     public void sendText(String text, ResponseHandler responseHandler)  {
 
-        UpdateTextRequest request = new UpdateTextRequest(text);
+        UpdateTextRequest request = new UpdateTextRequest(text,Constants.country, Constants.season);
         setPW(request);
         String input = null;
         try {

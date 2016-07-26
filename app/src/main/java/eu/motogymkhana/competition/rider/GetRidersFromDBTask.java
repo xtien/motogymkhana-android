@@ -15,7 +15,7 @@ import roboguice.RoboGuice;
 /**
  * Created by christine on 7-9-15.
  */
-public class GetRidersFromDBTask  extends AsyncTask<Void,Void,Collection<Rider>> {
+public class GetRidersFromDBTask extends AsyncTask<Void, Void, Collection<Rider>> {
 
     @Inject
     private RiderDao riderDao;
@@ -28,7 +28,7 @@ public class GetRidersFromDBTask  extends AsyncTask<Void,Void,Collection<Rider>>
     }
 
     @Override
-    public Collection<Rider> doInBackground(Void... params)  {
+    public Collection<Rider> doInBackground(Void... params) {
 
         try {
             return riderDao.getRiders();

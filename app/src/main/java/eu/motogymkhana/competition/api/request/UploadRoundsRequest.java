@@ -11,6 +11,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 
 import java.util.Collection;
 
+import eu.motogymkhana.competition.model.Country;
 import eu.motogymkhana.competition.model.Round;
 
 /**
@@ -21,7 +22,9 @@ public class UploadRoundsRequest extends GymkhanaRequest {
     @JsonProperty("rounds")
     private Collection<Round> rounds;
 
-    public UploadRoundsRequest(Collection<Round> rounds) {
+    public UploadRoundsRequest(Collection<Round> rounds, Country country, int season) {
         this.rounds = rounds;
+        this.season = season;
+        this.country = country;
     }
 }

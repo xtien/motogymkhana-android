@@ -32,7 +32,7 @@ public class Credential {
         this.admin = admin;
     }
 
-    public boolean isAdmin(){
+    public boolean isAdmin() {
         return admin;
     }
 

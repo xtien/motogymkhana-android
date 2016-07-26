@@ -11,21 +11,19 @@ import eu.motogymkhana.competition.model.Round;
 
 public interface RoundDao extends Dao<Round, Integer> {
 
-	Round store(Round round) throws SQLException;
+    Round store(Round round) throws SQLException;
 
-	Round getRoundByDate(long date) throws SQLException;
+    Round getRoundByDate(long date) throws SQLException;
 
-	List<Round> getRounds() throws SQLException;
+    List<Round> getRounds() throws SQLException;
 
-	Round getRoundByNumber(int number) throws SQLException;
+    Round getRoundByNumber(int number) throws SQLException;
 
-	void store(Collection<Round> rounds) throws SQLException;
+    void store(Collection<Round> rounds) throws SQLException;
 
-	Round getCurrentRound() throws SQLException;
+    Round getCurrentRound() throws SQLException;
 
-	void delete(Country eu, int i) throws SQLException;
+    void delete(Country eu, int i) throws SQLException;
 
-	void remove(Round r) throws SQLException;
-
-	long getCurrentDate() throws SQLException;
+    void remove(Round r) throws SQLException;
 }

@@ -8,8 +8,8 @@ import eu.motogymkhana.competition.context.ContextProvider;
 
 public class ContextProviderImpl extends ContextProvider {
 
-	@Inject
-	public ContextProviderImpl(Context ctx) {
-		context = ctx;
-	}
+    @Inject
+    public ContextProviderImpl(Context ctx) {
+        context = ctx;
+    }
 }

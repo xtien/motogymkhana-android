@@ -22,21 +22,21 @@ import eu.motogymkhana.competition.model.Times;
  */
 public class TimesDaoProvider implements Provider<TimesDao> {
 
-	@Inject
-	private GymkhanaDatabaseHelper helper;
+    @Inject
+    private GymkhanaDatabaseHelper helper;
 
-	@Override
-	public TimesDao get() {
+    @Override
+    public TimesDao get() {
 
-		TimesDao dao = null;
+        TimesDao dao = null;
 
-		try {
-			dao = (TimesDao) helper.getDAO(Times.class);
-		} catch (SQLException e) {
-			e.printStackTrace();
-		}
+        try {
+            dao = (TimesDao) helper.getDAO(Times.class);
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
 
-		return dao;
-	}
+        return dao;
+    }
 
 }

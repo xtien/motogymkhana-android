@@ -32,7 +32,7 @@ public class RoundDaoImpl extends BaseDaoImpl<Round, Integer> implements RoundDa
 
         if (r == null) {
             create(round);
-         } else {
+        } else {
             round.set_id(r.get_id());
             update(round);
         }
@@ -114,26 +114,6 @@ public class RoundDaoImpl extends BaseDaoImpl<Round, Integer> implements RoundDa
     }
 
     @Override
-    public Round getCurrentRound() throws SQLException {
-
-        List<Round> list = null;
-        QueryBuilder<Round, Integer> statementBuilder = queryBuilder();
-
-        statementBuilder.where()
-                .eq(Round.CURRENT, true).and()
-                .eq(Round.COUNTRY, Constants.country).and()
-                .eq(Round.SEASON, Constants.season);
-
-        list = query(statementBuilder.prepare());
-
-        if (list != null && list.size() > 0) {
-            return list.get(0);
-        } else {
-            return null;
-        }
-    }
-
-    @Override
     public void delete(Country country, int season) throws SQLException {
 
         DeleteBuilder<Round, Integer> statementBuilder = deleteBuilder();
@@ -148,13 +128,20 @@ public class RoundDaoImpl extends BaseDaoImpl<Round, Integer> implements RoundDa
         delete(r);
     }
 
-    @Override
-    public long getCurrentDate() throws SQLException {
-        Round round = getCurrentRound();
-        if(round !=null){
-            return round.getDate();
-        } else {
-            return 0l;
+    public Round getCurrentRound() throws SQLException {
+
+        Round r = null;
+        long now = System.currentTimeMillis();
+        long nowPlusTwoDays = now + 2 * 24 * 3600 * 1000l;
+
+        for(Round rr : getRounds()){
+            boolean later = r == null || rr.getDate() > r.getDate();
+            boolean inPast = rr.getDate() < nowPlusTwoDays;
+            if (later && inPast) {
+                r = rr;
+            }
         }
-    }
+
+        return r;
+     }
 }

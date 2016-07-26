@@ -13,7 +13,7 @@ public enum Bib {
         this.string = string;
     }
 
-    public String displayString(){
+    public String displayString() {
         return string;
     }
 

@@ -7,6 +7,8 @@
 
 package eu.motogymkhana.competition.api.request;
 
+import eu.motogymkhana.competition.model.Country;
+
 /**
  * Created by christine on 20-5-15.
  */
@@ -14,19 +16,17 @@ public class UpdateTextRequest extends GymkhanaRequest {
 
     private String text;
 
-    public UpdateTextRequest(String text){
-        this.text=text;
+    public UpdateTextRequest(String text) {
+        this.text = text;
     }
 
     public String getText() {
         return text;
     }
 
-    public void setText(String text) {
+    public UpdateTextRequest(String text, Country country, int season) {
         this.text = text;
-    }
-
-    public UpdateTextRequest(){
-
+        this.country = country;
+        this.season = season;
     }
 }

@@ -56,7 +56,7 @@ public class CredentialDaoImpl extends BaseDaoImpl<Credential, Integer> implemen
 
         try {
             Credential credential = get();
-            if(credential == null){
+            if (credential == null) {
                 credential = new Credential();
                 credential.setCountry(Constants.country);
             }
@@ -70,11 +70,11 @@ public class CredentialDaoImpl extends BaseDaoImpl<Credential, Integer> implemen
     }
 
     @Override
-    public boolean isAdmin(){
+    public boolean isAdmin() {
 
         try {
             Credential credential = get();
-            return credential !=null && credential.isAdmin();
+            return credential != null && credential.isAdmin();
         } catch (SQLException e) {
             e.printStackTrace();
             return false;

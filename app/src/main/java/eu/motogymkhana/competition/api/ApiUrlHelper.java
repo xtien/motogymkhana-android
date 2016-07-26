@@ -2,29 +2,29 @@ package eu.motogymkhana.competition.api;
 
 public interface ApiUrlHelper {
 
-	String getRidersUrl();
+    String getRidersUrl();
 
-	String getRoundsUrl();
+    String getRoundsUrl();
 
-	String getUpdateRoundUrl();
+    String getUpdateRoundUrl();
 
-	String getUpdateRiderUrl();
+    String getUpdateRiderUrl();
 
-	String getUpdateTimesUrl();
+    String getUpdateTimesUrl();
 
-	String getDeleteRiderUrl();
+    String getDeleteRiderUrl();
 
-	String getUploadRidersUrl();
+    String getUploadRidersUrl();
 
-	String getSendTextUrl();
+    String getSendTextUrl();
 
-	String getUpdateRidersUrl();
+    String getUpdateRidersUrl();
 
-	String getUploadRoundsUrl();
+    String getUploadRoundsUrl();
 
-	String getCheckPasswordUrl();
+    String getCheckPasswordUrl();
 
-	String getSettingsUrl();
+    String getSettingsUrl();
 
-	String getUploadSettingsUrl();
+    String getUploadSettingsUrl();
 }

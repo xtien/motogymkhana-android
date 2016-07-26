@@ -7,13 +7,12 @@ import android.content.Context;
  * Roboguice needs to instantiate it before your app calls getContext().
  *
  * @author christine
- *
  */
 public class ContextProvider {
 
-	protected static Context context;
+    protected static Context context;
 
-	public static Context getContext() {
-		return context;
-	}
+    public static Context getContext() {
+        return context;
+    }
 }
