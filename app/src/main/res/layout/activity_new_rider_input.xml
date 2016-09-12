@@ -236,10 +236,10 @@
                 android:layout_height="wrap_content"
                 android:layout_marginLeft="10dp"
                 android:layout_marginStart="10dp"
-                android:text="@string/sharing_with"/>
+                android:text="@string/start_number"/>
 
             <EditText
-                android:id="@+id/sharing_with"
+                android:id="@+id/start_number"
                 style="@style/time_edit"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"

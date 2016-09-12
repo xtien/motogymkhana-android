@@ -7,6 +7,8 @@
 
 package eu.motogymkhana.competition.model;
 
+import android.util.Log;
+
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.j256.ormlite.field.DatabaseField;
@@ -452,5 +454,17 @@ public class Times {
 
     public boolean hasRider() {
         return rider != null;
+    }
+
+    public boolean hasStartNumber() {
+        return startNumber != 0;
+    }
+
+    public void addToStartNumber(int delta) {
+        startNumber += delta;
+    }
+
+    public void clearStartNumber() {
+        startNumber = 0;
     }
 }

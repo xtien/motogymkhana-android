@@ -170,15 +170,6 @@
                     android:orientation="vertical">
 
                     <TextView
-                        android:id="@+id/version_string"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_gravity="bottom"
-                        android:layout_marginBottom="10px"
-                        android:layout_weight="1"
-                        android:padding="12px"/>
-
-                    <TextView
                         android:id="@+id/testserver_string"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
@@ -189,12 +180,23 @@
                         android:visibility="gone"/>
                 </LinearLayout>
 
-                <Button
-                    android:id="@+id/save"
-                    android:text="@string/save"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"/>
+
+                    <Button
+                        android:id="@+id/save"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="@string/save"/>
+
+
             </LinearLayout>
+            <TextView
+                android:id="@+id/version_string"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="bottom"
+                android:layout_marginBottom="10px"
+                android:layout_marginLeft="20dp"/>
         </LinearLayout>
 
         <FrameLayout

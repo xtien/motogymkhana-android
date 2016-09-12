@@ -7,11 +7,15 @@
 
 package eu.motogymkhana.competition.activity;
 
+import android.Manifest;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
+import android.os.Environment;
 import android.os.Handler;
+import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
+import android.support.v4.content.ContextCompat;
 import android.support.v4.view.ViewPager;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -21,6 +25,8 @@ import android.widget.TextView;
 
 import com.google.inject.Inject;
 
+import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.sql.SQLException;
 import java.text.ParseException;
@@ -30,6 +36,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Locale;
 
+import eu.motogymkhana.competition.BuildConfig;
 import eu.motogymkhana.competition.Constants;
 import eu.motogymkhana.competition.R;
 import eu.motogymkhana.competition.adapter.ChangeListener;
@@ -54,6 +61,7 @@ import eu.motogymkhana.competition.prefs.PrefsProvider;
 import eu.motogymkhana.competition.rider.RiderManager;
 import eu.motogymkhana.competition.round.RoundManager;
 import eu.motogymkhana.competition.settings.SettingsManager;
+import eu.motogymkhana.competition.util.CopyDB;
 import roboguice.RoboGuice;
 
 /**
@@ -72,6 +80,8 @@ public class MainActivity extends BaseActivity {
     private static final int ADMIN_SETTINGS = 104;
     private static final int SETTINGS = 105;
     public static final int RIDERTIMES = 106;
+
+    private static final int MY_PERMISSIONS_REQUEST_WRITE_STORAGE = 1001;
 
     private static final String LOGTAG = MainActivity.class.getSimpleName();
 
@@ -328,7 +338,44 @@ public class MainActivity extends BaseActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        //CopyDB.copyDB(this, Constants.DATABASE_NAME, "motogymkhana/");
+        if (BuildConfig.DEBUG) {
+
+            int permissionCheck = ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE);
+            if (permissionCheck == PackageManager.PERMISSION_GRANTED) {
+
+                try {
+
+
+                    if (Environment.getExternalStorageState().equals(Environment.MEDIA_MOUNTED)) {
+                        File uidStoreFile = new File(Environment.getExternalStorageDirectory(), "uid.txt");
+
+                        CopyDB.copyDB(this, Constants.DATABASE_NAME, "motogymkhana/");
+                    }
+
+                } catch (Exception e) {
+                    log.e(LOGTAG, e);
+                }
+
+            } else {
+
+                if (ActivityCompat.shouldShowRequestPermissionRationale(this,
+                        Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
+
+                    runOnUiThread(new Runnable() {
+
+                        @Override
+                        public void run() {
+                            showAlert(getResources().getString(R.string.storage_permission_text));
+                        }
+                    });
+
+                } else {
+                    ActivityCompat.requestPermissions(this,
+                            new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE},
+                            MY_PERMISSIONS_REQUEST_WRITE_STORAGE);
+                }
+            }
+        }
 
         setContentView(R.layout.activity_main);
         RoboGuice.getInjector(this).injectMembers(this);
@@ -470,6 +517,22 @@ public class MainActivity extends BaseActivity {
         fragments.add(new SeasonTotalsFragment());
 
         viewPager.setAdapter(new MyViewPagerAdapter(getSupportFragmentManager(), fragments));
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode,
+                                           String permissions[], int[] grantResults) {
+
+        switch (requestCode) {
+
+            case MY_PERMISSIONS_REQUEST_WRITE_STORAGE: {
+                if (grantResults.length > 0
+                        && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+
+                    CopyDB.copyDB(this, Constants.DATABASE_NAME, "motogymkhana/");
+                }
+            }
+        }
     }
 
     @Override

@@ -19,11 +19,12 @@ import eu.motogymkhana.competition.model.Country;
  */
 public class Constants {
 
-    public static final boolean testServer = true;
+    public static final boolean useTestServer = true;
     public static boolean USE_HTTPS = true;
+    public static final String testServer = "pengo.christine.nl";
+    public static final String productionServer = "api.gymcomp.com";
 
     public static final long refreshRate = 5000l;
-
     public static boolean test = false;
     public static final int DATABASE_VERSION = 9;
     public static String DATABASE_NAME = "gymkhana.db";
@@ -34,7 +35,7 @@ public class Constants {
     public static final String USER_AGENT = "motogymkhana_android";
     public static final String urlHttp = "http://";
     public static final String urlHttps = "https://";
-    public static final String hostName = testServer ? "pengo.christine.nl" : "api.gymcomp.com";
+    public static final String hostName = useTestServer ? testServer : productionServer;
     public static final int HTTPS_PORT = 9005;
     public static final int HTTP_PORT = 8085;
     public static final String BASE_URL_STRING = "/motogymkhana";

@@ -40,8 +40,6 @@ import eu.motogymkhana.competition.Constants;
 import eu.motogymkhana.competition.R;
 import eu.motogymkhana.competition.adapter.ChangeListener;
 import eu.motogymkhana.competition.api.ResponseHandler;
-import eu.motogymkhana.competition.api.response.GymkhanaResult;
-import eu.motogymkhana.competition.api.response.ListRoundsResult;
 import eu.motogymkhana.competition.api.response.UpdateSettingsResponse;
 import eu.motogymkhana.competition.dao.CredentialDao;
 import eu.motogymkhana.competition.dao.SettingsDao;
@@ -376,7 +374,7 @@ public class SettingsActivity extends BaseActivity {
             e.printStackTrace();
         }
 
-        if (Constants.testServer) {
+        if (Constants.useTestServer) {
             ((TextView) findViewById(R.id.testserver_string)).setVisibility(View.VISIBLE);
         }
 
@@ -414,7 +412,6 @@ public class SettingsActivity extends BaseActivity {
         }
 
         countrySpinner.setOnItemSelectedListener(countrySelectedListener);
-
         countrySpinner.setAdapter(countrySpinAdapter);
         countrySpinner.setSelection(getCountryNumber());
 
@@ -427,7 +424,6 @@ public class SettingsActivity extends BaseActivity {
         }
 
         seasonSpinner.setOnItemSelectedListener(seasonSelectedListener);
-
         seasonSpinner.setAdapter(seasonSpinAdapter);
         seasonSpinner.setSelection(getSeasonNumber());
 
@@ -439,9 +435,7 @@ public class SettingsActivity extends BaseActivity {
         }
 
         pointsView.setText(pointsString);
-
         pointsView.setFilters(new InputFilter[]{filter});
-
         saveButton.setOnClickListener(saveClickListener);
     }
 

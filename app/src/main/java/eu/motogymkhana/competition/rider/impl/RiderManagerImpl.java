@@ -13,7 +13,6 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -168,6 +167,9 @@ public class RiderManagerImpl implements RiderManager {
     public void setRegistered(Times times, boolean registered, ResponseHandler responseHandler) throws SQLException {
 
         times.setRegistered(registered);
+        if (!registered) {
+            times.clearStartNumber();
+        }
         times.setRiderNumber(times.getRider().getRiderNumber());
         times.setSeason(Constants.season);
         times.setCountry(Constants.country);
@@ -177,8 +179,36 @@ public class RiderManagerImpl implements RiderManager {
     @Override
     public void generateStartNumbers(ResponseHandler responseHandler) {
 
-        for (Bib bib : Bib.values()) {
-            generateStartNumbers(bib, responseHandler);
+        boolean hasSortedRider = false;
+        boolean hasUnsortedRider = false;
+
+        try {
+            for (Times times : timesDao.getTimes(prefs.getDate())) {
+                if (times.hasStartNumber()) {
+                    hasSortedRider = true;
+                } else {
+                    hasUnsortedRider = true;
+                }
+            }
+
+            for (Bib bib : Bib.values()) {
+               /*
+                all startnumbers have been assigned, or none
+                 */
+                if (hasSortedRider != hasUnsortedRider) {
+                    generateStartNumbers(bib, responseHandler);
+
+                } else {
+                /*
+                some startnumbers have been assigned but not all, that is, riders have been inserted after
+                generation of startnumbers
+                 */
+                    updateStartNumbers(bib, responseHandler);
+                }
+            }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
         }
     }
 
@@ -187,9 +217,9 @@ public class RiderManagerImpl implements RiderManager {
         try {
 
             long date = prefs.getDate();
-            int start = bib == Bib.G ? 101 : 1;
+            int start = bib == Bib.G ? 101 : (bib == Bib.B ? 201 : (bib == Bib.R ? 301 : 1));
 
-            List<Rider> registeredRiders = timesDao.getRegisteredRiders(prefs.getDate(), bib);
+            List<Rider> registeredRiders = timesDao.getRegisteredRiders(date, bib);
 
             List<Integer> startNumbers = new ArrayList<Integer>();
             for (int i = 0; i < registeredRiders.size(); i++) {
@@ -198,17 +228,57 @@ public class RiderManagerImpl implements RiderManager {
 
             Iterator<Rider> iterator = registeredRiders.iterator();
 
-            Rider prePreviousRider = null;
-            Rider previousRider = null;
-
             while (iterator.hasNext()) {
                 Rider rider = iterator.next();
                 Times times = rider.getEUTimes(date);
-                int startNumber = (int) (Math.random() * startNumbers.size());
-                times.setStartNumber(startNumbers.remove(startNumber));
+                int randomNumber = (int) (Math.random() * startNumbers.size());
+                times.setStartNumber(startNumbers.remove(randomNumber));
                 timesDao.store(times);
             }
 
+            List<Rider> unRegisteredRiders = timesDao.getUnregisteredRiders(date, bib);
+            for (Rider rider : unRegisteredRiders) {
+                Times times = rider.getEUTimes(date);
+                if (times == null) {
+                    times = new Times(date);
+                    times.setRider(rider);
+                    rider.addTimes(times);
+                }
+            }
+
+            api.uploadRiders(registeredRiders, responseHandler);
+
+        } catch (Exception e) {
+            responseHandler.onException(e);
+        }
+    }
+
+    private void updateStartNumbers(Bib bib, ResponseHandler responseHandler) {
+
+        try {
+
+            int newNumbers = 0;
+            int start = bib == Bib.G ? 101 : (bib == Bib.B ? 201 : (bib == Bib.R ? 301 : 1));
+
+            List<Times> list = timesDao.getTimesSortedOnStartNumber(prefs.getDate(), bib);
+
+            Iterator<Times> iterator = list.iterator();
+
+            while (iterator.hasNext()) {
+                Times times = iterator.next();
+
+                if (!times.hasStartNumber()) {
+                    times.setStartNumber(start++);
+                    newNumbers++;
+                } else {
+                    times.addToStartNumber(newNumbers);
+                }
+                log.d(LOGTAG, times.getRider().getName() + " " + times.getStartNumber());
+
+                timesDao.updateStartNumber(times);
+            }
+
+            List<Rider> registeredRiders = timesDao.getRegisteredRiders(prefs.getDate(), bib);
             api.uploadRiders(registeredRiders, responseHandler);
 
         } catch (Exception e) {

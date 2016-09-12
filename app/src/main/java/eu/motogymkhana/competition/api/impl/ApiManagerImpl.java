@@ -133,6 +133,7 @@ public class ApiManagerImpl implements ApiManager {
 
     @Override
     public void uploadRiders(List<Rider> riders, ResponseHandler responseHandler)  {
+
         UploadRidersRequest request = new UploadRidersRequest(riders);
         setPW(request);
         request.setSeason(Constants.season);

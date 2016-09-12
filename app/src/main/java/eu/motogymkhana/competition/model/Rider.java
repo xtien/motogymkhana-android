@@ -471,4 +471,12 @@ public class Rider {
     public void setEmail(String email) {
         this.email = email;
     }
+
+    public void setStartNumber(long date, int startNumber) {
+        Times times = getEUTimes(date);
+        if (times == null) {
+            times = new Times();
+        }
+        times.setStartNumber(startNumber);
+    }
 }

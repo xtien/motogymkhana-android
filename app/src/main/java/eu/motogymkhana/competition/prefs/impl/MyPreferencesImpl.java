@@ -7,6 +7,7 @@ import android.content.SharedPreferences.Editor;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 
+import eu.motogymkhana.competition.BuildConfig;
 import eu.motogymkhana.competition.Constants;
 import eu.motogymkhana.competition.model.Country;
 import eu.motogymkhana.competition.prefs.MyPreferences;
@@ -96,7 +97,7 @@ public class MyPreferencesImpl implements MyPreferences {
 
     @Override
     public String getServer() {
-        return prefs.getString(SERVER, Constants.hostName);
+        return prefs.getString(SERVER, BuildConfig.DEBUG ? Constants.hostName : Constants.productionServer);
     }
 
     @Override

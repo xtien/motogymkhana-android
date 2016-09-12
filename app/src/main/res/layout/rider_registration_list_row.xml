@@ -77,7 +77,7 @@
     <TextView
         android:id="@+id/country"
         style="@style/list_text"
-        android:layout_width="30dp"
+        android:layout_width="50dp"
         android:layout_height="wrap_content"
         android:layout_marginEnd="@dimen/rider_listrow_margin"
         android:layout_marginRight="@dimen/rider_listrow_margin"

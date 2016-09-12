@@ -23,6 +23,7 @@ import com.google.inject.Inject;
 import com.squareup.picasso.Picasso;
 
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.math.NumberUtils;
 
 import java.sql.SQLException;
 
@@ -36,7 +37,9 @@ import eu.motogymkhana.competition.model.Bib;
 import eu.motogymkhana.competition.model.Country;
 import eu.motogymkhana.competition.model.Gender;
 import eu.motogymkhana.competition.model.Rider;
+import eu.motogymkhana.competition.model.Times;
 import eu.motogymkhana.competition.notify.Notifier;
+import eu.motogymkhana.competition.prefs.MyPreferences;
 import eu.motogymkhana.competition.rider.RiderManager;
 import roboguice.RoboGuice;
 
@@ -54,6 +57,9 @@ public class RiderNewUpdateActivity extends BaseActivity {
 
     @Inject
     private RiderManager riderManager;
+
+    @Inject
+    private MyPreferences prefs;
 
     @Inject
     private Notifier notifier;
@@ -127,7 +133,7 @@ public class RiderNewUpdateActivity extends BaseActivity {
         final Spinner bibSpinner = (Spinner) findViewById(R.id.bib);
         final CheckBox genderButton = (CheckBox) findViewById(R.id.gender);
         errorText = (TextView) findViewById(R.id.error_text);
-        final EditText sharingWithView = (EditText) findViewById(R.id.sharing_with);
+        final EditText startNumberView = (EditText) findViewById(R.id.start_number);
         final EditText bikeView = (EditText) findViewById(R.id.bike);
         final EditText riderTextView = (EditText) findViewById(R.id.rider_text);
 
@@ -181,7 +187,12 @@ public class RiderNewUpdateActivity extends BaseActivity {
                 lastNameView.setText(rider.getLastName());
                 numberView.setText(rider.getRiderNumberString());
                 genderButton.setChecked(rider.getGender() == Gender.F);
-                sharingWithView.setText(Integer.toString(rider.getSharing()));
+
+                Times times = rider.getEUTimes(prefs.getDate());
+                if (times != null) {
+                    startNumberView.setText(Integer.toString(times.getStartNumber()));
+                }
+
                 bikeView.setText(rider.getBike());
                 riderTextView.setText(rider.getText());
 
@@ -276,11 +287,9 @@ public class RiderNewUpdateActivity extends BaseActivity {
                 Bib bib = (Bib) bibSpinner.getSelectedItem();
                 String bike = bikeView.getText().toString();
                 String riderText = riderTextView.getText().toString();
-
-                String sharingText = sharingWithView.getText().toString();
-                int sharing = 0;
-                if (sharingText != null && sharingText.length() > 0) {
-                    sharing = Integer.parseInt(sharingWithView.getText().toString());
+                int startNumber = 0;
+                if (NumberUtils.isNumber(startNumberView.getText().toString())) {
+                    startNumber = Integer.parseInt(startNumberView.getText().toString());
                 }
                 Country nationality = Constants.country;
                 if (nationalityString != null) {
@@ -297,11 +306,14 @@ public class RiderNewUpdateActivity extends BaseActivity {
                 rider.setNationality(nationality);
                 rider.setCountry(Constants.country);
                 rider.setSeason(Constants.season);
-                rider.setSharing(sharing);
                 rider.setBike(bike);
                 rider.setText(riderText);
                 rider.setBib(bib);
                 rider.setEmail(email);
+
+                if (startNumber != 0) {
+                    rider.setStartNumber(prefs.getDate(), startNumber);
+                }
 
                 if (firstName != null && lastName != null) {
                     riderManager.update(rider, updateRiderResponseHandler);

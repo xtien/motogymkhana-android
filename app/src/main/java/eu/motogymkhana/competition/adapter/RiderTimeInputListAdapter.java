@@ -82,7 +82,7 @@ public class RiderTimeInputListAdapter extends BaseAdapter {
         this.prefs = prefs;
         this.notifier = notifier;
         this.activity = activity;
-        this.log=log;
+        this.log = log;
 
         notifier.registerRiderResultListener(changeListener);
 
@@ -132,7 +132,6 @@ public class RiderTimeInputListAdapter extends BaseAdapter {
         ((TextView) convertView.findViewById(R.id.last_name)).setVisibility(View.GONE);
         ((TextView) convertView.findViewById(R.id.gender)).setVisibility(View.GONE);
 
-        //TODO how can riderTimes be null here?
         if (date > 0l && riderTimes != null) {
 
             TextView riderNumberView = (TextView) convertView.findViewById(R.id.ridernumber);
@@ -160,20 +159,22 @@ public class RiderTimeInputListAdapter extends BaseAdapter {
 
             if (riderTimes.isDisqualified1()) {
                 timeView1.setBackgroundColor(activity.getResources().getColor(R.color.disqualified));
+                timeView1.setTextColor(activity.getResources().getColor(R.color.gray));
             } else {
                 timeView1.setBackgroundColor(activity.getResources().getColor(R.color.qualified));
-                if (riderTimes.getTime1() != 0) {
-                    timeView1.setText(riderTimes.getTime1PlusPenaltiesString());
-                }
+            }
+            if (riderTimes.getTime1() != 0) {
+                timeView1.setText(riderTimes.getTime1PlusPenaltiesString());
             }
 
             if (riderTimes.isDisqualified2()) {
                 timeView2.setBackgroundColor(activity.getResources().getColor(R.color.disqualified));
+                timeView2.setTextColor(activity.getResources().getColor(R.color.gray));
             } else {
                 timeView2.setBackgroundColor(activity.getResources().getColor(R.color.qualified));
-                if (riderTimes.getTime2() != 0) {
-                    timeView2.setText(riderTimes.getTime2PlusPenaltiesString());
-                }
+             }
+            if (riderTimes.getTime2() != 0) {
+                timeView2.setText(riderTimes.getTime2PlusPenaltiesString());
             }
 
             if (credentialDao.isAdmin()) {

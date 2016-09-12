@@ -18,13 +18,19 @@ public interface TimesDao extends Dao<Times, Integer> {
 
     List<Rider> getRegisteredRiders(long date) throws SQLException;
 
-    List<Times> getTimesSortedOnResult(long date) throws SQLException;
+    List<Times> getTimes(long date) throws SQLException;
+
+    List<Times> getTimesSortedOnStartNumber(long date, Bib bib) throws SQLException;
 
     List<Rider> getRiders(long date) throws SQLException;
 
     void store(Times times) throws SQLException;
 
+    void updateStartNumber(Times times) throws SQLException;
+
     void clear() throws SQLException;
+
+    List<Rider> getUnregisteredRiders(long date, Bib bib) throws SQLException;
 
     List<Rider> getRegisteredRiders(long date, Bib bib) throws SQLException;
 

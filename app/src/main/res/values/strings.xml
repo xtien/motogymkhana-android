@@ -58,7 +58,7 @@
     <string name="gender">Gender</string>
     <string name="country">Country</string>
     <string name="bib">Bib</string>
-    <string name="sharing_with">Sharing with</string>
+    <string name="start_number">start number</string>
 
     <!--views -->
     <string name="plus_text">+</string>
@@ -80,5 +80,7 @@
     <string name="upload_rounds_manually">Don\'t forget to upload the rounds manually.</string>
     <string name="female_sign">\u2640</string>
     <string name="email">Email</string>
+    <string name="storage_permission_title">Permission requested</string>
+    <string name="storage_permission_text">The app would like to write to the flash memory of your phone.</string>
 
 </resources>
