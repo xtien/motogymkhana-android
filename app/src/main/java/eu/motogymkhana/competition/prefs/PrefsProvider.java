@@ -9,6 +9,8 @@ package eu.motogymkhana.competition.prefs;
 
 import android.content.Context;
 
+import java.lang.ref.WeakReference;
+
 import roboguice.RoboGuice;
 
 /**
@@ -19,18 +21,19 @@ public class PrefsProvider {
 
     private static MyPreferences prefs;
 
-    private static Context context;
+    private static WeakReference<Context> context;
 
     public static MyPreferences getInstance() {
 
         if (prefs == null) {
-            prefs = RoboGuice.getInjector(context).getInstance(MyPreferences.class);
+            prefs = RoboGuice.getInjector(context.get()).getInstance(MyPreferences
+                    .class);
         }
 
         return prefs;
     }
 
-    public static void setContext(Context c) {
-        context = c;
+    public static void setContext(final Context c) {
+        context = new WeakReference<Context>(c);
     }
 }

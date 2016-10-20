@@ -26,7 +26,6 @@ import android.widget.TextView;
 import com.google.inject.Inject;
 
 import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.sql.SQLException;
 import java.text.ParseException;
@@ -57,7 +56,6 @@ import eu.motogymkhana.competition.model.Country;
 import eu.motogymkhana.competition.model.Round;
 import eu.motogymkhana.competition.notify.Notifier;
 import eu.motogymkhana.competition.prefs.MyPreferences;
-import eu.motogymkhana.competition.prefs.PrefsProvider;
 import eu.motogymkhana.competition.rider.RiderManager;
 import eu.motogymkhana.competition.round.RoundManager;
 import eu.motogymkhana.competition.settings.SettingsManager;
@@ -93,7 +91,7 @@ public class MainActivity extends BaseActivity {
 
     private ViewPager viewPager;
 
-    private Handler handler;
+    private static Handler handler;
 
     @Inject
     private RiderManager riderManager;
@@ -117,9 +115,6 @@ public class MainActivity extends BaseActivity {
 
     @Inject
     private CredentialDao credentialDao;
-
-    @Inject
-    private SettingsDao settingsDao;
 
     @Inject
     private MyPreferences prefs;
@@ -340,7 +335,7 @@ public class MainActivity extends BaseActivity {
 
         if (BuildConfig.DEBUG) {
 
-            int permissionCheck = ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE);
+            int permissionCheck = ContextCompat.checkSelfPermission(getApplicationContext(), Manifest.permission.WRITE_EXTERNAL_STORAGE);
             if (permissionCheck == PackageManager.PERMISSION_GRANTED) {
 
                 try {
@@ -349,7 +344,7 @@ public class MainActivity extends BaseActivity {
                     if (Environment.getExternalStorageState().equals(Environment.MEDIA_MOUNTED)) {
                         File uidStoreFile = new File(Environment.getExternalStorageDirectory(), "uid.txt");
 
-                        CopyDB.copyDB(this, Constants.DATABASE_NAME, "motogymkhana/");
+                        CopyDB.copyDB(getApplicationContext(), Constants.DATABASE_NAME, "motogymkhana/");
                     }
 
                 } catch (Exception e) {
@@ -378,7 +373,7 @@ public class MainActivity extends BaseActivity {
         }
 
         setContentView(R.layout.activity_main);
-        RoboGuice.getInjector(this).injectMembers(this);
+        RoboGuice.getInjector(getApplicationContext()).injectMembers(this);
 
         Constants.country = prefs.getCountry();
         Constants.season = prefs.getSeason();
@@ -417,13 +412,11 @@ public class MainActivity extends BaseActivity {
             Constants.season = calendar.get(Calendar.YEAR);
 
             try {
-                settingsDao.storeCountryAndSeason(Constants.country, Constants.season);
+                settingsManager.storeCountryAndSeason(Constants.country, Constants.season);
             } catch (SQLException e) {
                 e.printStackTrace();
             }
         }
-
-        PrefsProvider.setContext(this);
 
         Collection<Round> rounds = null;
 
@@ -483,6 +476,15 @@ public class MainActivity extends BaseActivity {
     }
 
     @Override
+    public void onDestroy() {
+        super.onDestroy();
+        RoboGuice.destroyInjector(this);
+
+        handler.removeCallbacksAndMessages(null);
+        handler = null;
+    }
+
+    @Override
     protected void onResume() {
         super.onResume();
 
@@ -529,7 +531,7 @@ public class MainActivity extends BaseActivity {
                 if (grantResults.length > 0
                         && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
 
-                    CopyDB.copyDB(this, Constants.DATABASE_NAME, "motogymkhana/");
+                    CopyDB.copyDB(getApplicationContext(), Constants.DATABASE_NAME, "motogymkhana/");
                 }
             }
         }
@@ -577,11 +579,11 @@ public class MainActivity extends BaseActivity {
         switch (id) {
 
             case R.id.admin_settings:
-                startActivityForResult(new Intent(this, AdminSettingsActivity.class), ADMIN_SETTINGS);
+                startActivityForResult(new Intent(getApplicationContext(), AdminSettingsActivity.class), ADMIN_SETTINGS);
                 return true;
 
             case R.id.settings:
-                startActivityForResult(new Intent(this, SettingsActivity.class), SETTINGS);
+                startActivityForResult(new Intent(getApplicationContext(), SettingsActivity.class), SETTINGS);
                 return true;
 
             case R.id.start_numbers:
@@ -589,7 +591,7 @@ public class MainActivity extends BaseActivity {
                 return true;
 
             case R.id.new_rider:
-                startActivityForResult(new Intent(this, RiderNewUpdateActivity.class), NEW_RIDER);
+                startActivityForResult(new Intent(getApplicationContext(), RiderNewUpdateActivity.class), NEW_RIDER);
                 return true;
 
             case R.id.load_file:
@@ -636,12 +638,12 @@ public class MainActivity extends BaseActivity {
 
             case R.id.admin:
 
-                startActivityForResult(new Intent(this, AdminActivity.class), ADMIN);
+                startActivityForResult(new Intent(getApplicationContext(), AdminActivity.class), ADMIN);
                 return true;
 
             case R.id.text:
 
-                startActivityForResult(new Intent(this, TextActivity.class), TEXT);
+                startActivityForResult(new Intent(getApplicationContext(), TextActivity.class), TEXT);
                 return true;
 
             default:

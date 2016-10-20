@@ -143,16 +143,10 @@ public class SettingsActivity extends BaseActivity {
     private boolean first = true;
 
     @Inject
-    private SettingsDao settingsDao;
-
-    @Inject
     private SettingsManager settingsManager;
 
     @Inject
     private MyLog log;
-
-    @Inject
-    private RiderManager riderManager;
 
     private Settings settings;
     private boolean firstCountrySelected = true;
@@ -171,27 +165,27 @@ public class SettingsActivity extends BaseActivity {
         }
     };
 
-     private ResponseHandler uploadSettingsResponseHandler = new ResponseHandler() {
+    private ResponseHandler uploadSettingsResponseHandler = new ResponseHandler() {
 
         @Override
         public void onSuccess(Object object) {
 
             UpdateSettingsResponse settingsResponse = (UpdateSettingsResponse) object;
 
-            if(settingsResponse.isOK()){
+            if (settingsResponse.isOK()) {
                 notifier.notifyDataChanged();
             }
         }
 
         @Override
         public void onException(Exception e) {
-            log.e(LOGTAG,e);
+            log.e(LOGTAG, e);
         }
 
         @Override
         public void onError(int statusCode, String string) {
-            log.e(LOGTAG,string);
-            showAlert(statusCode,string);
+            log.e(LOGTAG, string);
+            showAlert(statusCode, string);
         }
     };
 
@@ -234,7 +228,7 @@ public class SettingsActivity extends BaseActivity {
             settings.setPoints(pointsView.getText().toString());
 
             try {
-                settingsDao.store(settings);
+                settingsManager.store(settings);
             } catch (SQLException e) {
                 e.printStackTrace();
             }
@@ -350,8 +344,10 @@ public class SettingsActivity extends BaseActivity {
         admin = credentialDao.isAdmin();
 
         try {
-            settings = settingsDao.get();
+            settings = settingsManager.getSettings();
         } catch (SQLException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
             e.printStackTrace();
         }
 
@@ -383,7 +379,7 @@ public class SettingsActivity extends BaseActivity {
         roundsSpinAdapter = new ArrayAdapter(this, android.R.layout.simple_spinner_item);
         roundsSpinAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
 
-        setRounds();
+        setRoundsInit();
         roundsSpinner.setAdapter(roundsSpinAdapter);
 
         try {
@@ -456,8 +452,10 @@ public class SettingsActivity extends BaseActivity {
             @Override
             public void run() {
                 try {
-                    settings = settingsDao.get();
+                    settings = settingsManager.getSettings();
                 } catch (SQLException e) {
+                    e.printStackTrace();
+                } catch (IOException e) {
                     e.printStackTrace();
                 }
 
@@ -479,7 +477,7 @@ public class SettingsActivity extends BaseActivity {
         });
     }
 
-    private void setRounds() {
+    private void setRoundsInit() {
 
         roundsSpinAdapter.clear();
 
@@ -512,6 +510,36 @@ public class SettingsActivity extends BaseActivity {
         }
     }
 
+    private void setRounds() {
+
+        roundsSpinAdapter.clear();
+
+        try {
+            rounds = roundManager.getRounds();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        if (rounds != null && rounds.size() > 0) {
+
+            for (Round round : rounds) {
+                roundsSpinAdapter.add(round.getDateString());
+            }
+
+            try {
+
+                int position = getRoundNumber();
+                roundsSpinner.setSelection(position);
+                prefs.setDate(rounds.get(position).getDate());
+
+                setSettings();
+
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
     @Override
     public void onResume() {
         super.onResume();
@@ -522,6 +550,12 @@ public class SettingsActivity extends BaseActivity {
     public void onPause() {
         super.onPause();
         notifier.unRegisterRiderResultListener(listener);
+    }
+
+    @Override
+    public void onDestroy(){
+        super.onDestroy();
+        RoboGuice.destroyInjector(this);
     }
 
     private int getCountryNumber() {

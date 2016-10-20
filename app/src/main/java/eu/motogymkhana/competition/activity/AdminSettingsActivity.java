@@ -54,6 +54,12 @@ public class AdminSettingsActivity extends BaseActivity {
                 finish();
             }
         });
-
     }
+
+    @Override
+    public void onDestroy(){
+        super.onDestroy();
+        RoboGuice.destroyInjector(this);
+    }
+
 }

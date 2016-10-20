@@ -320,6 +320,12 @@ public class RiderNewUpdateActivity extends BaseActivity {
                 }
             }
         });
-
     }
+
+    @Override
+    public void onDestroy(){
+        super.onDestroy();
+        RoboGuice.destroyInjector(this);
+    }
+
 }

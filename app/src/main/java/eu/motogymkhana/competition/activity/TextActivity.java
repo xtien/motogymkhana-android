@@ -50,4 +50,10 @@ public class TextActivity extends BaseActivity {
         });
 
     }
+
+    @Override
+    public void onDestroy(){
+        super.onDestroy();
+        RoboGuice.destroyInjector(this);
+    }
 }

@@ -13,6 +13,7 @@ import eu.motogymkhana.competition.Constants;
 import eu.motogymkhana.competition.api.ApiManager;
 import eu.motogymkhana.competition.api.ResponseHandler;
 import eu.motogymkhana.competition.dao.SettingsDao;
+import eu.motogymkhana.competition.model.Country;
 import eu.motogymkhana.competition.model.Round;
 import eu.motogymkhana.competition.rider.RiderManager;
 import eu.motogymkhana.competition.settings.Settings;
@@ -94,6 +95,16 @@ public class SettingsManagerImpl implements SettingsManager {
         } catch (SQLException e) {
             e.printStackTrace();
         }
+    }
+
+    @Override
+    public void store(Settings settings) throws SQLException {
+        settingsDao.store(settings);
+    }
+
+    @Override
+    public void storeCountryAndSeason(Country country, int season) throws SQLException {
+        settingsDao.storeCountryAndSeason(country,season);
     }
 
     @Override

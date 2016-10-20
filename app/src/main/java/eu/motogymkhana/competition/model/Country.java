@@ -8,7 +8,7 @@ package eu.motogymkhana.competition.model;
 public enum Country {
 
     NL("NL"), BE("BE"), UK("UK"), FR("FR"), DE("DE"), PL("PL"), RU("RU"), CZ("CZ"), UA("UA"), EU(
-            "EU"), LT("LT"), JP("JP");
+            "EU"), LT("LT"), JP("JP"), MD("MD");
 
     private String string;
 

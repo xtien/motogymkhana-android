@@ -202,4 +202,10 @@ public class RiderTimesInputActivity extends BaseActivity {
             }
         });
     }
+
+    @Override
+    public void onDestroy(){
+        super.onDestroy();
+        RoboGuice.destroyInjector(this);
+    }
 }

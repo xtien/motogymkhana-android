@@ -13,6 +13,9 @@ import android.content.Context;
 import android.os.Build;
 import android.support.multidex.MultiDex;
 
+import java.lang.ref.WeakReference;
+
+import eu.motogymkhana.competition.prefs.PrefsProvider;
 import eu.motogymkhana.competition.robo.GymkhanaModule;
 import eu.motogymkhana.competition.robo.LiveModule;
 import roboguice.RoboGuice;
@@ -33,12 +36,15 @@ import roboguice.RoboGuice;
  */
 public class MotoGymkhanaApplication extends Application {
 
-    private static Context instance;
+    private static WeakReference<Context> instance;
 
     @Override
     public void onCreate() {
         super.onCreate();
-        instance = getApplicationContext();
+        instance = new WeakReference<Context>(getApplicationContext());
+
+        PrefsProvider.setContext(getApplicationContext());
+
         RoboGuice.setUseAnnotationDatabases(true);
         RoboGuice.setupBaseApplicationInjector(this, new GymkhanaModule(), new LiveModule());
     }
@@ -52,6 +58,6 @@ public class MotoGymkhanaApplication extends Application {
     }
 
     public static Context getContext() {
-        return instance;
+        return instance.get();
     }
 }

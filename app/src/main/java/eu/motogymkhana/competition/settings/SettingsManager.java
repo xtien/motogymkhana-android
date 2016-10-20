@@ -12,6 +12,7 @@ import java.sql.SQLException;
 import java.util.List;
 
 import eu.motogymkhana.competition.api.ResponseHandler;
+import eu.motogymkhana.competition.model.Country;
 import eu.motogymkhana.competition.model.Round;
 
 /**
@@ -31,4 +32,8 @@ public interface SettingsManager {
     void setRounds(List<Round> rounds) throws IOException, SQLException;
 
     void setSettings(Settings settings);
+
+    void store(Settings settings) throws SQLException;
+
+    void storeCountryAndSeason(Country country, int season) throws SQLException;
 }
