@@ -96,29 +96,22 @@ public class MyHttpImpl implements MyHttp {
 
         String resultString = null;
 
-        InputStream in;
-
         String string = "";
         int httpResult = 0;
         String responseMessage = null;
 
-        URL url = null;
-        url = new URL(urlString + getQuery(params));
+        URL url = new URL(urlString + getQuery(params));
 
-        URLConnection urlConnection = null;
+        HttpURLConnection urlConnection = null;
 
-        urlConnection = url.openConnection();
+        urlConnection = (HttpURLConnection) url.openConnection();
 
         try {
 
             urlConnection.setReadTimeout(readTimeout);
             urlConnection.setConnectTimeout(connectTimeout);
 
-            if (urlConnection instanceof HttpsURLConnection) {
-                ((HttpsURLConnection) urlConnection).setRequestMethod(method);
-            } else {
-                ((HttpURLConnection) urlConnection).setRequestMethod(method);
-            }
+            urlConnection.setRequestMethod(method);
             if (!"GET".equals(method)) {
                 urlConnection.setDoOutput(true);
             }
@@ -139,17 +132,9 @@ public class MyHttpImpl implements MyHttp {
                 wr.close();
             }
 
-            if (urlConnection instanceof HttpsURLConnection) {
-                httpResult = ((HttpsURLConnection) urlConnection).getResponseCode();
-                if (httpResult != HttpURLConnection.HTTP_OK) {
-                    responseMessage = ((HttpsURLConnection) urlConnection).getResponseMessage();
-                }
-
-            } else {
-                httpResult = ((HttpURLConnection) urlConnection).getResponseCode();
-                if (httpResult != HttpURLConnection.HTTP_OK) {
-                    responseMessage = ((HttpURLConnection) urlConnection).getResponseMessage();
-                }
+            httpResult = urlConnection.getResponseCode();
+            if (httpResult != HttpURLConnection.HTTP_OK) {
+                responseMessage = urlConnection.getResponseMessage();
             }
 
             log.d(LOGTAG, "url = " + urlString + " statuscode " + httpResult);
@@ -158,13 +143,7 @@ public class MyHttpImpl implements MyHttp {
             if (httpResult == HttpURLConnection.HTTP_OK) {
                 br = new BufferedReader(new InputStreamReader(new BufferedInputStream(urlConnection.getInputStream())));
             } else {
-                if (urlConnection instanceof HttpsURLConnection) {
-                    br = new BufferedReader(new InputStreamReader(new BufferedInputStream(((HttpsURLConnection)
-                            urlConnection).getErrorStream())));
-                } else {
-                    br = new BufferedReader(new InputStreamReader(new BufferedInputStream(((HttpURLConnection)
-                            urlConnection).getErrorStream())));
-                }
+                br = new BufferedReader(new InputStreamReader(new BufferedInputStream(urlConnection.getErrorStream())));
             }
 
             if (br != null) {
@@ -181,11 +160,7 @@ public class MyHttpImpl implements MyHttp {
 
         } finally {
             if (urlConnection != null) {
-                if (urlConnection instanceof HttpsURLConnection) {
-                    ((HttpsURLConnection) urlConnection).disconnect();
-                } else {
-                    ((HttpURLConnection) urlConnection).disconnect();
-                }
+                urlConnection.disconnect();
             }
         }
 
