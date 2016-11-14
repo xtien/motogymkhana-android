@@ -51,8 +51,6 @@ public class MyHttpImpl implements MyHttp {
     private static int readTimeout = 30000;
     private static int connectTimeout = 30000;
 
-    String authString = "ugo_basic_auth_user:Xg139qTL1JapdNgoFYQ1";
-
     @Inject
     private Context context;
 
