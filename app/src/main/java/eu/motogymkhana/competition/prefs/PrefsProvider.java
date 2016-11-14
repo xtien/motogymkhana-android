@@ -7,12 +7,6 @@
 
 package eu.motogymkhana.competition.prefs;
 
-import android.content.Context;
-
-import java.lang.ref.WeakReference;
-
-import roboguice.RoboGuice;
-
 /**
  * Created by christine on 26-5-15.
  * Utility class for enabling injection of RoundManager in non-injected classes.
@@ -21,19 +15,11 @@ public class PrefsProvider {
 
     private static MyPreferences prefs;
 
-    private static WeakReference<Context> context;
-
-    public static MyPreferences getInstance() {
-
-        if (prefs == null) {
-            prefs = RoboGuice.getInjector(context.get()).getInstance(MyPreferences
-                    .class);
-        }
-
+    public static MyPreferences getPrefs() {
         return prefs;
     }
 
-    public static void setContext(final Context c) {
-        context = new WeakReference<Context>(c);
+    public static void setPrefs(MyPreferences p) {
+        prefs = p;
     }
 }

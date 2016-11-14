@@ -17,13 +17,13 @@ import android.widget.DatePicker;
 import android.widget.ListView;
 import android.widget.Toast;
 
-import com.google.inject.Inject;
-
 import java.io.IOException;
 import java.sql.SQLException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.List;
+
+import javax.inject.Inject;
 
 import eu.motogymkhana.competition.Constants;
 import eu.motogymkhana.competition.R;
@@ -34,7 +34,8 @@ import eu.motogymkhana.competition.prefs.MyPreferences;
 import eu.motogymkhana.competition.rider.RiderManager;
 import eu.motogymkhana.competition.round.RoundManager;
 import eu.motogymkhana.competition.settings.SettingsManager;
-import roboguice.RoboGuice;
+import toothpick.Scope;
+import toothpick.Toothpick;
 
 /**
  * Created by christine on 6-2-16.
@@ -47,25 +48,28 @@ public class ManageRoundsFragment extends BaseFragment implements DatePickerDial
     private Button saveButton;
 
     @Inject
-    private RoundManager roundManager;
+    protected RoundManager roundManager;
 
     @Inject
-    private Notifier notifier;
+    protected Notifier notifier;
 
     @Inject
-    private RiderManager riderManager;
+    protected RiderManager riderManager;
 
     @Inject
-    private SettingsManager settingsManager;
+    protected SettingsManager settingsManager;
 
     private DatePicker datePicker;
     private Button addButton;
     private ManageRoundsAdapter adapter;
     private MyPreferences prefs;
+    private Scope scope;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
+        scope = Toothpick.openScopes(Constants.DEFAULT_SCOPE, this);
         super.onCreate(savedInstanceState);
+        Toothpick.inject(this, scope);
     }
 
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -79,7 +83,6 @@ public class ManageRoundsFragment extends BaseFragment implements DatePickerDial
 
     @Override
     public void onViewCreated(View view, Bundle savedInstanceState) {
-        RoboGuice.getInjector(getActivity()).injectMembers(this);
 
         List<Round> rounds = null;
         try {
@@ -100,6 +103,12 @@ public class ManageRoundsFragment extends BaseFragment implements DatePickerDial
                 picker.show(getFragmentManager(), "datePicker");
             }
         });
+    }
+
+    @Override
+    public void onDestroy() {
+        Toothpick.closeScope(this);
+        super.onDestroy();
     }
 
     @Override

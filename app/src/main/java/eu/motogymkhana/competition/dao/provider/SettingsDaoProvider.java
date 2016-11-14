@@ -7,8 +7,8 @@
 
 package eu.motogymkhana.competition.dao.provider;
 
-import com.google.inject.Inject;
-import com.google.inject.Provider;
+import javax.inject.Inject;
+import javax.inject.Provider;
 
 import java.sql.SQLException;
 
@@ -22,8 +22,12 @@ import eu.motogymkhana.competition.settings.Settings;
  */
 public class SettingsDaoProvider implements Provider<SettingsDao> {
 
+     protected GymkhanaDatabaseHelper helper;
+
     @Inject
-    private GymkhanaDatabaseHelper helper;
+    public SettingsDaoProvider(GymkhanaDatabaseHelper helper){
+        this.helper = helper;
+    }
 
     @Override
     public SettingsDao get() {

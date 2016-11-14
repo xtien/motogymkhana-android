@@ -19,7 +19,6 @@ import android.widget.ImageView;
 import android.widget.Spinner;
 import android.widget.TextView;
 
-import com.google.inject.Inject;
 import com.squareup.picasso.Picasso;
 
 import org.apache.commons.lang3.StringUtils;
@@ -27,10 +26,11 @@ import org.apache.commons.lang3.math.NumberUtils;
 
 import java.sql.SQLException;
 
+import javax.inject.Inject;
+
 import eu.motogymkhana.competition.Constants;
 import eu.motogymkhana.competition.R;
 import eu.motogymkhana.competition.api.ResponseHandler;
-import eu.motogymkhana.competition.api.impl.RidersCallback;
 import eu.motogymkhana.competition.api.response.UpdateRiderResponse;
 import eu.motogymkhana.competition.log.MyLog;
 import eu.motogymkhana.competition.model.Bib;
@@ -41,7 +41,8 @@ import eu.motogymkhana.competition.model.Times;
 import eu.motogymkhana.competition.notify.Notifier;
 import eu.motogymkhana.competition.prefs.MyPreferences;
 import eu.motogymkhana.competition.rider.RiderManager;
-import roboguice.RoboGuice;
+import toothpick.Scope;
+import toothpick.Toothpick;
 
 /**
  * created by Christine
@@ -56,16 +57,16 @@ public class RiderNewUpdateActivity extends BaseActivity {
     private TextView errorText;
 
     @Inject
-    private RiderManager riderManager;
+    protected RiderManager riderManager;
 
     @Inject
-    private MyPreferences prefs;
+    protected MyPreferences prefs;
 
     @Inject
-    private Notifier notifier;
+    protected Notifier notifier;
 
     @Inject
-    private MyLog log;
+    protected MyLog log;
 
     Rider rider = null;
     private ResponseHandler updateRiderResponseHandler = new ResponseHandler() {
@@ -115,13 +116,15 @@ public class RiderNewUpdateActivity extends BaseActivity {
             errorText.setText("Delete failed....");
         }
     };
+    private Scope scope;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
+        scope = Toothpick.openScopes(Constants.DEFAULT_SCOPE, this);
         super.onCreate(savedInstanceState);
+        Toothpick.inject(this, scope);
 
         setContentView(R.layout.activity_new_rider_input);
-        RoboGuice.getInjector(this).injectMembers(this);
 
         final int riderNumber = getIntent().getIntExtra(RIDER_NUMBER, -1);
 
@@ -325,7 +328,7 @@ public class RiderNewUpdateActivity extends BaseActivity {
     @Override
     public void onDestroy(){
         super.onDestroy();
-        RoboGuice.destroyInjector(this);
+        Toothpick.closeScope(this);
     }
 
 }

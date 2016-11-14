@@ -3,7 +3,7 @@ package eu.motogymkhana.competition.rider;
 import android.content.Context;
 import android.os.AsyncTask;
 
-import com.google.inject.Inject;
+import javax.inject.Inject;
 
 import eu.motogymkhana.competition.dao.RiderDao;
 import eu.motogymkhana.competition.dao.TimesDao;
@@ -17,14 +17,15 @@ public class StoreWittyRidersTask extends AsyncTask<Void, Void, Void> {
     private Context context;
 
     @Inject
-    private RiderDao riderDao;
+    protected RiderDao riderDao;
 
     @Inject
-    private RoundManager roundManager;
+    protected RoundManager roundManager;
 
     @Inject
-    private TimesDao timesDao;
+    protected TimesDao timesDao;
 
+    @Inject
     public StoreWittyRidersTask(Context context) {
         this.context = context;
     }

@@ -9,9 +9,6 @@ package eu.motogymkhana.competition.adapter;
 
 import android.app.Activity;
 import android.content.Context;
-import android.graphics.Color;
-import android.support.annotation.Nullable;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -19,20 +16,22 @@ import android.widget.BaseAdapter;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
-import com.google.inject.Inject;
-
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
+import javax.inject.Inject;
+
+import eu.motogymkhana.competition.Constants;
 import eu.motogymkhana.competition.R;
 import eu.motogymkhana.competition.dao.RoundDao;
 import eu.motogymkhana.competition.model.Rider;
 import eu.motogymkhana.competition.model.Round;
 import eu.motogymkhana.competition.rider.RiderManager;
 import eu.motogymkhana.competition.settings.SettingsManager;
-import roboguice.RoboGuice;
+import toothpick.Scope;
+import toothpick.Toothpick;
 
 /**
  * created by Christine
@@ -42,22 +41,26 @@ public class TotalsListAdapter extends BaseAdapter {
 
     protected static final int RIDERTIMES = 101;
     private final Activity activity;
+    private final Scope scope;
 
     private List<Rider> riders = new ArrayList<Rider>();
     private LayoutInflater inflater;
 
     @Inject
-    private RiderManager riderManager;
+    protected RiderManager riderManager;
 
     @Inject
-    private SettingsManager settingsManager;
+    protected RoundDao roundDao;
 
     @Inject
-    public TotalsListAdapter(Activity activity, Collection<Rider> riders, RoundDao roundDao) {
+    protected SettingsManager settingsManager;
+
+    public TotalsListAdapter(Activity activity, Collection<Rider> riders) {
+
+        scope = Toothpick.openScopes(Constants.DEFAULT_SCOPE, this);
+        Toothpick.inject(this, scope);
 
         this.activity = activity;
-
-        RoboGuice.getInjector(activity).injectMembers(this);
 
         try {
             Collection<Round> rounds = roundDao.getRounds();

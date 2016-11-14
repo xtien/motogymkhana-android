@@ -3,29 +3,35 @@ package eu.motogymkhana.competition.rider;
 import android.content.Context;
 import android.os.AsyncTask;
 
-import com.google.inject.Inject;
+import javax.inject.Inject;
 
 import java.sql.SQLException;
 import java.util.Collection;
 
+import eu.motogymkhana.competition.Constants;
 import eu.motogymkhana.competition.dao.TimesDao;
 import eu.motogymkhana.competition.model.Rider;
-import roboguice.RoboGuice;
+import toothpick.Scope;
+import toothpick.Toothpick;
 
 /**
  * Created by christine on 7-9-15.
  */
 public class GetRegisteredRidersFromDBTask extends AsyncTask<Void, Void, Collection<Rider>> {
 
+    private  Scope scope;
     @Inject
-    private TimesDao timesDao;
+    protected TimesDao timesDao;
 
-    private final GetRidersCallback callback;
-    private final long date;
+    private  GetRidersCallback callback;
+    private  long date;
+    public GetRegisteredRidersFromDBTask(){
 
+    }
     public GetRegisteredRidersFromDBTask(Context context, GetRidersCallback callback, long date) {
+        scope = Toothpick.openScopes(Constants.DEFAULT_SCOPE, this);
+        Toothpick.inject(this, scope);
 
-        RoboGuice.getInjector(context).injectMembers(this);
         this.callback = callback;
         this.date = date;
     }
@@ -43,5 +49,6 @@ public class GetRegisteredRidersFromDBTask extends AsyncTask<Void, Void, Collect
     @Override
     public void onPostExecute(Collection<Rider> riders) {
         callback.onSuccess(riders);
+        Toothpick.closeScope(scope);
     }
 }

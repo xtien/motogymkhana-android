@@ -13,11 +13,13 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 
-import com.google.inject.Inject;
+import javax.inject.Inject;
 
+import eu.motogymkhana.competition.Constants;
 import eu.motogymkhana.competition.R;
 import eu.motogymkhana.competition.prefs.MyPreferences;
-import roboguice.RoboGuice;
+import toothpick.Scope;
+import toothpick.Toothpick;
 
 /**
  * Created by christine on 19-5-15.
@@ -26,14 +28,16 @@ import roboguice.RoboGuice;
 public class AdminSettingsActivity extends BaseActivity {
 
     @Inject
-    private MyPreferences prefs;
+    protected MyPreferences prefs;
+    private Scope scope;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
+        scope = Toothpick.openScopes(Constants.DEFAULT_SCOPE, this);
         super.onCreate(savedInstanceState);
+        Toothpick.inject(this, scope);
 
         setContentView(R.layout.activity_admin_settings);
-        RoboGuice.getInjector(this).injectMembers(this);
 
         final EditText serverView = (EditText) findViewById(R.id.server);
         final EditText portView = (EditText) findViewById(R.id.port);
@@ -59,7 +63,7 @@ public class AdminSettingsActivity extends BaseActivity {
     @Override
     public void onDestroy(){
         super.onDestroy();
-        RoboGuice.destroyInjector(this);
+        Toothpick.closeScope(this);
     }
 
 }

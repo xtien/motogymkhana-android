@@ -8,7 +8,6 @@
 package eu.motogymkhana.competition.activity;
 
 import android.app.Activity;
-import android.content.Context;
 import android.os.Bundle;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -19,16 +18,15 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.google.inject.Inject;
-
 import java.sql.SQLException;
+
+import javax.inject.Inject;
 
 import eu.motogymkhana.competition.Constants;
 import eu.motogymkhana.competition.R;
 import eu.motogymkhana.competition.adapter.RiderTimeInputListAdapter;
 import eu.motogymkhana.competition.api.ApiManager;
 import eu.motogymkhana.competition.api.ResponseHandler;
-import eu.motogymkhana.competition.api.response.GymkhanaResult;
 import eu.motogymkhana.competition.api.response.UpdateRiderResponse;
 import eu.motogymkhana.competition.log.MyLog;
 import eu.motogymkhana.competition.model.Rider;
@@ -38,7 +36,8 @@ import eu.motogymkhana.competition.prefs.MyPreferences;
 import eu.motogymkhana.competition.rider.RiderManager;
 import eu.motogymkhana.competition.round.RoundManager;
 import eu.motogymkhana.competition.view.PlusMinusView;
-import roboguice.RoboGuice;
+import toothpick.Scope;
+import toothpick.Toothpick;
 
 /**
  * created by Christine
@@ -55,22 +54,22 @@ public class RiderTimesInputActivity extends BaseActivity {
     private int focus;
 
     @Inject
-    private Notifier notifier;
+    protected Notifier notifier;
 
     @Inject
-    private MyPreferences prefs;
+    protected MyPreferences prefs;
 
     @Inject
-    private MyLog log;
+    protected MyLog log;
 
     @Inject
-    private RiderManager riderManager;
+    protected RiderManager riderManager;
 
     @Inject
-    private ApiManager api;
+    protected ApiManager api;
 
     @Inject
-    private RoundManager roundManager;
+    protected RoundManager roundManager;
 
     Rider rider = null;
     Times riderTimes = null;
@@ -101,13 +100,15 @@ public class RiderTimesInputActivity extends BaseActivity {
             Toast.makeText(RiderTimesInputActivity.this, error, Toast.LENGTH_LONG).show();
         }
     };
+    private Scope scope;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
+        scope = Toothpick.openScopes(Constants.DEFAULT_SCOPE, this);
         super.onCreate(savedInstanceState);
+        Toothpick.inject(this, scope);
 
         setContentView(R.layout.activity_rider_times_input);
-        RoboGuice.getInjector(this).injectMembers(this);
 
         riderNumber = getIntent().getIntExtra(RIDER_NUMBER, 0);
         focus = getIntent().getIntExtra(FOCUS, 0);
@@ -206,6 +207,6 @@ public class RiderTimesInputActivity extends BaseActivity {
     @Override
     public void onDestroy(){
         super.onDestroy();
-        RoboGuice.destroyInjector(this);
+        Toothpick.closeScope(this);
     }
 }

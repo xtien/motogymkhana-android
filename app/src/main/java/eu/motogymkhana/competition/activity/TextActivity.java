@@ -12,11 +12,13 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 
-import com.google.inject.Inject;
+import javax.inject.Inject;
 
+import eu.motogymkhana.competition.Constants;
 import eu.motogymkhana.competition.R;
 import eu.motogymkhana.competition.rider.RiderManager;
-import roboguice.RoboGuice;
+import toothpick.Scope;
+import toothpick.Toothpick;
 
 /**
  * Created by christine on 19-5-15.
@@ -26,14 +28,16 @@ import roboguice.RoboGuice;
 public class TextActivity extends BaseActivity {
 
     @Inject
-    private RiderManager riderManager;
+    protected RiderManager riderManager;
+    private Scope scope;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
+        scope = Toothpick.openScopes(Constants.DEFAULT_SCOPE, this);
         super.onCreate(savedInstanceState);
+        Toothpick.inject(this, scope);
 
         setContentView(R.layout.activity_text);
-        RoboGuice.getInjector(this).injectMembers(this);
 
         final EditText textView = (EditText) findViewById(R.id.edit_text);
 
@@ -54,6 +58,6 @@ public class TextActivity extends BaseActivity {
     @Override
     public void onDestroy(){
         super.onDestroy();
-        RoboGuice.destroyInjector(this);
+        Toothpick.closeScope(this);
     }
 }

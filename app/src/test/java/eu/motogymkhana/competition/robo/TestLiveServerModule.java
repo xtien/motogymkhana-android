@@ -2,16 +2,11 @@ package eu.motogymkhana.competition.robo;
 
 import android.content.Context;
 
-import com.google.inject.AbstractModule;
+import toothpick.config.Module;
 
-import eu.motogymkhana.competition.context.ContextProvider;
-import eu.motogymkhana.competition.context.impl.ContextProviderImpl;
+public class TestLiveServerModule extends Module {
 
-public class TestLiveServerModule extends AbstractModule {
-
-	@Override
-	protected void configure() {
+	public TestLiveServerModule(Context context) {
 		bind(Context.class).toProvider(TestCtxProvider.class);
-		bind(ContextProvider.class).to(ContextProviderImpl.class);
 	}
 }

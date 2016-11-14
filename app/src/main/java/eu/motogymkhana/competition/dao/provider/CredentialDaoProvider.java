@@ -7,8 +7,8 @@
 
 package eu.motogymkhana.competition.dao.provider;
 
-import com.google.inject.Inject;
-import com.google.inject.Provider;
+import javax.inject.Inject;
+import javax.inject.Provider;
 
 import java.sql.SQLException;
 
@@ -22,8 +22,12 @@ import eu.motogymkhana.competition.model.Credential;
  */
 public class CredentialDaoProvider implements Provider<CredentialDao> {
 
+    protected GymkhanaDatabaseHelper helper;
+
     @Inject
-    private GymkhanaDatabaseHelper helper;
+    public CredentialDaoProvider(GymkhanaDatabaseHelper helper){
+        this.helper = helper;
+    }
 
     @Override
     public CredentialDao get() {

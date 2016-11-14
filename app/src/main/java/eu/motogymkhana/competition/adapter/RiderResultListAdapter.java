@@ -16,7 +16,7 @@ import android.widget.BaseAdapter;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
-import com.google.inject.Inject;
+import javax.inject.Inject;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -24,6 +24,7 @@ import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 
+import eu.motogymkhana.competition.Constants;
 import eu.motogymkhana.competition.R;
 import eu.motogymkhana.competition.model.Gender;
 import eu.motogymkhana.competition.model.Rider;
@@ -34,6 +35,8 @@ import eu.motogymkhana.competition.prefs.MyPreferences;
 import eu.motogymkhana.competition.rider.GetRidersCallback;
 import eu.motogymkhana.competition.rider.RiderManager;
 import eu.motogymkhana.competition.round.RoundManager;
+import toothpick.Scope;
+import toothpick.Toothpick;
 
 /**
  * created by Christine
@@ -42,7 +45,11 @@ import eu.motogymkhana.competition.round.RoundManager;
 public class RiderResultListAdapter extends BaseAdapter {
 
     protected static final int RIDERTIMES = 101;
-    private final MyPreferences prefs;
+    private final Scope scope;
+
+    @Inject
+    protected  MyPreferences prefs;
+
     private final String femaleText;
 
     private List<Rider> riders = new ArrayList<Rider>();
@@ -54,7 +61,9 @@ public class RiderResultListAdapter extends BaseAdapter {
     private Activity activity;
 
     private RiderManager riderManager;
-    private RoundManager roundManager;
+
+    @Inject
+    protected RoundManager roundManager;
     private Notifier notifier;
     private TextView messageTextView;
 
@@ -80,12 +89,11 @@ public class RiderResultListAdapter extends BaseAdapter {
     };
 
     @Inject
-    public RiderResultListAdapter(Activity activity, final RiderManager riderManager, RoundManager roundManager,
-                                  MyPreferences prefs, Notifier notifier) {
+    public RiderResultListAdapter(Activity activity, final RiderManager riderManager, Notifier notifier) {
 
-        this.roundManager = roundManager;
+        scope = Toothpick.openScopes(Constants.DEFAULT_SCOPE, this);
+        Toothpick.inject(this, scope);
         this.riderManager = riderManager;
-        this.prefs = prefs;
         this.notifier = notifier;
         this.activity = activity;
 

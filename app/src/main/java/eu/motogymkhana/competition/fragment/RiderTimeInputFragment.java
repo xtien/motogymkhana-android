@@ -16,11 +16,12 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
-import com.google.inject.Inject;
+import javax.inject.Inject;
 
 import java.util.ArrayList;
 import java.util.List;
 
+import eu.motogymkhana.competition.Constants;
 import eu.motogymkhana.competition.R;
 import eu.motogymkhana.competition.activity.MainActivity;
 import eu.motogymkhana.competition.adapter.RiderTimeInputListAdapter;
@@ -31,7 +32,8 @@ import eu.motogymkhana.competition.notify.Notifier;
 import eu.motogymkhana.competition.prefs.MyPreferences;
 import eu.motogymkhana.competition.rider.RiderManager;
 import eu.motogymkhana.competition.round.RoundManager;
-import roboguice.RoboGuice;
+import toothpick.Scope;
+import toothpick.Toothpick;
 
 /**
  * created by Christine
@@ -41,22 +43,22 @@ import roboguice.RoboGuice;
 public class RiderTimeInputFragment extends ListFragment {
 
     @Inject
-    private MyPreferences prefs;
+    protected MyPreferences prefs;
 
     @Inject
-    private RiderManager riderManager;
+    protected RiderManager riderManager;
 
     @Inject
-    private RoundManager roundManager;
+    protected RoundManager roundManager;
 
     @Inject
-    private CredentialDao credentialDao;
+    protected CredentialDao credentialDao;
 
     @Inject
-    private Notifier notifier;
+    protected Notifier notifier;
 
     @Inject
-    private MyLog log;
+    protected MyLog log;
 
     private RiderTimeInputListAdapter adapter;
 
@@ -64,17 +66,25 @@ public class RiderTimeInputFragment extends ListFragment {
 
     private List<Rider> riders = new ArrayList<Rider>();
     private volatile boolean attached;
+    private Scope scope;
 
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
 
-        switch (requestCode){
+        switch (requestCode) {
             case MainActivity.RIDERTIMES:
                 adapter.onActivityResult(resultCode, data);
                 break;
         }
 
+    }
+
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+        scope = Toothpick.openScopes(Constants.DEFAULT_SCOPE, this);
+        super.onCreate(savedInstanceState);
+        Toothpick.inject(this, scope);
     }
 
     @Override
@@ -86,7 +96,6 @@ public class RiderTimeInputFragment extends ListFragment {
     @Override
     public void onViewCreated(View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        RoboGuice.getInjector(getActivity()).injectMembers(this);
 
         TextView titleView = ((TextView) view.findViewById(R.id.title));
         titleView.setVisibility(View.VISIBLE);
@@ -94,8 +103,7 @@ public class RiderTimeInputFragment extends ListFragment {
 
         resultSorted = prefs.isResultSorted();
 
-        adapter = new RiderTimeInputListAdapter(getActivity(), riderManager,
-                roundManager, prefs, credentialDao, notifier, log);
+        adapter = new RiderTimeInputListAdapter(getActivity(), notifier, riderManager);
 
         setListAdapter(adapter);
     }
@@ -112,4 +120,9 @@ public class RiderTimeInputFragment extends ListFragment {
         attached = false;
     }
 
+    @Override
+    public void onDestroy() {
+        Toothpick.closeScope(this);
+        super.onDestroy();
+    }
 }

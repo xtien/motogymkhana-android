@@ -2,8 +2,6 @@ package eu.motogymkhana.competition.test;
 
 import android.content.Context;
 
-import com.google.inject.Inject;
-
 import junit.framework.Assert;
 
 import org.junit.Test;
@@ -17,11 +15,12 @@ import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
 
+import javax.inject.Inject;
+
 import eu.motogymkhana.competition.BuildConfig;
 import eu.motogymkhana.competition.Constants;
 import eu.motogymkhana.competition.adapter.ChangeListener;
 import eu.motogymkhana.competition.api.ResponseHandler;
-import eu.motogymkhana.competition.context.ContextProvider;
 import eu.motogymkhana.competition.dao.RiderDao;
 import eu.motogymkhana.competition.dao.RoundDao;
 import eu.motogymkhana.competition.http.FakeHttp;
@@ -39,27 +38,23 @@ import eu.motogymkhana.competition.robo.RoboInjectedTestRunner;
 @Config(constants = BuildConfig.class, sdk = 21)
 public class RidersApiTest {
 
-    @SuppressWarnings("unused")
     @Inject
-    private ContextProvider contextProvider;
+    protected RiderManager riderManager;
 
     @Inject
-    private RiderManager riderManager;
+    protected Context context;
 
     @Inject
-    private Context context;
+    protected FakeHttp fakeHttp;
 
     @Inject
-    private FakeHttp fakeHttp;
+    protected RoundDao roundDao;
 
     @Inject
-    private RoundDao roundDao;
+    protected Notifier notifier;
 
     @Inject
-    private Notifier notifier;
-
-    @Inject
-    private RiderDao riderDao;
+    protected RiderDao riderDao;
 
     String dateOne = "01-06-2016";
     String dateTwo = "01-07-2016";

@@ -22,7 +22,7 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
-import com.google.inject.Inject;
+import javax.inject.Inject;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -30,6 +30,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
+import eu.motogymkhana.competition.Constants;
 import eu.motogymkhana.competition.R;
 import eu.motogymkhana.competition.activity.RiderNewUpdateActivity;
 import eu.motogymkhana.competition.activity.RiderViewActivity;
@@ -46,6 +47,8 @@ import eu.motogymkhana.competition.prefs.MyPreferences;
 import eu.motogymkhana.competition.rider.GetRidersCallback;
 import eu.motogymkhana.competition.rider.RiderManager;
 import eu.motogymkhana.competition.round.RoundManager;
+import toothpick.Scope;
+import toothpick.Toothpick;
 
 /**
  * created by Christine
@@ -55,7 +58,10 @@ public class RiderRegistrationListAdapter extends BaseAdapter {
 
     protected static final int RIDERTIMES = 101;
     private static final String LOGTAG = RiderRegistrationListAdapter.class.getSimpleName();
-    private final MyPreferences prefs;
+    private final Scope scope;
+
+    @Inject
+    protected MyPreferences prefs;
 
     private List<Rider> riders = new ArrayList<Rider>();
     private LayoutInflater inflater;
@@ -66,9 +72,13 @@ public class RiderRegistrationListAdapter extends BaseAdapter {
     private Activity activity;
 
     private RiderManager riderManager;
-    private RoundManager roundManager;
 
-    private TimesDao timesDao;
+    @Inject
+    protected RoundManager roundManager;
+
+    @Inject
+    protected TimesDao timesDao;
+
     private Notifier notifier;
     private String femaleText;
 
@@ -130,15 +140,14 @@ public class RiderRegistrationListAdapter extends BaseAdapter {
     };
 
     @Inject
-    public RiderRegistrationListAdapter(Activity activity, final RiderManager riderManager, RoundManager roundManager,
-                                        TimesDao timesDao, Notifier notifier, MyPreferences prefs) {
+    public RiderRegistrationListAdapter(Activity activity, final RiderManager riderManager, Notifier notifier) {
+
+        scope = Toothpick.openScopes(Constants.DEFAULT_SCOPE, this);
+        Toothpick.inject(this, scope);
 
         this.riderManager = riderManager;
-        this.roundManager = roundManager;
-        this.timesDao = timesDao;
         this.notifier = notifier;
         this.activity = activity;
-        this.prefs = prefs;
 
         inflater = (LayoutInflater) activity.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 

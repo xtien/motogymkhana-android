@@ -23,8 +23,6 @@ import android.view.View;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
-import com.google.inject.Inject;
-
 import java.io.File;
 import java.io.IOException;
 import java.sql.SQLException;
@@ -35,6 +33,8 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Locale;
 
+import javax.inject.Inject;
+
 import eu.motogymkhana.competition.BuildConfig;
 import eu.motogymkhana.competition.Constants;
 import eu.motogymkhana.competition.R;
@@ -42,11 +42,9 @@ import eu.motogymkhana.competition.adapter.ChangeListener;
 import eu.motogymkhana.competition.adapter.MyViewPagerAdapter;
 import eu.motogymkhana.competition.api.ResponseHandler;
 import eu.motogymkhana.competition.api.response.SettingsResult;
-import eu.motogymkhana.competition.context.ContextProvider;
 import eu.motogymkhana.competition.dao.CredentialDao;
 import eu.motogymkhana.competition.dao.RiderDao;
 import eu.motogymkhana.competition.dao.RoundDao;
-import eu.motogymkhana.competition.dao.SettingsDao;
 import eu.motogymkhana.competition.fragment.RiderRegistrationFragment;
 import eu.motogymkhana.competition.fragment.RiderTimeInputFragment;
 import eu.motogymkhana.competition.fragment.RidersResultFragment;
@@ -60,7 +58,8 @@ import eu.motogymkhana.competition.rider.RiderManager;
 import eu.motogymkhana.competition.round.RoundManager;
 import eu.motogymkhana.competition.settings.SettingsManager;
 import eu.motogymkhana.competition.util.CopyDB;
-import roboguice.RoboGuice;
+import toothpick.Scope;
+import toothpick.Toothpick;
 
 /**
  * Created by christine on 7-2-16.
@@ -85,42 +84,38 @@ public class MainActivity extends BaseActivity {
 
     private Menu menu;
 
-    @SuppressWarnings("unused")
-    @Inject
-    private ContextProvider contextProvider;
-
     private ViewPager viewPager;
 
     private static Handler handler;
 
     @Inject
-    private RiderManager riderManager;
+    protected RiderManager riderManager;
 
     @Inject
-    private RiderDao riderDao;
+    protected RiderDao riderDao;
 
     @Inject
-    private RoundDao roundDao;
+    protected RoundDao roundDao;
 
     @Inject
-    private Notifier notifier;
+    protected Notifier notifier;
 
     private MenuItem menuItem;
 
     @Inject
-    private RoundManager roundManager;
+    protected RoundManager roundManager;
 
     @Inject
-    private SettingsManager settingsManager;
+    protected SettingsManager settingsManager;
 
     @Inject
-    private CredentialDao credentialDao;
+    protected CredentialDao credentialDao;
 
     @Inject
-    private MyPreferences prefs;
+    protected MyPreferences prefs;
 
     @Inject
-    private MyLog log;
+    protected MyLog log;
 
     private TextView dateView;
     private TextView messageTextView;
@@ -272,6 +267,7 @@ public class MainActivity extends BaseActivity {
             showAlert(statusCode, string);
         }
     };
+    private Scope scope;
 
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
@@ -373,7 +369,6 @@ public class MainActivity extends BaseActivity {
         }
 
         setContentView(R.layout.activity_main);
-        RoboGuice.getInjector(getApplicationContext()).injectMembers(this);
 
         Constants.country = prefs.getCountry();
         Constants.season = prefs.getSeason();
@@ -477,8 +472,8 @@ public class MainActivity extends BaseActivity {
 
     @Override
     public void onDestroy() {
+        Toothpick.closeScope(this);
         super.onDestroy();
-        RoboGuice.destroyInjector(this);
 
         handler.removeCallbacksAndMessages(null);
         handler = null;

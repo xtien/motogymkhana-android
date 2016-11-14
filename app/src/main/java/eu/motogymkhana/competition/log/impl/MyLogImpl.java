@@ -9,7 +9,7 @@ package eu.motogymkhana.competition.log.impl;
 
 import android.util.Log;
 
-import com.google.inject.Singleton;
+import javax.inject.Singleton;
 
 import eu.motogymkhana.competition.BuildConfig;
 import eu.motogymkhana.competition.log.LogProvider;

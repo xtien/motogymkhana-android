@@ -2,8 +2,8 @@ package eu.motogymkhana.competition.settings.impl;
 
 import android.content.Context;
 
-import com.google.inject.Inject;
-import com.google.inject.Singleton;
+import javax.inject.Inject;
+import javax.inject.Singleton;
 
 import java.io.IOException;
 import java.sql.SQLException;
@@ -26,16 +26,16 @@ import eu.motogymkhana.competition.settings.SettingsManager;
 public class SettingsManagerImpl implements SettingsManager {
 
     @Inject
-    private Context context;
+    protected Context context;
 
     @Inject
-    private RiderManager riderManager;
+    protected RiderManager riderManager;
 
     @Inject
-    private ApiManager apiManager;
+    protected ApiManager apiManager;
 
     @Inject
-    private SettingsDao settingsDao;
+    protected SettingsDao settingsDao;
 
     private ResponseHandler getSettingsFromServerResponseHandler = new ResponseHandler() {
 

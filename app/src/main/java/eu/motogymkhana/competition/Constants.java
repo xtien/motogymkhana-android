@@ -19,7 +19,8 @@ import eu.motogymkhana.competition.model.Country;
  */
 public class Constants {
 
-    public static final boolean useTestServer = true;
+    public static final boolean useTestServer = false;
+    public static final String DEFAULT_SCOPE = "default_scope";
     public static boolean USE_HTTPS = true;
     public static final String testServer = "pengo.christine.nl";
     public static final String productionServer = "api.gymcomp.com";

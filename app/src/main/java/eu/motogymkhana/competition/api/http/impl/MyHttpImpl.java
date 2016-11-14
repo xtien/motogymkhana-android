@@ -15,8 +15,8 @@ import android.content.Context;
 import android.util.Log;
 import android.util.Pair;
 
-import com.google.inject.Inject;
-import com.google.inject.Singleton;
+import javax.inject.Inject;
+import javax.inject.Singleton;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedReader;
@@ -49,10 +49,15 @@ public class MyHttpImpl implements MyHttp {
     private static int connectTimeout = 30000;
 
     @Inject
-    private Context context;
+    protected Context context;
+
+    protected MyLog log;
 
     @Inject
-    private MyLog log;
+    @Singleton
+    public MyHttpImpl(MyLog log) {
+        this.log = log;
+    }
 
     @Override
     public HttpResultWrapper get(String urlString, RequestParams params) throws IOException {

@@ -4,7 +4,7 @@ import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
 import android.util.Log;
 
-import com.google.inject.Inject;
+import javax.inject.Inject;
 import com.j256.ormlite.android.apptools.OrmLiteSqliteOpenHelper;
 import com.j256.ormlite.dao.Dao;
 import com.j256.ormlite.dao.DaoManager;
@@ -22,7 +22,6 @@ import eu.motogymkhana.competition.model.Rider;
 import eu.motogymkhana.competition.model.Round;
 import eu.motogymkhana.competition.model.Times;
 import eu.motogymkhana.competition.settings.Settings;
-import roboguice.RoboGuice;
 
 /**
  * Database helper class used to manage the creation and upgrading of your

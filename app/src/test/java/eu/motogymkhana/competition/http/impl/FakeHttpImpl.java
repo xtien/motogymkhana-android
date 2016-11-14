@@ -1,6 +1,6 @@
 package eu.motogymkhana.competition.http.impl;
 
-import com.google.inject.Singleton;
+import javax.inject.Singleton;
 
 import java.util.HashMap;
 

@@ -4,8 +4,8 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
 
-import com.google.inject.Inject;
-import com.google.inject.Singleton;
+import javax.inject.Inject;
+import javax.inject.Singleton;
 
 import eu.motogymkhana.competition.BuildConfig;
 import eu.motogymkhana.competition.Constants;
@@ -14,8 +14,6 @@ import eu.motogymkhana.competition.prefs.MyPreferences;
 
 @Singleton
 public class MyPreferencesImpl implements MyPreferences {
-
-    protected static final String ROBOGUICE_1_DEFAULT_FILENAME = "default.xml";
 
     private static final String REGISTERED = "registered";
     private static final String INIT_APP = "init_app";
@@ -41,7 +39,7 @@ public class MyPreferencesImpl implements MyPreferences {
 
     @Inject
     public MyPreferencesImpl(Context context) {
-        prefs = context.getSharedPreferences(ROBOGUICE_1_DEFAULT_FILENAME, Context.MODE_PRIVATE);
+        prefs = context.getSharedPreferences(PREFS_DEFAULT_FILENAME, Context.MODE_PRIVATE);
     }
 
     @Override

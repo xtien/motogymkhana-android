@@ -7,7 +7,7 @@
 
 package eu.motogymkhana.competition.http.impl;
 
-import com.google.inject.Inject;
+import javax.inject.Inject;
 
 import java.io.IOException;
 
@@ -21,10 +21,10 @@ import eu.motogymkhana.competition.util.FileAssetManager;
 public class TestMyHttpImpl extends MyHttpImpl {
 
     @Inject
-    private FakeHttp fakeHttp;
+    protected FakeHttp fakeHttp;
 
     @Inject
-    private FileAssetManager assetManager;
+    protected FileAssetManager assetManager;
 
     public TestMyHttpImpl() {
 

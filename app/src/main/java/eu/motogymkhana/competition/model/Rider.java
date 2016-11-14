@@ -306,7 +306,7 @@ public class Rider {
     @JsonIgnore
     public int getBestTime() {
 
-        Times times = getEUTimes(PrefsProvider.getInstance().getDate());
+        Times times = getEUTimes(PrefsProvider.getPrefs().getDate());
 
         if (times != null) {
             return times.getBestTime();
@@ -391,7 +391,7 @@ public class Rider {
 
     @JsonIgnore
     public int getStartNumber() {
-        Times t = getEUTimes(PrefsProvider.getInstance().getDate());
+        Times t = getEUTimes(PrefsProvider.getPrefs().getDate());
         if (t != null) {
             return t.getStartNumber();
         } else {

@@ -2,8 +2,6 @@ package eu.motogymkhana.competition.robo;
 
 import android.app.Application;
 
-import com.google.inject.AbstractModule;
-
 import org.junit.runners.model.InitializationError;
 import org.robolectric.DefaultTestLifecycle;
 import org.robolectric.RobolectricTestRunner;
@@ -14,10 +12,10 @@ import org.robolectric.manifest.AndroidManifest;
 import org.robolectric.res.FileFsFile;
 import org.robolectric.util.ReflectionHelpers;
 
-import java.io.File;
-
+import eu.motogymkhana.competition.Constants;
 import eu.motogymkhana.competition.TestConstants;
-import roboguice.RoboGuice;
+import toothpick.Scope;
+import toothpick.Toothpick;
 
 public class RoboInjectedTestRunner extends RobolectricTestRunner {
 
@@ -36,8 +34,9 @@ public class RoboInjectedTestRunner extends RobolectricTestRunner {
         @Override
         public void prepareTest(Object test) {
             Application application = RuntimeEnvironment.application;
-            RoboGuice.overrideApplicationInjector(application, new TestModule(), new GymkhanaModule());
-            RoboGuice.getInjector(application).injectMembers(test);
+            Scope appScope = Toothpick.openScope(Constants.DEFAULT_SCOPE);
+            appScope.installModules(new GymkhanaModule(application),new TestModule(application));
+            Toothpick.inject(test, appScope);
         }
     }
 

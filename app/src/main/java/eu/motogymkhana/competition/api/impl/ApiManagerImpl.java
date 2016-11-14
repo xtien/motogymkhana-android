@@ -4,7 +4,8 @@ import android.content.Context;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.google.inject.Inject;
+import javax.inject.Inject;
+import javax.inject.Singleton;
 
 import java.sql.SQLException;
 import java.util.Collection;
@@ -45,28 +46,34 @@ public class ApiManagerImpl implements ApiManager {
     private static final String TAG = ApiManagerImpl.class.getSimpleName();
 
     @Inject
-    private ApiUrlHelper apiUrlHelper;
+    protected ApiUrlHelper apiUrlHelper;
 
     @Inject
-    private MyHttp http;
+    protected MyHttp http;
 
     @Inject
-    private MyLog log;
+    protected MyLog log;
 
     @Inject
-    private Context context;
+    protected Context context;
 
     @Inject
-    private ObjectMapper mapper;
+    protected ObjectMapper mapper;
 
     @Inject
-    private MyPreferences prefs;
+    protected MyPreferences prefs;
 
     @Inject
-    private CredentialDao credentialDao;
+    protected CredentialDao credentialDao;
 
     @Inject
-    private ApiAsync apiAsync;
+    protected ApiAsync apiAsync;
+
+    @Inject
+    @Singleton
+    public ApiManagerImpl(){
+
+    }
 
     @Override
     public void updateRider(Rider rider, ResponseHandler responseHandler)  {

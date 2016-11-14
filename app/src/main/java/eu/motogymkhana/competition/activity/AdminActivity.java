@@ -14,7 +14,7 @@ import android.widget.EditText;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
-import com.google.inject.Inject;
+import javax.inject.Inject;
 
 import java.sql.SQLException;
 
@@ -26,7 +26,8 @@ import eu.motogymkhana.competition.api.response.GymkhanaResult;
 import eu.motogymkhana.competition.dao.CredentialDao;
 import eu.motogymkhana.competition.model.Credential;
 import eu.motogymkhana.competition.prefs.MyPreferences;
-import roboguice.RoboGuice;
+import toothpick.Scope;
+import toothpick.Toothpick;
 
 /**
  * Created by christine on 19-5-15.
@@ -38,18 +39,19 @@ public class AdminActivity extends BaseActivity {
     private String pwShort;
 
     @Inject
-    private MyPreferences prefs;
+    protected MyPreferences prefs;
 
     @Inject
-    private CredentialDao credentialDao;
+    protected CredentialDao credentialDao;
 
     @Inject
-    private ApiManager api;
+    protected ApiManager api;
 
     private Credential credential;
     private ProgressBar progressBar;
     private TextView errorView;
     private EditText pwView;
+    private Scope scope;
 
     private ResponseHandler checkPasswordResponseHandler = new ResponseHandler() {
 
@@ -101,10 +103,12 @@ public class AdminActivity extends BaseActivity {
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
+
+        scope = Toothpick.openScopes(Constants.DEFAULT_SCOPE, this);
         super.onCreate(savedInstanceState);
+        Toothpick.inject(this, scope);
 
         setContentView(R.layout.activity_admin);
-        RoboGuice.getInjector(this).injectMembers(this);
 
         noPw = getString(R.string.no_password);
         pwShort = getString(R.string.password_too_short);
@@ -147,8 +151,8 @@ public class AdminActivity extends BaseActivity {
 
     @Override
     public void onDestroy(){
+        Toothpick.closeScope(this);
         super.onDestroy();
-        RoboGuice.destroyInjector(this);
-    }
+     }
 
 }

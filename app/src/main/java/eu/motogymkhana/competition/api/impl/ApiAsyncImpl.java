@@ -11,8 +11,8 @@ import android.os.AsyncTask;
 
 import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.google.inject.Inject;
-import com.google.inject.Singleton;
+import javax.inject.Inject;
+import javax.inject.Singleton;
 
 import java.util.concurrent.ExecutorService;
 
@@ -30,13 +30,14 @@ import eu.motogymkhana.competition.api.http.MyHttp;
 public class ApiAsyncImpl implements ApiAsync {
 
     @Inject
-    private ObjectMapper mapper;
+    protected ObjectMapper mapper;
 
     @Inject
-    private MyHttp http;
+    protected MyHttp http;
 
     private final ExecutorService es;
 
+    @Inject
     public ApiAsyncImpl() {
         es = ExecutorFactory.get();
     }

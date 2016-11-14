@@ -2,8 +2,8 @@ package eu.motogymkhana.competition.round.impl;
 
 import android.content.Context;
 
-import com.google.inject.Inject;
-import com.google.inject.Singleton;
+import javax.inject.Inject;
+import javax.inject.Singleton;
 
 import java.sql.SQLException;
 import java.text.ParseException;
@@ -32,14 +32,29 @@ public class RoundManagerImpl implements RoundManager {
 
     private static final String LOGTAG = RoundManagerImpl.class.getSimpleName();
 
-    private final MyPreferences prefs;
-    private final Context context;
-    private RoundDao roundDao;
-    private RiderManager riderManager;
-    private SettingsDao settingsDao;
-    private ApiManager api;
-    private Notifier notifier;
-    private MyLog log;
+    @Inject
+    protected MyPreferences prefs;
+
+    @Inject
+    protected Context context;
+
+    @Inject
+    protected RoundDao roundDao;
+
+    @Inject
+    protected RiderManager riderManager;
+
+    @Inject
+    protected SettingsDao settingsDao;
+
+    @Inject
+    protected ApiManager api;
+
+    @Inject
+    protected Notifier notifier;
+
+    @Inject
+    protected MyLog log;
 
     private ResponseHandler getRoundsResponseHandler = new ResponseHandler() {
 
@@ -67,17 +82,8 @@ public class RoundManagerImpl implements RoundManager {
     };
 
     @Inject
-    public RoundManagerImpl(Context context, MyPreferences prefs, RoundDao roundDao, RiderManager
-            riderManager, SettingsDao settingsDao, ApiManager api, MyLog log, Notifier notifier) {
+    public RoundManagerImpl() {
 
-        this.prefs = prefs;
-        this.context = context;
-        this.roundDao = roundDao;
-        this.riderManager = riderManager;
-        this.settingsDao = settingsDao;
-        this.api = api;
-        this.notifier = notifier;
-        this.log = log;
     }
 
     @Override

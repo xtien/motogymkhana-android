@@ -1,6 +1,6 @@
 package eu.motogymkhana.competition.api.impl;
 
-import com.google.inject.Inject;
+import javax.inject.Inject;
 
 import eu.motogymkhana.competition.Constants;
 import eu.motogymkhana.competition.api.ApiUrlHelper;

@@ -7,11 +7,14 @@
 
 package eu.motogymkhana.competition.robo;
 
-import com.google.inject.AbstractModule;
+import android.content.Context;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 import eu.motogymkhana.competition.api.ApiAsync;
 import eu.motogymkhana.competition.api.ApiManager;
 import eu.motogymkhana.competition.api.ApiUrlHelper;
+import eu.motogymkhana.competition.api.http.impl.ObjectMapperProvider;
 import eu.motogymkhana.competition.api.impl.ApiAsyncImpl;
 import eu.motogymkhana.competition.api.impl.ApiManagerImpl;
 import eu.motogymkhana.competition.api.impl.ApiUrlHelperImpl;
@@ -39,34 +42,38 @@ import eu.motogymkhana.competition.round.RoundManager;
 import eu.motogymkhana.competition.round.impl.RoundManagerImpl;
 import eu.motogymkhana.competition.settings.SettingsManager;
 import eu.motogymkhana.competition.settings.impl.SettingsManagerImpl;
+import toothpick.config.Module;
 
 /**
  * Created by Christine
- * This module file contains Roboguice bindings for the app that are the same in test and release.
+ * This module file contains  bindings for the app that are the same in test and release.
  */
-public class GymkhanaModule extends AbstractModule {
+public class GymkhanaModule extends Module {
 
-    @Override
-    protected void configure() {
+    public GymkhanaModule(final Context context) {
+
+        bind(Context.class).toInstance(context);
 
         bind(MyLog.class).to(MyLogImpl.class);
         bind(Notifier.class).to(NotifierImpl.class);
+        bind(ObjectMapper.class).toProvider(ObjectMapperProvider.class);
 
-        bind(RiderManager.class).to(RiderManagerImpl.class).asEagerSingleton();
+        bind(RiderManager.class).to(RiderManagerImpl.class);
         bind(RoundManager.class).to(RoundManagerImpl.class);
         bind(SettingsManager.class).to(SettingsManagerImpl.class);
-        bind(MyPreferences.class).to(MyPreferencesImpl.class).asEagerSingleton();
+        bind(MyPreferences.class).to(MyPreferencesImpl.class);
+
         bind(GymkhanaDatabaseHelper.class).toProvider(GymkhanaDatabaseHelperProvider.class);
 
-        bind(ApiManager.class).to(ApiManagerImpl.class).asEagerSingleton();
-        bind(ApiUrlHelper.class).to(ApiUrlHelperImpl.class).asEagerSingleton();
+        bind(ApiManager.class).to(ApiManagerImpl.class);
+        bind(ApiUrlHelper.class).to(ApiUrlHelperImpl.class);
 
         // db
-        bind(RiderDao.class).toProvider(RiderDaoProvider.class).asEagerSingleton();
-        bind(RoundDao.class).toProvider(RoundDaoProvider.class).asEagerSingleton();
-        bind(TimesDao.class).toProvider(TimesDaoProvider.class).asEagerSingleton();
-        bind(CredentialDao.class).toProvider(CredentialDaoProvider.class).asEagerSingleton();
-        bind(SettingsDao.class).toProvider(SettingsDaoProvider.class).asEagerSingleton();
+        bind(RiderDao.class).toProvider(RiderDaoProvider.class);
+        bind(RoundDao.class).toProvider(RoundDaoProvider.class);
+        bind(TimesDao.class).toProvider(TimesDaoProvider.class);
+        bind(CredentialDao.class).toProvider(CredentialDaoProvider.class);
+        bind(SettingsDao.class).toProvider(SettingsDaoProvider.class);
         bind(ApiAsync.class).to(ApiAsyncImpl.class);
     }
 }

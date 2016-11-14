@@ -11,13 +11,14 @@ import android.widget.BaseAdapter;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
-import com.google.inject.Inject;
+import javax.inject.Inject;
 
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
+import eu.motogymkhana.competition.Constants;
 import eu.motogymkhana.competition.R;
 import eu.motogymkhana.competition.activity.MainActivity;
 import eu.motogymkhana.competition.activity.RiderTimesInputActivity;
@@ -32,6 +33,8 @@ import eu.motogymkhana.competition.prefs.MyPreferences;
 import eu.motogymkhana.competition.rider.GetRidersCallback;
 import eu.motogymkhana.competition.rider.RiderManager;
 import eu.motogymkhana.competition.round.RoundManager;
+import toothpick.Scope;
+import toothpick.Toothpick;
 
 //import javax.annotation.Nullable;
 
@@ -39,17 +42,27 @@ public class RiderTimeInputListAdapter extends BaseAdapter {
 
     public static final int RIDER_CHANGED = 101;
     private static final String LOGTAG = RiderTimeInputListAdapter.class.getSimpleName();
+    private final Scope scope;
     private List<Rider> riders = new ArrayList<Rider>();
     private LayoutInflater inflater;
 
     private Activity activity;
 
-    private RiderManager riderManager;
-    private RoundManager roundManager;
-    private CredentialDao credentialDao;
-    private MyPreferences prefs;
+    protected RiderManager riderManager;
+
+    @Inject
+    protected RoundManager roundManager;
+
+    @Inject
+    protected CredentialDao credentialDao;
+
+    @Inject
+    protected MyPreferences prefs;
+
     private Notifier notifier;
-    private final MyLog log;
+
+    @Inject
+    protected  MyLog log;
 
     private final ChangeListener changeListener = new ChangeListener() {
 
@@ -72,17 +85,14 @@ public class RiderTimeInputListAdapter extends BaseAdapter {
         }
     };
 
-    @Inject
-    public RiderTimeInputListAdapter(Activity activity, final RiderManager riderManager, final RoundManager
-            roundManager, final MyPreferences prefs, final CredentialDao credentialDao, Notifier notifier, MyLog log) {
+    public RiderTimeInputListAdapter(Activity activity, Notifier notifier,RiderManager riderManager) {
 
-        this.riderManager = riderManager;
-        this.roundManager = roundManager;
-        this.credentialDao = credentialDao;
-        this.prefs = prefs;
+        scope = Toothpick.openScopes(Constants.DEFAULT_SCOPE, this);
+        Toothpick.inject(this, scope);
+
         this.notifier = notifier;
         this.activity = activity;
-        this.log = log;
+        this.riderManager = riderManager;
 
         notifier.registerRiderResultListener(changeListener);
 

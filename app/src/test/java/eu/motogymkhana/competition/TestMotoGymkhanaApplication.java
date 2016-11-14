@@ -10,8 +10,8 @@ package eu.motogymkhana.competition;
 import android.app.Application;
 
 import eu.motogymkhana.competition.robo.GymkhanaModule;
-import eu.motogymkhana.competition.robo.TestModule;
-import roboguice.RoboGuice;
+import toothpick.Scope;
+import toothpick.Toothpick;
 
 /**
  * Created by christine on 22-4-16.
@@ -24,7 +24,7 @@ public class TestMotoGymkhanaApplication extends Application {
     public void onCreate() {
         super.onCreate();
 
-        RoboGuice.setUseAnnotationDatabases(false);
-        RoboGuice.setupBaseApplicationInjector(this, new GymkhanaModule(), new TestModule());
+        Scope appScope = Toothpick.openScope(Constants.DEFAULT_SCOPE);
+        appScope.installModules(new GymkhanaModule(getApplicationContext()));
     }
 }

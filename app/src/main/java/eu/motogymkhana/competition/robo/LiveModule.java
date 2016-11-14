@@ -2,25 +2,22 @@ package eu.motogymkhana.competition.robo;
 
 import android.content.Context;
 
-import com.google.inject.AbstractModule;
-
 import eu.motogymkhana.competition.api.http.MyHttp;
 import eu.motogymkhana.competition.api.http.impl.MyHttpImpl;
-import eu.motogymkhana.competition.context.ContextProvider;
-import eu.motogymkhana.competition.context.impl.ContextProviderImpl;
+import toothpick.config.Module;
 
 /**
  * Created by christine on 24-7-15.
- * This file contains Roboguice bindings that apply to the live app. These bindings are different
+ * This file contains  bindings that apply to the live app. These bindings are different
  * in unit tests.
  */
-public class LiveModule extends AbstractModule {
+public class LiveModule extends Module {
 
-    @Override
-    protected void configure() {
+    public LiveModule(final Context context) {
+
+        bind(Context.class).toInstance(context);
 
         bind(Context.class).toProvider(CtxProvider.class);
-        bind(MyHttp.class).to(MyHttpImpl.class).asEagerSingleton();
-        bind(ContextProvider.class).to(ContextProviderImpl.class);
+        bind(MyHttp.class).to(MyHttpImpl.class);
     }
 }

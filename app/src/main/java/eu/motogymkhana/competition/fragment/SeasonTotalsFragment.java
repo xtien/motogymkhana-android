@@ -15,13 +15,14 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
-import com.google.inject.Inject;
+import javax.inject.Inject;
 
 import java.io.IOException;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
+import eu.motogymkhana.competition.Constants;
 import eu.motogymkhana.competition.R;
 import eu.motogymkhana.competition.adapter.ChangeListener;
 import eu.motogymkhana.competition.adapter.TotalsListAdapter;
@@ -29,7 +30,8 @@ import eu.motogymkhana.competition.dao.RoundDao;
 import eu.motogymkhana.competition.model.Rider;
 import eu.motogymkhana.competition.notify.Notifier;
 import eu.motogymkhana.competition.rider.RiderManager;
-import roboguice.RoboGuice;
+import toothpick.Scope;
+import toothpick.Toothpick;
 
 /**
  * created by Christine
@@ -41,13 +43,13 @@ public class SeasonTotalsFragment extends ListFragment {
     private List<Rider> riders = new ArrayList<Rider>();
 
     @Inject
-    private RiderManager riderManager;
+    protected RiderManager riderManager;
 
     @Inject
-    private Notifier notifier;
+    protected Notifier notifier;
 
     @Inject
-    private RoundDao roundDao;
+    protected RoundDao roundDao;
 
     private TotalsListAdapter adapter;
     private volatile boolean attached;
@@ -70,6 +72,15 @@ public class SeasonTotalsFragment extends ListFragment {
         }
     };
 
+    private Scope scope;
+
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+        scope = Toothpick.openScopes(Constants.DEFAULT_SCOPE, this);
+        super.onCreate(savedInstanceState);
+        Toothpick.inject(this, scope);
+    }
+
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.fragment_main, container, false);
@@ -80,13 +91,11 @@ public class SeasonTotalsFragment extends ListFragment {
     public void onViewCreated(View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        RoboGuice.getInjector(getActivity()).injectMembers(this);
-
         TextView titleView = ((TextView) view.findViewById(R.id.title));
         titleView.setVisibility(View.VISIBLE);
         titleView.setText(R.string.totals);
 
-        adapter = new TotalsListAdapter(getActivity(), riders, roundDao);
+        adapter = new TotalsListAdapter(getActivity(), riders);
         setListAdapter(adapter);
 
         notifier.registerRiderResultListener(riderResultListener);
@@ -110,5 +119,11 @@ public class SeasonTotalsFragment extends ListFragment {
     public void onDetach() {
         super.onDetach();
         attached = false;
+    }
+
+    @Override
+    public void onDestroy() {
+        Toothpick.closeScope(this);
+        super.onDestroy();
     }
 }

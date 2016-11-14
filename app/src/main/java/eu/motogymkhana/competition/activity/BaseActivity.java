@@ -10,10 +10,15 @@ package eu.motogymkhana.competition.activity;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
 
-import com.google.inject.Inject;
+import javax.inject.Inject;
 
+import eu.motogymkhana.competition.Constants;
 import eu.motogymkhana.competition.dialog.MyAlert;
 import eu.motogymkhana.competition.log.MyLog;
+import eu.motogymkhana.competition.prefs.MyPreferences;
+import eu.motogymkhana.competition.prefs.PrefsProvider;
+import toothpick.Scope;
+import toothpick.Toothpick;
 
 /**
  * Created by christine on 7-2-16.
@@ -24,12 +29,20 @@ public class BaseActivity extends FragmentActivity {
     private static final String LOGTAG = BaseActivity.class.getSimpleName();
 
     @Inject
-    private MyLog log;
+    protected MyLog log;
+
+    @Inject
+    protected MyPreferences prefs;
+    private Scope scope;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        scope = Toothpick.openScopes(Constants.DEFAULT_SCOPE, this);
         super.onCreate(savedInstanceState);
+        Toothpick.inject(this, scope);
         getActionBar().setTitle("");
+
+        PrefsProvider.setPrefs(prefs);
     }
 
     protected void showAlert(final Exception e) {
@@ -52,5 +65,11 @@ public class BaseActivity extends FragmentActivity {
                 alert.show();
             }
         });
+    }
+
+    @Override
+    public void onDestroy(){
+        super.onDestroy();
+        Toothpick.closeScope(this);
     }
 }

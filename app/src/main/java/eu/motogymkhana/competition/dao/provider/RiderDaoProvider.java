@@ -7,8 +7,8 @@
 
 package eu.motogymkhana.competition.dao.provider;
 
-import com.google.inject.Inject;
-import com.google.inject.Provider;
+import javax.inject.Inject;
+import javax.inject.Provider;
 
 import java.sql.SQLException;
 
@@ -22,8 +22,12 @@ import eu.motogymkhana.competition.model.Rider;
  */
 public class RiderDaoProvider implements Provider<RiderDao> {
 
+    protected GymkhanaDatabaseHelper helper;
+
     @Inject
-    private GymkhanaDatabaseHelper helper;
+    public RiderDaoProvider(GymkhanaDatabaseHelper helper){
+        this.helper = helper;
+    }
 
     @Override
     public RiderDao get() {

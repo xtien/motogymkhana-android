@@ -3,8 +3,8 @@ package eu.motogymkhana.competition.rider.impl;
 import android.content.Context;
 import android.os.Environment;
 
-import com.google.inject.Inject;
-import com.google.inject.Singleton;
+import javax.inject.Inject;
+import javax.inject.Singleton;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -48,37 +48,44 @@ public class RiderManagerImpl implements RiderManager {
 
     private static final String LOGTAG = RiderManagerImpl.class.getSimpleName();
 
-    private final Context context;
-    private final SettingsManager settingsManager;
-    private ApiManager api;
-    private RiderDao riderDao;
-    private TimesDao timesDao;
-    private GymkhanaDatabaseHelper databaseHelper;
-    private Notifier notifier;
+    @Inject
+    protected  Context context;
 
-    private int[] points;
-    private MyPreferences prefs;
-    private String messageText = "";
-    private RoundManager roundManager;
+    @Inject
+    protected  SettingsManager settingsManager;
+
+    @Inject
+    protected ApiManager api;
+
+    @Inject
+    protected RiderDao riderDao;
+
+    @Inject
+    protected TimesDao timesDao;
+
+    @Inject
+    protected GymkhanaDatabaseHelper databaseHelper;
+
+    @Inject
+    protected Notifier notifier;
+
+    @Inject
+    protected MyPreferences prefs;
+
+    @Inject
+    protected RoundManager roundManager;
+
     private List<Integer> riderMap = new ArrayList<Integer>();
+    private int[] points;
+    private String messageText = "";
 
     @Inject
-    private MyLog log;
+    protected MyLog log;
 
+    @Singleton
     @Inject
-    public RiderManagerImpl(RiderDao riderDao, Context context, TimesDao timesDao, MyPreferences prefs,
-                            GymkhanaDatabaseHelper databaseHelper, ApiManager api, RoundManager roundManager,
-                            SettingsManager settingsManager, Notifier notifier) {
+    public RiderManagerImpl() {
 
-        this.riderDao = riderDao;
-        this.timesDao = timesDao;
-        this.prefs = prefs;
-        this.databaseHelper = databaseHelper;
-        this.api = api;
-        this.roundManager = roundManager;
-        this.settingsManager = settingsManager;
-        this.context = context;
-        this.notifier = notifier;
     }
 
     private boolean ridersFileExists() {

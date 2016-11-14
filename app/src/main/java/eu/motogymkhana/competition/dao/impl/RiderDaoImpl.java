@@ -1,6 +1,8 @@
 package eu.motogymkhana.competition.dao.impl;
 
-import com.google.inject.Singleton;
+import javax.inject.Inject;
+import javax.inject.Singleton;
+
 import com.j256.ormlite.dao.BaseDaoImpl;
 import com.j256.ormlite.stmt.DeleteBuilder;
 import com.j256.ormlite.stmt.QueryBuilder;
@@ -19,7 +21,6 @@ import eu.motogymkhana.competition.model.Country;
 import eu.motogymkhana.competition.model.Rider;
 import eu.motogymkhana.competition.model.Times;
 
-@Singleton
 public class RiderDaoImpl extends BaseDaoImpl<Rider, Integer> implements RiderDao {
 
     public RiderDaoImpl(ConnectionSource connectionSource, Class<Rider> dataClass) throws SQLException {

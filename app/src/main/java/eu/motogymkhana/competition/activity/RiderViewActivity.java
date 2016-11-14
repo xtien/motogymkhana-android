@@ -12,15 +12,18 @@ import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.google.inject.Inject;
 import com.squareup.picasso.Picasso;
 
 import java.sql.SQLException;
 
+import javax.inject.Inject;
+
+import eu.motogymkhana.competition.Constants;
 import eu.motogymkhana.competition.R;
 import eu.motogymkhana.competition.model.Rider;
 import eu.motogymkhana.competition.rider.RiderManager;
-import roboguice.RoboGuice;
+import toothpick.Scope;
+import toothpick.Toothpick;
 
 /**
  * created by Christine
@@ -32,17 +35,20 @@ public class RiderViewActivity extends BaseActivity {
     public static final String FOCUS = "focus";
 
     @Inject
-    private RiderManager riderManager;
+    protected RiderManager riderManager;
     private int number = 99;
 
     Rider rider = null;
+    private Scope scope;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
+
+        scope = Toothpick.openScopes(Constants.DEFAULT_SCOPE, this);
         super.onCreate(savedInstanceState);
+        Toothpick.inject(this, scope);
 
         setContentView(R.layout.activity_view_rider);
-        RoboGuice.getInjector(this).injectMembers(this);
 
         final TextView firstNameView = (TextView) findViewById(R.id.first_name);
         final TextView lastNameView = (TextView) findViewById(R.id.last_name);
@@ -94,6 +100,6 @@ public class RiderViewActivity extends BaseActivity {
     @Override
     public void onDestroy(){
         super.onDestroy();
-        RoboGuice.destroyInjector(this);
+        Toothpick.closeScope(this);
     }
 }

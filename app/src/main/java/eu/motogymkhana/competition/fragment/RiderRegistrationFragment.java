@@ -15,11 +15,13 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
-import com.google.inject.Inject;
+import javax.inject.Inject;
 
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
+import eu.motogymkhana.competition.Constants;
 import eu.motogymkhana.competition.R;
 import eu.motogymkhana.competition.adapter.RiderRegistrationListAdapter;
 import eu.motogymkhana.competition.dao.RoundDao;
@@ -29,7 +31,8 @@ import eu.motogymkhana.competition.notify.Notifier;
 import eu.motogymkhana.competition.prefs.MyPreferences;
 import eu.motogymkhana.competition.rider.RiderManager;
 import eu.motogymkhana.competition.round.RoundManager;
-import roboguice.RoboGuice;
+import toothpick.Scope;
+import toothpick.Toothpick;
 
 /**
  * Created by Christine
@@ -44,22 +47,30 @@ public class RiderRegistrationFragment extends ListFragment {
     private List<Rider> riders = new ArrayList<Rider>();
 
     @Inject
-    private RiderManager riderManager;
+    protected RiderManager riderManager;
 
     @Inject
-    private RoundManager roundManager;
+    protected RoundManager roundManager;
 
     @Inject
-    private Notifier notifier;
+    protected Notifier notifier;
 
     @Inject
-    private MyPreferences prefs;
+    protected MyPreferences prefs;
 
     @Inject
-    private TimesDao timesDao;
+    protected TimesDao timesDao;
 
     private RiderRegistrationListAdapter adapter;
     private volatile boolean attached;
+    private Scope scope;
+
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+        scope = Toothpick.openScopes(Constants.DEFAULT_SCOPE, this);
+        super.onCreate(savedInstanceState);
+        Toothpick.inject(this, scope);
+    }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -70,16 +81,14 @@ public class RiderRegistrationFragment extends ListFragment {
     @Override
     public void onViewCreated(View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        RoboGuice.getInjector(getActivity()).injectMembers(this);
 
         TextView titleView = ((TextView) view.findViewById(R.id.title));
         titleView.setVisibility(View.VISIBLE);
         titleView.setText(R.string.registration);
 
-        adapter = new RiderRegistrationListAdapter( getActivity(),  riderManager,  roundManager,
-                 timesDao, notifier, prefs);
+        adapter = new RiderRegistrationListAdapter(getActivity(), riderManager, notifier);
         adapter.setRegistration();
-       setListAdapter(adapter);
+        setListAdapter(adapter);
     }
 
     @Override
@@ -92,5 +101,11 @@ public class RiderRegistrationFragment extends ListFragment {
     public void onDetach() {
         super.onDetach();
         attached = false;
+    }
+
+    @Override
+    public void onDestroy() {
+        Toothpick.closeScope(this);
+        super.onDestroy();
     }
 }

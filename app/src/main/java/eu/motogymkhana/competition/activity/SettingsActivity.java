@@ -24,8 +24,6 @@ import android.widget.ProgressBar;
 import android.widget.Spinner;
 import android.widget.TextView;
 
-import com.google.inject.Inject;
-
 import org.apache.commons.lang3.StringUtils;
 
 import java.io.IOException;
@@ -33,6 +31,8 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+
+import javax.inject.Inject;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
@@ -42,7 +42,6 @@ import eu.motogymkhana.competition.adapter.ChangeListener;
 import eu.motogymkhana.competition.api.ResponseHandler;
 import eu.motogymkhana.competition.api.response.UpdateSettingsResponse;
 import eu.motogymkhana.competition.dao.CredentialDao;
-import eu.motogymkhana.competition.dao.SettingsDao;
 import eu.motogymkhana.competition.fragment.BaseFragment;
 import eu.motogymkhana.competition.fragment.ManageRoundsFragment;
 import eu.motogymkhana.competition.log.MyLog;
@@ -50,11 +49,11 @@ import eu.motogymkhana.competition.model.Country;
 import eu.motogymkhana.competition.model.Round;
 import eu.motogymkhana.competition.notify.Notifier;
 import eu.motogymkhana.competition.prefs.MyPreferences;
-import eu.motogymkhana.competition.rider.RiderManager;
 import eu.motogymkhana.competition.round.RoundManager;
 import eu.motogymkhana.competition.settings.Settings;
 import eu.motogymkhana.competition.settings.SettingsManager;
-import roboguice.RoboGuice;
+import toothpick.Scope;
+import toothpick.Toothpick;
 
 /**
  * Created by christine on 19-5-15.
@@ -77,16 +76,16 @@ public class SettingsActivity extends BaseActivity {
     private static final int OK = 101;
 
     @Inject
-    private RoundManager roundManager;
+    protected RoundManager roundManager;
 
     @Inject
-    private CredentialDao credentialDao;
+    protected CredentialDao credentialDao;
 
     @Inject
-    private MyPreferences prefs;
+    protected MyPreferences prefs;
 
     @Inject
-    private Notifier notifier;
+    protected Notifier notifier;
 
     final int[] seasons = {2015, 2016, 2017};
 
@@ -143,10 +142,10 @@ public class SettingsActivity extends BaseActivity {
     private boolean first = true;
 
     @Inject
-    private SettingsManager settingsManager;
+    protected SettingsManager settingsManager;
 
     @Inject
-    private MyLog log;
+    protected MyLog log;
 
     private Settings settings;
     private boolean firstCountrySelected = true;
@@ -330,14 +329,17 @@ public class SettingsActivity extends BaseActivity {
             return null;
         }
     };
+    private Scope scope;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
+
+        scope = Toothpick.openScopes(Constants.DEFAULT_SCOPE, this);
         super.onCreate(savedInstanceState);
+        Toothpick.inject(this, scope);
 
         setContentView(R.layout.activity_settings);
         ButterKnife.bind(this);
-        RoboGuice.getInjector(this).injectMembers(this);
 
         points = getResources().getIntArray(R.array.qualification_points);
 
@@ -555,7 +557,7 @@ public class SettingsActivity extends BaseActivity {
     @Override
     public void onDestroy(){
         super.onDestroy();
-        RoboGuice.destroyInjector(this);
+        Toothpick.closeScope(this);
     }
 
     private int getCountryNumber() {

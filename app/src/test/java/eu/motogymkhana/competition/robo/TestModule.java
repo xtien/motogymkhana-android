@@ -2,26 +2,21 @@ package eu.motogymkhana.competition.robo;
 
 import android.content.Context;
 
-import com.google.inject.AbstractModule;
-
 import eu.motogymkhana.competition.api.http.MyHttp;
-import eu.motogymkhana.competition.context.ContextProvider;
-import eu.motogymkhana.competition.context.impl.ContextProviderImpl;
 import eu.motogymkhana.competition.http.FakeHttp;
 import eu.motogymkhana.competition.http.impl.FakeHttpImpl;
 import eu.motogymkhana.competition.http.impl.TestMyHttpImpl;
 import eu.motogymkhana.competition.util.FileAssetManager;
 import eu.motogymkhana.competition.util.FileAssetManagerImpl;
+import toothpick.config.Module;
 
-public class TestModule extends AbstractModule {
+public class TestModule extends Module {
 
-	@Override
-	protected void configure() {
+	public TestModule(Context context) {
 
 		bind(Context.class).toProvider(TestCtxProvider.class);
-		bind(ContextProvider.class).to(ContextProviderImpl.class);
 
-		bind(MyHttp.class).to(TestMyHttpImpl.class).asEagerSingleton();
+		bind(MyHttp.class).to(TestMyHttpImpl.class);
 		bind(FakeHttp.class).to(FakeHttpImpl.class);
 
 		bind(FileAssetManager.class).to(FileAssetManagerImpl.class);

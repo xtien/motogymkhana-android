@@ -2,9 +2,16 @@ package eu.motogymkhana.competition.api.http.impl;
 
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.PropertyAccessor;
+import com.fasterxml.jackson.core.Version;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.google.inject.Provider;
+import com.fasterxml.jackson.databind.module.SimpleModule;
+
+import java.security.PublicKey;
+
+import javax.inject.Inject;
+import javax.inject.Provider;
+import javax.inject.Singleton;
 
 /**
  * Provider for jackson object mapper so we can inject the mapper.
@@ -13,23 +20,27 @@ import com.google.inject.Provider;
  */
 public class ObjectMapperProvider implements Provider<ObjectMapper> {
 
-    private static ObjectMapper mapper = new ObjectMapper() {
-        /**
-         *
-         */
-        private static final long serialVersionUID = 1L;
+    private ObjectMapper mapper;
 
-        {
-            configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
-        }
-    };
+    @Inject
+    @Singleton
+    public ObjectMapperProvider() {
 
-    @Override
-    public ObjectMapper get() {
+        mapper = new ObjectMapper() {
+
+            private static final long serialVersionUID = 1L;
+
+            {
+                configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+            }
+        };
 
         mapper.setVisibility(PropertyAccessor.ALL, JsonAutoDetect.Visibility.NONE);
         mapper.setVisibility(PropertyAccessor.FIELD, JsonAutoDetect.Visibility.ANY);
+    }
 
+    @Override
+    public ObjectMapper get() {
         return mapper;
     }
 }

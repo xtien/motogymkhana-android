@@ -18,7 +18,8 @@ import java.lang.ref.WeakReference;
 import eu.motogymkhana.competition.prefs.PrefsProvider;
 import eu.motogymkhana.competition.robo.GymkhanaModule;
 import eu.motogymkhana.competition.robo.LiveModule;
-import roboguice.RoboGuice;
+import toothpick.Scope;
+import toothpick.Toothpick;
 
 /**
  * Created by christine on 7-9-15.
@@ -43,10 +44,8 @@ public class MotoGymkhanaApplication extends Application {
         super.onCreate();
         instance = new WeakReference<Context>(getApplicationContext());
 
-        PrefsProvider.setContext(getApplicationContext());
-
-        RoboGuice.setUseAnnotationDatabases(true);
-        RoboGuice.setupBaseApplicationInjector(this, new GymkhanaModule(), new LiveModule());
+        Scope appScope = Toothpick.openScope(Constants.DEFAULT_SCOPE);
+        appScope.installModules(new GymkhanaModule(getApplicationContext()), new LiveModule(getApplicationContext()));
     }
 
     @Override

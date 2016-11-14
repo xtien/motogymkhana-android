@@ -9,7 +9,7 @@ package eu.motogymkhana.competition.robo;
 
 import android.content.Context;
 
-import com.google.inject.Provider;
+import javax.inject.Provider;
 
 import eu.motogymkhana.competition.MotoGymkhanaApplication;
 

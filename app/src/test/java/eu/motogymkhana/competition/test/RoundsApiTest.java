@@ -2,8 +2,6 @@ package eu.motogymkhana.competition.test;
 
 import android.content.Context;
 
-import com.google.inject.Inject;
-
 import junit.framework.Assert;
 
 import org.junit.Test;
@@ -13,8 +11,9 @@ import org.robolectric.annotation.Config;
 import java.sql.SQLException;
 import java.util.Collection;
 
+import javax.inject.Inject;
+
 import eu.motogymkhana.competition.BuildConfig;
-import eu.motogymkhana.competition.context.ContextProvider;
 import eu.motogymkhana.competition.http.FakeHttp;
 import eu.motogymkhana.competition.model.Round;
 import eu.motogymkhana.competition.robo.RoboInjectedTestRunner;
@@ -27,18 +26,14 @@ import eu.motogymkhana.competition.round.RoundManager;
 @Config(constants = BuildConfig.class, sdk = 21)
 public class RoundsApiTest {
 
-    @SuppressWarnings("unused")
     @Inject
-    private ContextProvider contextProvider;
+    protected RoundManager roundManager;
 
     @Inject
-    private RoundManager roundManager;
+    protected Context context;
 
     @Inject
-    private Context context;
-
-    @Inject
-    private FakeHttp fakeHttp;
+    protected FakeHttp fakeHttp;
 
     private String urlString = "https://api.gymcomp.com:9005/motogymkhana/getRounds/";
     private String resultFileName = "get_rounds.json";

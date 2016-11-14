@@ -4,6 +4,7 @@ import eu.motogymkhana.competition.model.Country;
 
 public interface MyPreferences {
 
+    static final String PREFS_DEFAULT_FILENAME = "default.xml";
 
     public long getDate();
 
