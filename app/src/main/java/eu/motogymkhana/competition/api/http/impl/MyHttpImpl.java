@@ -44,9 +44,6 @@ import eu.motogymkhana.competition.log.MyLog;
 public class MyHttpImpl implements MyHttp {
 
     private static final String LOGTAG = MyHttpImpl.class.getSimpleName();
-    private static final String SET_COOKIES_HEADER = "Set-Cookie";
-    public static final String COOKIES_HEADER = "Cookie";
-    private static final CharSequence COOKIE_ID = "_drive_ugo_session";
 
     private static int readTimeout = 30000;
     private static int connectTimeout = 30000;
