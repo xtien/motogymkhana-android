@@ -23,6 +23,7 @@ import eu.motogymkhana.competition.prefs.MyPreferences;
 import eu.motogymkhana.competition.rider.RiderManager;
 import eu.motogymkhana.competition.round.RoundComparatorByDate;
 import eu.motogymkhana.competition.round.RoundManager;
+import toothpick.Lazy;
 
 /**
  * Created by christine on 26-5-15.
@@ -40,9 +41,6 @@ public class RoundManagerImpl implements RoundManager {
 
     @Inject
     protected RoundDao roundDao;
-
-    @Inject
-    protected RiderManager riderManager;
 
     @Inject
     protected SettingsDao settingsDao;
@@ -83,7 +81,6 @@ public class RoundManagerImpl implements RoundManager {
 
     @Inject
     public RoundManagerImpl() {
-
     }
 
     @Override

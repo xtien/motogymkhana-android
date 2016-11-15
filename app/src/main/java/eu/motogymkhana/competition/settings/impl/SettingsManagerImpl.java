@@ -18,6 +18,7 @@ import eu.motogymkhana.competition.model.Round;
 import eu.motogymkhana.competition.rider.RiderManager;
 import eu.motogymkhana.competition.settings.Settings;
 import eu.motogymkhana.competition.settings.SettingsManager;
+import toothpick.Lazy;
 
 /**
  * Created by christine on 21-2-16.
@@ -29,10 +30,10 @@ public class SettingsManagerImpl implements SettingsManager {
     protected Context context;
 
     @Inject
-    protected RiderManager riderManager;
+    protected Lazy<RiderManager> riderManager;
 
     @Inject
-    protected ApiManager apiManager;
+    protected Lazy<ApiManager> apiManager;
 
     @Inject
     protected SettingsDao settingsDao;
@@ -79,7 +80,7 @@ public class SettingsManagerImpl implements SettingsManager {
 
     @Override
     public void getSettingsFromServer(ResponseHandler responseHandler) {
-        apiManager.getSettings(responseHandler);
+        apiManager.get().getSettings(responseHandler);
      }
 
     @Override
@@ -109,7 +110,7 @@ public class SettingsManagerImpl implements SettingsManager {
 
     @Override
     public void uploadSettingsToServer(Settings settings, ResponseHandler responseHandler) {
-        apiManager.uploadSettings(settings, responseHandler);
+        apiManager.get().uploadSettings(settings, responseHandler);
     }
 
     @Override

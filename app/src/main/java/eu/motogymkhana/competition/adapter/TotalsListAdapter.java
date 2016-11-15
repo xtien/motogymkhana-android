@@ -40,8 +40,8 @@ import toothpick.Toothpick;
 public class TotalsListAdapter extends BaseAdapter {
 
     protected static final int RIDERTIMES = 101;
-    private final Activity activity;
-    private final Scope scope;
+    private  Activity activity;
+    private  Scope scope;
 
     private List<Rider> riders = new ArrayList<Rider>();
     private LayoutInflater inflater;
@@ -54,6 +54,10 @@ public class TotalsListAdapter extends BaseAdapter {
 
     @Inject
     protected SettingsManager settingsManager;
+
+    public TotalsListAdapter(){
+
+    }
 
     public TotalsListAdapter(Activity activity, Collection<Rider> riders) {
 

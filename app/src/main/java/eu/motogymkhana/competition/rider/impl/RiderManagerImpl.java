@@ -42,6 +42,7 @@ import eu.motogymkhana.competition.rider.RiderManager;
 import eu.motogymkhana.competition.rider.StoreWittyRidersTask;
 import eu.motogymkhana.competition.round.RoundManager;
 import eu.motogymkhana.competition.settings.SettingsManager;
+import toothpick.Lazy;
 
 @Singleton
 public class RiderManagerImpl implements RiderManager {
@@ -72,9 +73,6 @@ public class RiderManagerImpl implements RiderManager {
     @Inject
     protected MyPreferences prefs;
 
-    @Inject
-    protected RoundManager roundManager;
-
     private List<Integer> riderMap = new ArrayList<Integer>();
     private int[] points;
     private String messageText = "";
@@ -85,7 +83,6 @@ public class RiderManagerImpl implements RiderManager {
     @Singleton
     @Inject
     public RiderManagerImpl() {
-
     }
 
     private boolean ridersFileExists() {

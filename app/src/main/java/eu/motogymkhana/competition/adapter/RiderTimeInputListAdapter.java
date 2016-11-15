@@ -42,7 +42,7 @@ public class RiderTimeInputListAdapter extends BaseAdapter {
 
     public static final int RIDER_CHANGED = 101;
     private static final String LOGTAG = RiderTimeInputListAdapter.class.getSimpleName();
-    private final Scope scope;
+    private  Scope scope;
     private List<Rider> riders = new ArrayList<Rider>();
     private LayoutInflater inflater;
 
@@ -62,7 +62,7 @@ public class RiderTimeInputListAdapter extends BaseAdapter {
     private Notifier notifier;
 
     @Inject
-    protected  MyLog log;
+    protected MyLog log;
 
     private final ChangeListener changeListener = new ChangeListener() {
 
@@ -85,7 +85,11 @@ public class RiderTimeInputListAdapter extends BaseAdapter {
         }
     };
 
-    public RiderTimeInputListAdapter(Activity activity, Notifier notifier,RiderManager riderManager) {
+    public RiderTimeInputListAdapter() {
+
+    }
+
+    public RiderTimeInputListAdapter(Activity activity, Notifier notifier, RiderManager riderManager) {
 
         scope = Toothpick.openScopes(Constants.DEFAULT_SCOPE, this);
         Toothpick.inject(this, scope);
@@ -182,7 +186,7 @@ public class RiderTimeInputListAdapter extends BaseAdapter {
                 timeView2.setTextColor(activity.getResources().getColor(R.color.gray));
             } else {
                 timeView2.setBackgroundColor(activity.getResources().getColor(R.color.qualified));
-             }
+            }
             if (riderTimes.getTime2() != 0) {
                 timeView2.setText(riderTimes.getTime2PlusPenaltiesString());
             }
