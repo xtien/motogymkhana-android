@@ -8,3 +8,5 @@ If you have the admin password for your country or region, extra functions open 
 The app uses a server at api.gymcomp.com, where race results are stored. You can view the race results at www.gymcomp.com/nl or /eu.
 
 The app uses Roboguice for dependency injection, ORMlite for storing data, Robolectic for testing, Jackson for json serialization and deserialization. The Roboguice jar has been slightly modified to remove a bug that is not fixed in the official Roboguice repository, and to add a `RoboAppCompatActivity` that is not available in Roboguice (yet).
+
+Wiki page has more info.
