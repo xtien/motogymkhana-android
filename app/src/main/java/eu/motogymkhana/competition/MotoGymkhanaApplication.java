@@ -15,9 +15,8 @@ import android.support.multidex.MultiDex;
 
 import java.lang.ref.WeakReference;
 
-import eu.motogymkhana.competition.prefs.PrefsProvider;
-import eu.motogymkhana.competition.robo.GymkhanaModule;
-import eu.motogymkhana.competition.robo.LiveModule;
+import eu.motogymkhana.competition.module.GymkhanaModule;
+import eu.motogymkhana.competition.module.LiveModule;
 import toothpick.Scope;
 import toothpick.Toothpick;
 

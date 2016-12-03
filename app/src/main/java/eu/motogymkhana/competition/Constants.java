@@ -21,6 +21,8 @@ public class Constants {
 
     public static final boolean useTestServer = false;
     public static final String DEFAULT_SCOPE = "default_scope";
+    public static final String TEST_SCOPE = "test_scope";
+    public static final String LIVE_TEST_SCOPE = "live_test_scope";
     public static boolean USE_HTTPS = true;
     public static final String testServer = "pengo.christine.nl";
     public static final String productionServer = "api.gymcomp.com";

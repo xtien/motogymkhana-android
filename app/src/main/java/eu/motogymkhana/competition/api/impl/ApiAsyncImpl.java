@@ -112,7 +112,7 @@ public class ApiAsyncImpl implements ApiAsync {
                 return null;
             }
 
-        }.executeOnExecutor(es);
+        }.execute();
     }
 
     @Override

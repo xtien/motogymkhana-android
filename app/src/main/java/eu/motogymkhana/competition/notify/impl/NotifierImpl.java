@@ -11,6 +11,7 @@ import javax.inject.Singleton;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 import eu.motogymkhana.competition.adapter.ChangeListener;
 import eu.motogymkhana.competition.notify.Notifier;
@@ -21,7 +22,7 @@ import eu.motogymkhana.competition.notify.Notifier;
 @Singleton
 public class NotifierImpl implements Notifier {
 
-    final private List<ChangeListener> riderResultListeners = new ArrayList<ChangeListener>();
+    final private List<ChangeListener> riderResultListeners = new CopyOnWriteArrayList<>();
 
     @Override
     public void registerRiderResultListener(ChangeListener listener) {
