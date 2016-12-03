@@ -9,7 +9,9 @@ package eu.motogymkhana.competition;
 
 import android.app.Application;
 
-import eu.motogymkhana.competition.robo.GymkhanaModule;
+import eu.motogymkhana.competition.module.GymkhanaModule;
+import eu.motogymkhana.competition.module.TestLiveServerModule;
+import eu.motogymkhana.competition.module.TestModule;
 import toothpick.Scope;
 import toothpick.Toothpick;
 
@@ -26,5 +28,12 @@ public class TestMotoGymkhanaApplication extends Application {
 
         Scope appScope = Toothpick.openScope(Constants.DEFAULT_SCOPE);
         appScope.installModules(new GymkhanaModule(getApplicationContext()));
+
+        Scope testScope = Toothpick.openScope(Constants.TEST_SCOPE);
+        testScope.installModules(new GymkhanaModule(getApplicationContext()), new TestModule(getApplicationContext()));
+
+        Scope liveTestScope = Toothpick.openScope(Constants.LIVE_TEST_SCOPE);
+        liveTestScope.installModules(new GymkhanaModule(getApplicationContext()), new TestLiveServerModule
+                (getApplicationContext()));
     }
 }

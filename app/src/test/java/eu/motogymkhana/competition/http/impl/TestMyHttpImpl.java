@@ -8,6 +8,7 @@
 package eu.motogymkhana.competition.http.impl;
 
 import javax.inject.Inject;
+import javax.inject.Singleton;
 
 import java.io.IOException;
 
@@ -16,6 +17,7 @@ import eu.motogymkhana.competition.api.http.HttpResultWrapper;
 import eu.motogymkhana.competition.api.http.impl.MyHttpImpl;
 import eu.motogymkhana.competition.http.FakeHttp;
 import eu.motogymkhana.competition.http.FakeHttpResult;
+import eu.motogymkhana.competition.log.MyLog;
 import eu.motogymkhana.competition.util.FileAssetManager;
 
 public class TestMyHttpImpl extends MyHttpImpl {
@@ -26,8 +28,11 @@ public class TestMyHttpImpl extends MyHttpImpl {
     @Inject
     protected FileAssetManager assetManager;
 
-    public TestMyHttpImpl() {
-
+    @Inject
+    @Singleton
+    public TestMyHttpImpl(MyLog log) {
+        super(log);
+        this.log = log;
     }
 
     @Override

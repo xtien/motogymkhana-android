@@ -1,7 +1,13 @@
-package eu.motogymkhana.competition.test;
+/*
+ * Copyright (c) 2015 - 2016, Christine Karman
+ * This project is free software: you can redistribute it and/or modify it under the terms of
+ * the Apache License, Version 2.0. You can find a copy of the license at
+ * http://www. apache.org/licenses/LICENSE-2.0.
+ */
+
+package eu.motogymkhana.competition.liveTest;
 
 import android.content.Context;
-import android.os.AsyncTask;
 
 import junit.framework.Assert;
 
@@ -9,8 +15,6 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.robolectric.RobolectricGradleTestRunner;
 import org.robolectric.annotation.Config;
-import org.robolectric.shadows.ShadowApplication;
-import org.robolectric.shadows.ShadowLooper;
 
 import java.sql.SQLException;
 import java.util.Collection;
@@ -35,12 +39,6 @@ public class RoundsApiTest {
     @Inject
     protected RoundManager roundManager;
 
-    @Inject
-    protected Context context;
-
-    @Inject
-    protected FakeHttp fakeHttp;
-
     private String urlString = "https://api.gymcomp.com:9005/motogymkhana/getRounds/";
     private String resultFileName = "test/get_rounds.json";
     private String uploadRoundsUrlString = "https://api.gymcomp.com:9005/motogymkhana/uploadRounds/";
@@ -51,28 +49,16 @@ public class RoundsApiTest {
     @Test
     public void testGetDates() throws SQLException, InterruptedException {
 
-        Scope scope = Toothpick.openScope(Constants.TEST_SCOPE);
+        Scope scope = Toothpick.openScope(Constants.LIVE_TEST_SCOPE);
         Toothpick.inject(this, scope);
 
-        fakeHttp.put(urlString, 200, "", resultFileName);
-        fakeHttp.put(ridersUrlString, 200, "", ridersJsonFile);
-        fakeHttp.put(uploadRoundsUrlString, 200, "", uploadRoundsResultFileName);
-
-        new AsyncTask<Void, Void, Void>() {
-
-            @Override
-            protected Void doInBackground(Void... voids) {
-                roundManager.loadRoundsFromServer();
-                return null;
-            }
-        }.execute();
+        roundManager.loadRoundsFromServer();
 
         Collection<Round> rounds = null;
 
         while (rounds == null || rounds.size() < 8) {
             Thread.sleep(1000);
             rounds = roundManager.getRounds();
-            ShadowLooper.runUiThreadTasksIncludingDelayedTasks();
         }
 
         Assert.assertEquals(8, rounds.size());

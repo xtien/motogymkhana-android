@@ -1,4 +1,11 @@
-package eu.motogymkhana.competition.test;
+/*
+ * Copyright (c) 2015 - 2016, Christine Karman
+ * This project is free software: you can redistribute it and/or modify it under the terms of
+ * the Apache License, Version 2.0. You can find a copy of the license at
+ * http://www. apache.org/licenses/LICENSE-2.0.
+ */
+
+package eu.motogymkhana.competition.liveTest;
 
 import android.content.Context;
 
@@ -8,7 +15,6 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.robolectric.RobolectricGradleTestRunner;
 import org.robolectric.annotation.Config;
-import org.robolectric.shadows.ShadowLooper;
 
 import java.io.IOException;
 import java.sql.SQLException;
@@ -23,7 +29,6 @@ import eu.motogymkhana.competition.BuildConfig;
 import eu.motogymkhana.competition.Constants;
 import eu.motogymkhana.competition.adapter.ChangeListener;
 import eu.motogymkhana.competition.api.ResponseHandler;
-import eu.motogymkhana.competition.api.response.ListRidersResult;
 import eu.motogymkhana.competition.dao.RiderDao;
 import eu.motogymkhana.competition.dao.RoundDao;
 import eu.motogymkhana.competition.http.FakeHttp;
@@ -39,17 +44,11 @@ import toothpick.Toothpick;
  * Created by christine on 24-7-15.
  */
 @RunWith(RobolectricGradleTestRunner.class)
-@Config(packageName = "eu.motogymkhana.competition", constants = BuildConfig.class, sdk = 21)
+@Config(constants = BuildConfig.class, sdk = 21)
 public class RidersApiTest {
 
     @Inject
     protected RiderManager riderManager;
-
-    @Inject
-    protected Context context;
-
-    @Inject
-    protected FakeHttp fakeHttp;
 
     @Inject
     protected RoundDao roundDao;
@@ -67,7 +66,6 @@ public class RidersApiTest {
     private String ridersJsonFile = "test/get_riders.json";
 
     private volatile boolean done = false;
-    private ListRidersResult result;
 
     private List<Rider> riders = new LinkedList<Rider>();
 
@@ -90,7 +88,6 @@ public class RidersApiTest {
 
         @Override
         public void onSuccess(Object object) {
-             result = (ListRidersResult)object;
             done = true;
         }
 
@@ -108,24 +105,8 @@ public class RidersApiTest {
     @Test
     public void testGetRiders() throws IOException, InterruptedException, ParseException, SQLException {
 
-        Scope scope = Toothpick.openScope(Constants.TEST_SCOPE);
+        Scope scope = Toothpick.openScope(Constants.LIVE_TEST_SCOPE);
         Toothpick.inject(this, scope);
-
-        Assert.assertNotNull(context);
-
-        Round roundOne = new Round();
-        roundOne.setDate(Constants.dateFormat.parse(dateOne).getTime());
-        roundOne.setCountry(Constants.country);
-        roundOne.setSeason(Constants.season);
-        Round roundTwo = new Round();
-        roundTwo.setDate(Constants.dateFormat.parse(dateTwo).getTime());
-        roundTwo.setCountry(Constants.country);
-        roundTwo.setSeason(Constants.season);
-
-        roundDao.store(roundOne);
-        roundDao.store(roundTwo);
-
-        fakeHttp.put(ridersUrlString, 200, "", ridersJsonFile);
 
         notifier.registerRiderResultListener(new ChangeListener() {
 
@@ -135,22 +116,17 @@ public class RidersApiTest {
             }
         });
 
-
         riderManager.downloadRiders(downloadRidersResponseHandler);
 
         while (!done) {
-            Thread.sleep(100);
-            ShadowLooper.runUiThreadTasksIncludingDelayedTasks();
+            Thread.sleep(1000);
         }
-
-        Assert.assertEquals(31, result.getRiders().size());
 
         done = false;
 
         riderManager.getRiders(callback);
         while (!done) {
             Thread.sleep(1000);
-            ShadowLooper.runUiThreadTasksIncludingDelayedTasks();
         }
 
         Assert.assertEquals(31, riders.size());
