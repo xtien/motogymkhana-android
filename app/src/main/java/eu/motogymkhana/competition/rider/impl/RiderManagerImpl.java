@@ -3,9 +3,6 @@ package eu.motogymkhana.competition.rider.impl;
 import android.content.Context;
 import android.os.Environment;
 
-import javax.inject.Inject;
-import javax.inject.Singleton;
-
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
@@ -18,6 +15,9 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+
+import javax.inject.Inject;
+import javax.inject.Singleton;
 
 import eu.motogymkhana.competition.Constants;
 import eu.motogymkhana.competition.R;
@@ -39,9 +39,7 @@ import eu.motogymkhana.competition.rider.GetRegisteredRidersFromDBTask;
 import eu.motogymkhana.competition.rider.GetRidersCallback;
 import eu.motogymkhana.competition.rider.GetRidersFromDBTask;
 import eu.motogymkhana.competition.rider.RiderManager;
-import eu.motogymkhana.competition.round.RoundManager;
 import eu.motogymkhana.competition.settings.SettingsManager;
-import toothpick.Lazy;
 
 @Singleton
 public class RiderManagerImpl implements RiderManager {
@@ -525,4 +523,8 @@ public class RiderManagerImpl implements RiderManager {
             this.messageText = text;
         }
     }
+
+    @Override
+    public void saveWittyFile() {
+     }
 }

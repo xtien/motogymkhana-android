@@ -104,6 +104,13 @@ public interface RiderManager {
     void setMessageText(String text);
 
     /**
+     * save a riders list in a format that the Witty time computer can read. This is typically used for exporting
+     * a riders file after the startnumbers have been determined in the app. The Witty computer then contains a list
+     * of riders in the right order with the right start numbers.
+     */
+    void saveWittyFile();
+
+    /**
      * get all riders for date, locally
      */
     List<Rider> getRiders(long date);
