@@ -12,6 +12,8 @@
 bin/
 gen/
 
+*.iml
+
 # Gradle files
 .gradle/
 .idea/
