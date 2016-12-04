@@ -628,7 +628,6 @@ public class MainActivity extends BaseActivity {
                 return true;
 
             case R.id.save_witty_file:
-                riderManager.saveWittyFile();
                 return true;
 
             case R.id.admin:

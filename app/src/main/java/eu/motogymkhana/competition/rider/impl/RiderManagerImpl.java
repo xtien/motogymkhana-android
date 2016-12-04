@@ -39,7 +39,6 @@ import eu.motogymkhana.competition.rider.GetRegisteredRidersFromDBTask;
 import eu.motogymkhana.competition.rider.GetRidersCallback;
 import eu.motogymkhana.competition.rider.GetRidersFromDBTask;
 import eu.motogymkhana.competition.rider.RiderManager;
-import eu.motogymkhana.competition.rider.StoreWittyRidersTask;
 import eu.motogymkhana.competition.round.RoundManager;
 import eu.motogymkhana.competition.settings.SettingsManager;
 import toothpick.Lazy;
@@ -525,10 +524,5 @@ public class RiderManagerImpl implements RiderManager {
         if (text != null) {
             this.messageText = text;
         }
-    }
-
-    @Override
-    public void saveWittyFile() {
-        new StoreWittyRidersTask(context).execute();
     }
 }
