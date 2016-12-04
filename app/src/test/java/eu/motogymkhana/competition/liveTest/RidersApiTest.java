@@ -7,8 +7,6 @@
 
 package eu.motogymkhana.competition.liveTest;
 
-import android.content.Context;
-
 import junit.framework.Assert;
 
 import org.junit.Test;
@@ -31,9 +29,7 @@ import eu.motogymkhana.competition.adapter.ChangeListener;
 import eu.motogymkhana.competition.api.ResponseHandler;
 import eu.motogymkhana.competition.dao.RiderDao;
 import eu.motogymkhana.competition.dao.RoundDao;
-import eu.motogymkhana.competition.http.FakeHttp;
 import eu.motogymkhana.competition.model.Rider;
-import eu.motogymkhana.competition.model.Round;
 import eu.motogymkhana.competition.notify.Notifier;
 import eu.motogymkhana.competition.rider.GetRidersCallback;
 import eu.motogymkhana.competition.rider.RiderManager;

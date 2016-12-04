@@ -3,14 +3,15 @@ package eu.motogymkhana.competition.api.impl;
 import javax.inject.Inject;
 
 import eu.motogymkhana.competition.Constants;
+import eu.motogymkhana.competition.Server;
 import eu.motogymkhana.competition.api.ApiUrlHelper;
 import eu.motogymkhana.competition.prefs.MyPreferences;
 
 public class ApiUrlHelperImpl implements ApiUrlHelper {
 
-	private final String httpString = Constants.USE_HTTPS ? Constants.urlHttps : Constants.urlHttp;
-	private int port = Constants.USE_HTTPS ? Constants.HTTPS_PORT : Constants.HTTP_PORT;
-	private String hostName = Constants.hostName;
+	private final String httpString = Server.urlHttp;
+	private final int port = Server.HTTP_PORT;
+	private String hostName = Server.hostName;
 
 	@Inject
 	public ApiUrlHelperImpl(MyPreferences prefs){

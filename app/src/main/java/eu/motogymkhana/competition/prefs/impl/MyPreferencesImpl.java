@@ -9,6 +9,7 @@ import javax.inject.Singleton;
 
 import eu.motogymkhana.competition.BuildConfig;
 import eu.motogymkhana.competition.Constants;
+import eu.motogymkhana.competition.Server;
 import eu.motogymkhana.competition.model.Country;
 import eu.motogymkhana.competition.prefs.MyPreferences;
 
@@ -95,7 +96,7 @@ public class MyPreferencesImpl implements MyPreferences {
 
     @Override
     public String getServer() {
-        return prefs.getString(SERVER, BuildConfig.DEBUG ? Constants.hostName : Constants.productionServer);
+        return prefs.getString(SERVER, Server.hostName);
     }
 
     @Override
@@ -105,7 +106,7 @@ public class MyPreferencesImpl implements MyPreferences {
 
     @Override
     public int getPort() {
-        return prefs.getInt(PORT, Constants.HTTP_PORT);
+        return prefs.getInt(PORT, Server.HTTP_PORT);
     }
 
     @Override

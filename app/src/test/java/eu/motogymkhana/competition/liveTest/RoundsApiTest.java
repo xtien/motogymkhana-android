@@ -7,8 +7,6 @@
 
 package eu.motogymkhana.competition.liveTest;
 
-import android.content.Context;
-
 import junit.framework.Assert;
 
 import org.junit.Test;
@@ -23,7 +21,6 @@ import javax.inject.Inject;
 
 import eu.motogymkhana.competition.BuildConfig;
 import eu.motogymkhana.competition.Constants;
-import eu.motogymkhana.competition.http.FakeHttp;
 import eu.motogymkhana.competition.model.Round;
 import eu.motogymkhana.competition.round.RoundManager;
 import toothpick.Scope;

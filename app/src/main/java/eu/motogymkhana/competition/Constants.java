@@ -19,13 +19,9 @@ import eu.motogymkhana.competition.model.Country;
  */
 public class Constants {
 
-    public static final boolean useTestServer = false;
     public static final String DEFAULT_SCOPE = "default_scope";
     public static final String TEST_SCOPE = "test_scope";
     public static final String LIVE_TEST_SCOPE = "live_test_scope";
-    public static boolean USE_HTTPS = true;
-    public static final String testServer = "pengo.christine.nl";
-    public static final String productionServer = "api.gymcomp.com";
 
     public static final long refreshRate = 5000l;
     public static boolean test = false;
@@ -35,14 +31,7 @@ public class Constants {
     public static DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
     public static DateFormat dateFormatSeconds = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault());
 
-    public static final String USER_AGENT = "motogymkhana_android";
-    public static final String urlHttp = "http://";
-    public static final String urlHttps = "https://";
-    public static final String hostName = useTestServer ? testServer : productionServer;
-    public static final int HTTPS_PORT = 9005;
-    public static final int HTTP_PORT = 8085;
     public static final String BASE_URL_STRING = "/motogymkhana";
-
     public static final String GET_RIDERS_URL_STRING = BASE_URL_STRING + "/getRiders/";
     public static final String GET_ROUNDS_URL_STRING = BASE_URL_STRING + "/getRounds/";
     public static final String GET_UPDATE_ROUND_URL_STRING = BASE_URL_STRING + "/updateRound/";

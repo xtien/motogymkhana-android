@@ -38,6 +38,7 @@ import butterknife.Bind;
 import butterknife.ButterKnife;
 import eu.motogymkhana.competition.Constants;
 import eu.motogymkhana.competition.R;
+import eu.motogymkhana.competition.Server;
 import eu.motogymkhana.competition.adapter.ChangeListener;
 import eu.motogymkhana.competition.api.ResponseHandler;
 import eu.motogymkhana.competition.api.response.UpdateSettingsResponse;
@@ -372,7 +373,7 @@ public class SettingsActivity extends BaseActivity {
             e.printStackTrace();
         }
 
-        if (Constants.useTestServer) {
+        if (Server.useTestServer) {
             ((TextView) findViewById(R.id.testserver_string)).setVisibility(View.VISIBLE);
         }
 
