@@ -123,7 +123,7 @@ public class RiderTimeInputListAdapter extends BaseAdapter {
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
 
-        convertView = (LinearLayout) inflater.inflate(R.layout.rider_list_row, null);
+        convertView = inflater.inflate(R.layout.rider_list_row, null);
 
         long date = prefs.getDate();
 
@@ -136,15 +136,15 @@ public class RiderTimeInputListAdapter extends BaseAdapter {
             public void onClick(View v) {
 
                 Intent intent = new Intent(activity, RiderViewActivity.class);
-                intent.putExtra(RiderViewActivity.RIDER_NUMBER, rider.getRiderNumber());
+                intent.putExtra(RiderViewActivity.RIDER_ID, rider.getRiderId());
 
                 activity.startActivity(intent);
             }
         });
 
         ((TextView) convertView.findViewById(R.id.first_name)).setText(rider.getFirstName() + " " + rider.getLastName());
-        ((TextView) convertView.findViewById(R.id.last_name)).setVisibility(View.GONE);
-        ((TextView) convertView.findViewById(R.id.gender)).setVisibility(View.GONE);
+        convertView.findViewById(R.id.last_name).setVisibility(View.GONE);
+        convertView.findViewById(R.id.gender).setVisibility(View.GONE);
 
         if (date > 0l && riderTimes != null) {
 
@@ -198,7 +198,7 @@ public class RiderTimeInputListAdapter extends BaseAdapter {
                     public void onClick(View v) {
 
                         Intent intent = new Intent(activity, RiderTimesInputActivity.class);
-                        intent.putExtra(RiderTimesInputActivity.RIDER_NUMBER, rider.getRiderNumber());
+                        intent.putExtra(RiderTimesInputActivity.RIDER_ID, rider.getRiderId());
                         intent.putExtra(RiderTimesInputActivity.FOCUS, 0);
                         activity.startActivityForResult(intent, MainActivity.RIDERTIMES);
                     }
@@ -210,7 +210,7 @@ public class RiderTimeInputListAdapter extends BaseAdapter {
                     public void onClick(View v) {
 
                         Intent intent = new Intent(activity, RiderTimesInputActivity.class);
-                        intent.putExtra(RiderTimesInputActivity.RIDER_NUMBER, rider.getRiderNumber());
+                        intent.putExtra(RiderTimesInputActivity.RIDER_ID, rider.getRiderId());
                         intent.putExtra(RiderTimesInputActivity.FOCUS, 0);
                         activity.startActivityForResult(intent, MainActivity.RIDERTIMES);
                     }

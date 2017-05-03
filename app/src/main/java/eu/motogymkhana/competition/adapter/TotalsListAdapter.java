@@ -26,6 +26,7 @@ import javax.inject.Inject;
 import eu.motogymkhana.competition.Constants;
 import eu.motogymkhana.competition.R;
 import eu.motogymkhana.competition.dao.RoundDao;
+import eu.motogymkhana.competition.model.Country;
 import eu.motogymkhana.competition.model.Rider;
 import eu.motogymkhana.competition.model.Round;
 import eu.motogymkhana.competition.rider.RiderManager;
@@ -103,7 +104,7 @@ public class TotalsListAdapter extends BaseAdapter {
 
         int roundsCountingForSeasonResult = settingsManager.getRoundsCountingForSeasonResult();
 
-        convertView = (LinearLayout) inflater.inflate(R.layout.rider_list_row, null);
+        convertView = inflater.inflate(R.layout.rider_list_row, null);
 
         final Rider rider = riders.get(position);
 
@@ -113,6 +114,9 @@ public class TotalsListAdapter extends BaseAdapter {
         riderNumberView.setText("" + (position + 1));
         riderNumberView.setBackgroundColor(rider.getBibColor());
 
+        if(rider.getNationality() == null){
+            rider.setNationality(Country.NL);
+        }
         ((TextView) convertView.findViewById(R.id.nationality)).setText(rider.getNationality().toString());
 
         TextView timeView1 = ((TextView) convertView.findViewById(R.id.time1));

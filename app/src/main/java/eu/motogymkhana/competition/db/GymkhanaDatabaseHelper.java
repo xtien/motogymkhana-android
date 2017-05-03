@@ -16,8 +16,10 @@ import java.util.Collection;
 import java.util.LinkedList;
 
 import eu.motogymkhana.competition.Constants;
+import eu.motogymkhana.competition.dao.RegistrationDao;
 import eu.motogymkhana.competition.log.MyLog;
 import eu.motogymkhana.competition.model.Credential;
+import eu.motogymkhana.competition.model.Registration;
 import eu.motogymkhana.competition.model.Rider;
 import eu.motogymkhana.competition.model.Round;
 import eu.motogymkhana.competition.model.Times;
@@ -50,6 +52,7 @@ public class GymkhanaDatabaseHelper extends OrmLiteSqliteOpenHelper {
             classList.add(Times.class);
             classList.add(Credential.class);
             classList.add(Settings.class);
+            classList.add(Registration.class);
 
             for (Class<?> clazz : classList) {
                 DaoManager.createDao(getConnectionSource(), clazz);

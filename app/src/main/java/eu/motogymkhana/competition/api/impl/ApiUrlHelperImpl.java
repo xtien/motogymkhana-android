@@ -24,6 +24,11 @@ public class ApiUrlHelperImpl implements ApiUrlHelper {
 	}
 
 	@Override
+	public String getAllRidersUrl() {
+		return httpString + hostName + ":" + port + Constants.GET_ALL_RIDERS_URL_STRING;
+	}
+
+	@Override
 	public String getRoundsUrl() {
 		return httpString + hostName + ":" + port + Constants.GET_ROUNDS_URL_STRING;
 	}

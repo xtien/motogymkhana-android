@@ -42,7 +42,7 @@ public class MyAlert extends Dialog {
             }
         });
 
-        getWindow().setBackgroundDrawable(new ColorDrawable(android.graphics.Color.TRANSPARENT));
+        //getWindow().setBackgroundDrawable(new ColorDrawable(android.graphics.Color.TRANSPARENT));
     }
 
     public void setText(String text) {

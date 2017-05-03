@@ -20,6 +20,7 @@ import android.widget.CompoundButton;
 import android.widget.CompoundButton.OnCheckedChangeListener;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import javax.inject.Inject;
@@ -35,6 +36,7 @@ import eu.motogymkhana.competition.R;
 import eu.motogymkhana.competition.activity.RiderNewUpdateActivity;
 import eu.motogymkhana.competition.activity.RiderViewActivity;
 import eu.motogymkhana.competition.api.ResponseHandler;
+import eu.motogymkhana.competition.api.response.UpdateRiderResponse;
 import eu.motogymkhana.competition.dao.TimesDao;
 import eu.motogymkhana.competition.log.LogProvider;
 import eu.motogymkhana.competition.model.Bib;
@@ -107,6 +109,12 @@ public class RiderRegistrationListAdapter extends BaseAdapter {
 
         @Override
         public void onSuccess(Object object) {
+            Rider updatedRider = ((UpdateRiderResponse) object).getRider();
+            try {
+                riderManager.store(updatedRider);
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
             notifier.notifyDataChanged();
         }
 
@@ -125,6 +133,11 @@ public class RiderRegistrationListAdapter extends BaseAdapter {
 
         @Override
         public void onSuccess(Object object) {
+            try {
+                riderManager.store(((UpdateRiderResponse) object).getRider());
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
             notifier.notifyDataChanged();
         }
 
@@ -174,19 +187,20 @@ public class RiderRegistrationListAdapter extends BaseAdapter {
     @Override
     public View getView(final int position, View convertView, ViewGroup parent) {
 
-        convertView = (LinearLayout) inflater.inflate(R.layout.rider_registration_list_row, null);
+        convertView = inflater.inflate(R.layout.rider_registration_list_row, null);
+
+        final ProgressBar progressBar = (ProgressBar) convertView.findViewById(R.id.progress_bar);
+        progressBar.setVisibility(View.GONE);
 
         long roundDate = prefs.getDate();
 
         final Rider rider = riders.get(position);
-        Times riderTimes = rider.getEUTimes(roundDate);
 
-        if (riderTimes == null) {
-            riderTimes = new Times(roundDate);
-            riderTimes.setRider(rider);
-            riderTimes.setDate(roundDate);
-            rider.addTimes(riderTimes);
+        if(rider == null){
+            return convertView;
         }
+
+        Times riderTimes = rider.getEUTimes(roundDate);
 
         ((LinearLayout) convertView.findViewById(R.id.rider_layout)).setOnClickListener(new OnClickListener() {
 
@@ -194,7 +208,7 @@ public class RiderRegistrationListAdapter extends BaseAdapter {
             public void onClick(View v) {
 
                 Intent intent = new Intent(activity, RiderViewActivity.class);
-                intent.putExtra(RiderViewActivity.RIDER_NUMBER, rider.getRiderNumber());
+                intent.putExtra(RiderViewActivity.RIDER_ID, rider.getRiderId());
 
                 activity.startActivity(intent);
             }
@@ -216,7 +230,7 @@ public class RiderRegistrationListAdapter extends BaseAdapter {
         LinearLayout startNumberLayout = (LinearLayout) convertView.findViewById(R.id.startnumber_layout);
         ImageView editView = (ImageView) convertView.findViewById(R.id.edit);
 
-        startNumber.setText(Integer.toString(riderTimes.getStartNumber()));
+        startNumber.setText(riderTimes != null ? Integer.toString(riderTimes.getStartNumber()) : "");
         startNumberLayout.setBackgroundColor(rider.getBibColor());
 
         editView.setVisibility(View.VISIBLE);
@@ -226,7 +240,7 @@ public class RiderRegistrationListAdapter extends BaseAdapter {
             public void onClick(View v) {
 
                 Intent intent = new Intent(activity, RiderNewUpdateActivity.class);
-                intent.putExtra(RiderNewUpdateActivity.RIDER_NUMBER, rider.getRiderNumber());
+                intent.putExtra(RiderNewUpdateActivity.RIDER_ID, rider.getRiderId());
                 activity.startActivity(intent);
             }
         });
@@ -239,16 +253,16 @@ public class RiderRegistrationListAdapter extends BaseAdapter {
 
         CheckBox isRegistered = (CheckBox) convertView.findViewById(R.id.registered_box);
         isRegistered.setVisibility(View.VISIBLE);
-        isRegistered.setChecked(riderTimes.isRegistered());
+        isRegistered.setChecked(riderTimes != null && riderTimes.isRegistered());
 
-        final Times finalRiderTimes = riderTimes;
         isRegistered.setOnCheckedChangeListener(new OnCheckedChangeListener() {
 
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
 
                 try {
-                    riderManager.setRegistered(finalRiderTimes, isChecked, setRegisteredResponseHandler);
+                    riderManager.setRegistered(rider, isChecked, setRegisteredResponseHandler);
+                    progressBar.setVisibility(View.VISIBLE);
                 } catch (SQLException e) {
                     e.printStackTrace();
                 }

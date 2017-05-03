@@ -23,6 +23,7 @@ import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.Spinner;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import org.apache.commons.lang3.StringUtils;
 
@@ -41,6 +42,7 @@ import eu.motogymkhana.competition.R;
 import eu.motogymkhana.competition.Server;
 import eu.motogymkhana.competition.adapter.ChangeListener;
 import eu.motogymkhana.competition.api.ResponseHandler;
+import eu.motogymkhana.competition.api.response.ListRoundsResult;
 import eu.motogymkhana.competition.api.response.UpdateSettingsResponse;
 import eu.motogymkhana.competition.dao.CredentialDao;
 import eu.motogymkhana.competition.fragment.BaseFragment;
@@ -174,11 +176,19 @@ public class SettingsActivity extends BaseActivity {
 
             if (settingsResponse.isOK()) {
                 notifier.notifyDataChanged();
+                runOnUiThread(new Runnable() {
+
+                    @Override
+                    public void run() {
+                        progressBar.setVisibility(View.GONE);
+                    }
+                });
             }
         }
 
         @Override
         public void onException(Exception e) {
+            showAlert(e);
             log.e(LOGTAG, e);
         }
 
@@ -216,6 +226,13 @@ public class SettingsActivity extends BaseActivity {
                 settings = new Settings();
             }
 
+            String pointsString = "";
+            for(int point : points){
+                pointsString += Integer.toString(point) + ",";
+            }
+            pointsString = pointsString.substring(0,pointsString.length()-1);
+
+            settings.setPoints(pointsString);
 
             settings.setPercentageBlue(newPercentageBlue);
             settings.setPercentageGreen(newPercentageGreen);
@@ -233,6 +250,7 @@ public class SettingsActivity extends BaseActivity {
                 e.printStackTrace();
             }
 
+            progressBar.setVisibility(View.VISIBLE);
             settingsManager.uploadSettingsToServer(settings, uploadSettingsResponseHandler);
         }
     };
@@ -266,7 +284,7 @@ public class SettingsActivity extends BaseActivity {
 
                 Country country = countries.get(position);
                 settings.setCountry(country);
-                Constants.country = country;
+                prefs.setCountry(country);
                 setRounds();
             } else {
                 firstCountrySelected = false;
@@ -285,7 +303,8 @@ public class SettingsActivity extends BaseActivity {
         public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
 
             int season = seasons[position];
-            Constants.season = season;
+            prefs.setSeason(season);
+
             try {
                 settings = settingsManager.getSettings();
             } catch (IOException e) {
@@ -373,9 +392,9 @@ public class SettingsActivity extends BaseActivity {
             e.printStackTrace();
         }
 
-        if (Server.useTestServer) {
-            ((TextView) findViewById(R.id.testserver_string)).setVisibility(View.VISIBLE);
-        }
+//        if (Server.useTestServer) {
+//            ((TextView) findViewById(R.id.testserver_string)).setVisibility(View.VISIBLE);
+//        }
 
         setSettings();
 
@@ -493,7 +512,29 @@ public class SettingsActivity extends BaseActivity {
         if (rounds == null || rounds.size() == 0) {
 
             progressBar.setVisibility(View.VISIBLE);
-            roundManager.loadRoundsFromServer();
+            roundManager.loadRoundsFromServer(new ResponseHandler() {
+
+                @Override
+                public void onSuccess(Object object) {
+                    ListRoundsResult result = (ListRoundsResult) object;
+                    if (result.getRounds() != null) {
+                        rounds = result.getRounds();
+                        for (Round round : result.getRounds()) {
+                            roundsSpinAdapter.add(round.getDateString());
+                        }
+                    }
+                }
+
+                @Override
+                public void onException(Exception e) {
+
+                }
+
+                @Override
+                public void onError(int statusCode, String string) {
+
+                }
+            });
         } else {
             for (Round round : rounds) {
                 roundsSpinAdapter.add(round.getDateString());
@@ -556,7 +597,7 @@ public class SettingsActivity extends BaseActivity {
     }
 
     @Override
-    public void onDestroy(){
+    public void onDestroy() {
         super.onDestroy();
         Toothpick.closeScope(this);
     }
@@ -604,8 +645,9 @@ public class SettingsActivity extends BaseActivity {
                 .class.getSimpleName());
 
         if (fragment != null) {
+
             fragment.onBackPressed();
-        }
+         }
 
         Intent intent = new Intent();
 
@@ -620,10 +662,8 @@ public class SettingsActivity extends BaseActivity {
             intent.putExtra(ROUND_CHANGED, true);
         }
 
-        Constants.season = settings.getSeason();
-        Constants.country = settings.getCountry();
-        prefs.setCountry(Constants.country);
-        prefs.setSeason(Constants.season);
+        prefs.setCountry(settings.getCountry());
+        prefs.setSeason(settings.getSeason());
 
         setResult(OK, intent);
 

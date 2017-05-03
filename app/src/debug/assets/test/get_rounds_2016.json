@@ -1,0 +1,70 @@
+{
+  "resultCode": 0,
+  "message": null,
+  "rounds": [
+    {
+      "season": 2015,
+      "country": "NL",
+      "date": 1428184800000,
+      "number": 1,
+      "current": false,
+      "timestamp": 1441541714744
+    },
+    {
+      "season": 2015,
+      "country": "NL",
+      "date": 1431208800000,
+      "number": 2,
+      "current": false,
+      "timestamp": 1441541714744
+    },
+    {
+      "season": 2015,
+      "country": "NL",
+      "date": 1433628000000,
+      "number": 4,
+      "current": false,
+      "timestamp": 1441541714744
+    },
+    {
+      "season": 2015,
+      "country": "NL",
+      "date": 1432418400000,
+      "number": 3,
+      "current": false,
+      "timestamp": 1441541714744
+    },
+    {
+      "season": 2015,
+      "country": "NL",
+      "date": 1444514400000,
+      "number": 8,
+      "current": false,
+      "timestamp": 1441541714744
+    },
+    {
+      "season": 2015,
+      "country": "NL",
+      "date": 1441490400000,
+      "number": 7,
+      "current": false,
+      "timestamp": 1441541714744
+    },
+    {
+      "season": 2015,
+      "country": "NL",
+      "date": 1438466400000,
+      "number": 6,
+      "current": false,
+      "timestamp": 1441541714744
+    },
+    {
+      "season": 2015,
+      "country": "NL",
+      "date": 1436047200000,
+      "number": 5,
+      "current": true,
+      "timestamp": 1441541714744
+    }
+  ]
+}

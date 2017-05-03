@@ -10,6 +10,7 @@ package eu.motogymkhana.competition.activity;
 import android.Manifest;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
@@ -17,19 +18,24 @@ import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.view.ViewPager;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
+import com.crashlytics.android.Crashlytics;
+
 import java.io.File;
 import java.io.IOException;
 import java.sql.SQLException;
 import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collection;
+import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 
@@ -41,6 +47,7 @@ import eu.motogymkhana.competition.R;
 import eu.motogymkhana.competition.adapter.ChangeListener;
 import eu.motogymkhana.competition.adapter.MyViewPagerAdapter;
 import eu.motogymkhana.competition.api.ResponseHandler;
+import eu.motogymkhana.competition.api.response.ListRoundsResult;
 import eu.motogymkhana.competition.api.response.SettingsResult;
 import eu.motogymkhana.competition.dao.CredentialDao;
 import eu.motogymkhana.competition.dao.RiderDao;
@@ -58,6 +65,7 @@ import eu.motogymkhana.competition.rider.RiderManager;
 import eu.motogymkhana.competition.round.RoundManager;
 import eu.motogymkhana.competition.settings.SettingsManager;
 import eu.motogymkhana.competition.util.CopyDB;
+import io.fabric.sdk.android.Fabric;
 import toothpick.Scope;
 import toothpick.Toothpick;
 
@@ -126,7 +134,6 @@ public class MainActivity extends BaseActivity {
 
         @Override
         public void run() {
-            roundManager.loadRoundsFromServer();
             settingsManager.getSettingsFromServer(getSettingsResponseHandler);
         }
     };
@@ -136,14 +143,15 @@ public class MainActivity extends BaseActivity {
         @Override
         public void run() {
 
-            if (prefs.loadRounds()) {
-                roundManager.loadRoundsFromServer();
-                settingsManager.getSettingsFromServer(null);
-            } else {
-                riderManager.loadRidersFromServer(downloadRidersResponseHandler);
-            }
+            if (!isAdmin()) {
+                if (prefs.loadRounds()) {
+                    settingsManager.getSettingsFromServer(getSettingsResponseHandler);
+                } else {
+                    riderManager.loadRidersFromServer(downloadRidersResponseHandler);
+                }
 
-            handler.postDelayed(this, Constants.refreshRate);
+                handler.postDelayed(this, Constants.refreshRate);
+            }
         }
     };
 
@@ -163,13 +171,42 @@ public class MainActivity extends BaseActivity {
         }
     };
 
+    private ResponseHandler loadRoundsResponseHandler = new ResponseHandler() {
+
+        @Override
+        public void onSuccess(Object object) {
+            ListRoundsResult result = (ListRoundsResult) object;
+            if (result.getRounds() != null && result.getRounds().size() > 0) {
+                riderManager.loadRidersFromServer(downloadRidersResponseHandler);
+            } else {
+                showProgressBar(View.GONE);
+            }
+
+        }
+
+        @Override
+        public void onException(Exception e) {
+            showAlert(e);
+        }
+
+        @Override
+        public void onError(int statusCode, String string) {
+            showAlert(statusCode, string);
+        }
+    };
+
     private ResponseHandler getSettingsResponseHandler = new ResponseHandler() {
 
         @Override
         public void onSuccess(Object object) {
 
             SettingsResult result = (SettingsResult) object;
-            settingsManager.setSettings(result.getSettings());
+            if (result.getSettings() != null) {
+                settingsManager.setSettings(result.getSettings());
+                roundManager.loadRoundsFromServer(loadRoundsResponseHandler);
+            } else {
+                showProgressBar(View.GONE);
+            }
         }
 
         @Override
@@ -296,7 +333,7 @@ public class MainActivity extends BaseActivity {
                 if (data.getBooleanExtra(SettingsActivity.COUNTRY_CHANGED, false) || data.getBooleanExtra
                         (SettingsActivity.SEASON_CHANGED, false)) {
 
-                    showProgressBar();
+                    showProgressBar(View.GONE);
                     handler.post(loadRoundsTask);
                 }
 
@@ -315,12 +352,12 @@ public class MainActivity extends BaseActivity {
         }
     }
 
-    private void showProgressBar() {
+    private void showProgressBar(final int visibility) {
 
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                progressBar.setVisibility(View.VISIBLE);
+                progressBar.setVisibility(visibility);
             }
         });
     }
@@ -328,6 +365,7 @@ public class MainActivity extends BaseActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        Fabric.with(this, new Crashlytics());
 
         if (BuildConfig.DEBUG) {
 
@@ -336,10 +374,7 @@ public class MainActivity extends BaseActivity {
 
                 try {
 
-
                     if (Environment.getExternalStorageState().equals(Environment.MEDIA_MOUNTED)) {
-                        File uidStoreFile = new File(Environment.getExternalStorageDirectory(), "uid.txt");
-
                         CopyDB.copyDB(getApplicationContext(), Constants.DATABASE_NAME, "motogymkhana/");
                     }
 
@@ -397,14 +432,29 @@ public class MainActivity extends BaseActivity {
         }
 
         if (prefs.isFirstRun()) {
-            Locale currentLocale = getResources().getConfiguration().locale;
-            for (Country country : Country.values()) {
-                if (currentLocale.getCountry().equalsIgnoreCase(country.toString())) {
-                    Constants.country = country;
+
+            if (Constants.country == null) {
+                Locale locale;
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+                    locale = getResources().getConfiguration().getLocales().get(0);
+                } else {
+                    locale = getResources().getConfiguration().locale;
                 }
+
+                String string = locale.getCountry();
+                if (string.equalsIgnoreCase("NL") || string.equalsIgnoreCase("BE")) {
+                    Constants.country = Country.NL;
+                } else {
+                    Constants.country = Country.EU;
+                }
+                prefs.setCountry(Constants.country);
             }
-            Calendar calendar = Calendar.getInstance();
-            Constants.season = calendar.get(Calendar.YEAR);
+
+            if (Constants.season == 0) {
+                SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy");
+                Constants.season = Integer.parseInt(dateFormat.format(new Date(System.currentTimeMillis())));
+                prefs.setSeason(Constants.season);
+            }
 
             try {
                 settingsManager.storeCountryAndSeason(Constants.country, Constants.season);
@@ -413,35 +463,8 @@ public class MainActivity extends BaseActivity {
             }
         }
 
-        Collection<Round> rounds = null;
-
-        try {
-            rounds = roundManager.getRounds();
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-
-
-        try {
-            roundManager.loadRoundsFromServer();
-            settingsManager.getSettingsFromServer(getSettingsResponseHandler);
-            riderManager.downloadRiders(downloadRidersResponseHandler);
-
-            if (rounds == null || rounds.size() == 0) {
-
-                Round round = roundManager.getNextRound();
-                if (round != null) {
-                    roundManager.setDate(round.getDate());
-                }
-            }
-
-        } catch (ParseException e) {
-            e.printStackTrace();
-        } catch (SQLException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        showProgressBar(View.VISIBLE);
+        settingsManager.getSettingsFromServer(getSettingsResponseHandler);
 
         handler = new Handler();
 
@@ -487,8 +510,12 @@ public class MainActivity extends BaseActivity {
             notifier.registerRiderResultListener(dataChangedListener);
         }
 
-        if (!isAdmin()) {
-            handler.post(refreshTask);
+        try {
+            if (!isAdmin() && riderManager.hasRiders()) {
+                handler.post(refreshTask);
+            }
+        } catch (SQLException e) {
+            showAlert(e);
         }
     }
 
@@ -582,7 +609,16 @@ public class MainActivity extends BaseActivity {
                 return true;
 
             case R.id.start_numbers:
-                riderManager.generateStartNumbers(startNumbersResponseHandler);
+
+                riderManager.generateStartNumbers();
+
+                try {
+                    riderManager.uploadRiders(startNumbersResponseHandler);
+                } catch (IOException e) {
+                    showAlert(e);
+                } catch (SQLException e) {
+                    showAlert(e);
+                }
                 return true;
 
             case R.id.new_rider:
@@ -664,7 +700,7 @@ public class MainActivity extends BaseActivity {
         if (date != 0l) {
             dateView.setText(Constants.dateFormat.format(date));
         } else {
-            dateView.setText(getResources().getString(Constants.season < 2016 ? R.string.no_rounds_held : R.string
+            dateView.setText(getResources().getString(Constants.season < 2017 ? R.string.no_rounds_held : R.string
                     .no_rounds_planned));
         }
     }

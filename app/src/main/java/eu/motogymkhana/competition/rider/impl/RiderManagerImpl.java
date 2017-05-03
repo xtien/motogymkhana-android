@@ -2,6 +2,7 @@ package eu.motogymkhana.competition.rider.impl;
 
 import android.content.Context;
 import android.os.Environment;
+import android.util.Log;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -47,10 +48,10 @@ public class RiderManagerImpl implements RiderManager {
     private static final String LOGTAG = RiderManagerImpl.class.getSimpleName();
 
     @Inject
-    protected  Context context;
+    protected Context context;
 
     @Inject
-    protected  SettingsManager settingsManager;
+    protected SettingsManager settingsManager;
 
     @Inject
     protected ApiManager api;
@@ -120,7 +121,7 @@ public class RiderManagerImpl implements RiderManager {
                 rider.addTimes(times);
 
                 try {
-                    rider = store(rider, country, season);
+                    store(rider);
                 } catch (SQLException e) {
                     e.printStackTrace();
                 }
@@ -129,11 +130,8 @@ public class RiderManagerImpl implements RiderManager {
     }
 
     @Override
-    public Rider store(Rider rider, Country country, int season) throws SQLException {
-
-        rider = riderDao.store(rider, country, season);
-        timesDao.storeRiderTimes(rider);
-
+    public Rider store(Rider rider) throws SQLException {
+        rider = riderDao.store(rider);
         return rider;
     }
 
@@ -165,47 +163,38 @@ public class RiderManagerImpl implements RiderManager {
     }
 
     @Override
-    public void setRegistered(Times times, boolean registered, ResponseHandler responseHandler) throws SQLException {
+    public void setRegistered(Rider rider, boolean registered, ResponseHandler responseHandler) throws SQLException {
 
+        Times times = rider.getEUTimes(prefs.getDate());
+        if (times == null) {
+            times = new Times();
+            times.setRider(rider);
+            times.setDate(prefs.getDate());
+            times.setSeason(Constants.season);
+            times.setCountry(Constants.country);
+            times.setRiderNumber(rider.getRiderNumber());
+            rider.addTimes(times);
+        }
+
+        times.setTimeStamp(System.currentTimeMillis());
         times.setRegistered(registered);
         if (!registered) {
             times.clearStartNumber();
         }
         times.setRiderNumber(times.getRider().getRiderNumber());
-        times.setSeason(Constants.season);
-        times.setCountry(Constants.country);
         update(times, responseHandler);
     }
 
     @Override
-    public void generateStartNumbers(ResponseHandler responseHandler) {
-
-        boolean hasSortedRider = false;
-        boolean hasUnsortedRider = false;
+    public void generateStartNumbers() {
 
         try {
-            for (Times times : timesDao.getTimes(prefs.getDate())) {
-                if (times.hasStartNumber()) {
-                    hasSortedRider = true;
-                } else {
-                    hasUnsortedRider = true;
-                }
-            }
-
             for (Bib bib : Bib.values()) {
                /*
                 all startnumbers have been assigned, or none
                  */
-                if (hasSortedRider != hasUnsortedRider) {
-                    generateStartNumbers(bib, responseHandler);
+                generateStartNumbers(bib);
 
-                } else {
-                /*
-                some startnumbers have been assigned but not all, that is, riders have been inserted after
-                generation of startnumbers
-                 */
-                    updateStartNumbers(bib, responseHandler);
-                }
             }
 
         } catch (SQLException e) {
@@ -213,83 +202,51 @@ public class RiderManagerImpl implements RiderManager {
         }
     }
 
-    private void generateStartNumbers(Bib bib, ResponseHandler responseHandler) {
+    private void generateStartNumbers(Bib bib) throws SQLException {
 
-        try {
+        Log.d(LOGTAG, "generate start numbers for " + bib.name());
+        long date = prefs.getDate();
+        int start = bib == Bib.G ? 101 : (bib == Bib.B ? 201 : (bib == Bib.R ? 301 : 1));
 
-            long date = prefs.getDate();
-            int start = bib == Bib.G ? 101 : (bib == Bib.B ? 201 : (bib == Bib.R ? 301 : 1));
+        List<Rider> registeredRiders = timesDao.getRegisteredRiders(date, bib);
 
-            List<Rider> registeredRiders = timesDao.getRegisteredRiders(date, bib);
-
-            List<Integer> startNumbers = new ArrayList<Integer>();
-            for (int i = 0; i < registeredRiders.size(); i++) {
-                startNumbers.add(i + start);
-            }
-
-            Iterator<Rider> iterator = registeredRiders.iterator();
-
-            while (iterator.hasNext()) {
-                Rider rider = iterator.next();
-                Times times = rider.getEUTimes(date);
-                int randomNumber = (int) (Math.random() * startNumbers.size());
-                times.setStartNumber(startNumbers.remove(randomNumber));
-                timesDao.store(times);
-            }
-
-            List<Rider> unRegisteredRiders = timesDao.getUnregisteredRiders(date, bib);
-            for (Rider rider : unRegisteredRiders) {
-                Times times = rider.getEUTimes(date);
-                if (times == null) {
-                    times = new Times(date);
-                    times.setRider(rider);
-                    rider.addTimes(times);
-                }
-            }
-
-            api.uploadRiders(registeredRiders, responseHandler);
-
-        } catch (Exception e) {
-            responseHandler.onException(e);
+        for (Rider rider : registeredRiders) {
+            Log.d(LOGTAG, rider.getFullName() + " " + rider.get_id() + " " + rider.getRiderId() + " ");
         }
-    }
 
-    private void updateStartNumbers(Bib bib, ResponseHandler responseHandler) {
+        Log.d(LOGTAG, "number of registered riders " + registeredRiders.size());
 
-        try {
+        List<Integer> startNumbers = new ArrayList<Integer>();
+        for (int i = 0; i < registeredRiders.size(); i++) {
+            startNumbers.add(i + start);
+            Log.d(LOGTAG, Integer.toString(i));
+        }
 
-            int newNumbers = 0;
-            int start = bib == Bib.G ? 101 : (bib == Bib.B ? 201 : (bib == Bib.R ? 301 : 1));
+        Iterator<Rider> iterator = registeredRiders.iterator();
 
-            List<Times> list = timesDao.getTimesSortedOnStartNumber(prefs.getDate(), bib);
+        while (iterator.hasNext()) {
+            Rider rider = iterator.next();
+            Times times = rider.getEUTimes(date);
+            int randomNumber = (int) (Math.random() * startNumbers.size());
+            times.setStartNumber(startNumbers.remove(randomNumber));
+            timesDao.store(times);
+            Log.d(LOGTAG, rider.getFullName() + " has startnumber " + times.getStartNumber());
+        }
 
-            Iterator<Times> iterator = list.iterator();
-
-            while (iterator.hasNext()) {
-                Times times = iterator.next();
-
-                if (!times.hasStartNumber()) {
-                    times.setStartNumber(start++);
-                    newNumbers++;
-                } else {
-                    times.addToStartNumber(newNumbers);
-                }
-                log.d(LOGTAG, times.getRider().getName() + " " + times.getStartNumber());
-
-                timesDao.updateStartNumber(times);
+        List<Rider> unRegisteredRiders = timesDao.getUnregisteredRiders(date, bib);
+        for (Rider rider : unRegisteredRiders) {
+            Times times = rider.getEUTimes(date);
+            if (times == null) {
+                times = new Times(date);
+                times.setRider(rider);
+                rider.addTimes(times);
             }
-
-            List<Rider> registeredRiders = timesDao.getRegisteredRiders(prefs.getDate(), bib);
-            api.uploadRiders(registeredRiders, responseHandler);
-
-        } catch (Exception e) {
-            responseHandler.onException(e);
         }
     }
 
     @Override
-    public Rider getRiderByNumber(int riderNumber) throws SQLException {
-        return riderDao.getRiderByNumber(riderNumber);
+    public Rider getRiderByNumber(String riderNumber) throws SQLException {
+        return riderDao.getRiderByServerId(riderNumber);
     }
 
     @Override
@@ -302,7 +259,7 @@ public class RiderManagerImpl implements RiderManager {
         }
 
         times.setRiderNumber();
-        api.updateTimes(times, responseHandler);
+        api.updateRider(times.getRider(), responseHandler);
     }
 
     @Override
@@ -339,6 +296,16 @@ public class RiderManagerImpl implements RiderManager {
     }
 
     @Override
+    public void getAllRiders(ResponseHandler responseHandler) {
+        api.getAllRiders(responseHandler);
+    }
+
+    @Override
+    public boolean hasRiders() throws SQLException {
+        return riderDao.getRiders().size() > 0;
+    }
+
+    @Override
     public void updateToEU(Rider rider, ResponseHandler responseHandler) {
         rider.setCountry(Country.EU);
         rider.setSeason(2016);
@@ -349,7 +316,7 @@ public class RiderManagerImpl implements RiderManager {
     public void update(Rider rider, ResponseHandler responseHandler) {
 
         try {
-            riderDao.store(rider, Constants.country, Constants.season);
+            riderDao.store(rider);
         } catch (SQLException e) {
             responseHandler.onException(e);
         }
@@ -383,12 +350,13 @@ public class RiderManagerImpl implements RiderManager {
 
                 while (timesIterator.hasNext()) {
                     Times times = timesIterator.next();
+                    if (times.getCountry() == Constants.country) {
+                        if (timesMap.get(times.getDate()) == null) {
+                            timesMap.put(times.getDate(), new ArrayList<Times>());
+                        }
 
-                    if (timesMap.get(times.getDate()) == null) {
-                        timesMap.put(times.getDate(), new ArrayList<Times>());
+                        timesMap.get(times.getDate()).add(times);
                     }
-
-                    timesMap.get(times.getDate()).add(times);
                 }
             }
         }
@@ -414,6 +382,10 @@ public class RiderManagerImpl implements RiderManager {
                     int p = points[pointsPointer++];
 
                     times.setPoints(p);
+                    if (times.getRider().getFirstName().equalsIgnoreCase("kristian")) {
+                        Log.d(LOGTAG, times.getRider().getFullName() + " " + Constants.dateFormat.format(times.getDate())
+                                + " " + "points: " + p);
+                    }
                 }
             }
         }
@@ -463,27 +435,34 @@ public class RiderManagerImpl implements RiderManager {
     }
 
     @Override
-    public Rider getRider(int riderNumber) throws SQLException {
-        return riderDao.getRiderByNumber(riderNumber);
+    public Rider getRiderByServerId(String serverRiderId) throws SQLException {
+        return riderDao.getRiderByServerId(serverRiderId);
     }
 
     @Override
     public void loadRidersFromServer(final ResponseHandler responseHandler) {
 
+        //System.out.println("loadRidersFromServer");
+
         api.getRiders(new ResponseHandler() {
 
             @Override
             public void onSuccess(Object object) {
+                //System.out.println("onSuccess 1");
+
                 ListRidersResult result = (ListRidersResult) object;
 
-                try {
-                    riderDao.store(result.getRiders(), Constants.country, Constants.season);
-                } catch (SQLException e) {
-                    e.printStackTrace();
+                if (result.getRiders() != null) {
+                    try {
+                        riderDao.store(result.getRiders());
+                    } catch (SQLException e) {
+                        e.printStackTrace();
+                    }
+                    for (Rider r : result.getRiders()) {
+                        riderMap.add(r.getRiderNumber());
+                    }
                 }
-                for (Rider r : result.getRiders()) {
-                    riderMap.add(r.getRiderNumber());
-                }
+                // System.out.println("onSuccess 2");
                 responseHandler.onSuccess(object);
             }
 
@@ -526,5 +505,5 @@ public class RiderManagerImpl implements RiderManager {
 
     @Override
     public void saveWittyFile() {
-     }
+    }
 }

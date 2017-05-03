@@ -1,6 +1,7 @@
 package eu.motogymkhana.competition.test;
 
 import android.content.Context;
+import android.util.Log;
 
 import junit.framework.Assert;
 
@@ -63,8 +64,8 @@ public class RidersApiTest {
     String dateOne = "01-06-2016";
     String dateTwo = "01-07-2016";
 
-    private String ridersUrlString = "https://api.gymcomp.com:9005/motogymkhana/getRiders/";
-    private String ridersJsonFile = "test/get_riders.json";
+    private String ridersUrlString = "https://pengo.christine.nl:9005/motogymkhana/getRiders/";
+    private String ridersJsonFile = "test/new_get_riders.json";
 
     private volatile boolean done = false;
     private ListRidersResult result;
@@ -108,8 +109,11 @@ public class RidersApiTest {
     @Test
     public void testGetRiders() throws IOException, InterruptedException, ParseException, SQLException {
 
+       // System.out.println("start");
         Scope scope = Toothpick.openScope(Constants.TEST_SCOPE);
         Toothpick.inject(this, scope);
+
+       // System.out.println("after toothpick");
 
         Assert.assertNotNull(context);
 
@@ -134,16 +138,21 @@ public class RidersApiTest {
                 done = true;
             }
         });
+       // System.out.println("downloadRiders");
 
-
-        riderManager.downloadRiders(downloadRidersResponseHandler);
+         riderManager.downloadRiders(downloadRidersResponseHandler);
+       // System.out.println("after downloadRiders");
 
         while (!done) {
             Thread.sleep(100);
             ShadowLooper.runUiThreadTasksIncludingDelayedTasks();
         }
+        //System.out.println("assert");
 
-        Assert.assertEquals(31, result.getRiders().size());
+        Assert.assertEquals(30, result.getRiders().size());
+
+        List<Rider> allRiders = riderDao.getAllRiders();
+        Assert.assertEquals(30, allRiders.size());
 
         done = false;
 
@@ -153,6 +162,6 @@ public class RidersApiTest {
             ShadowLooper.runUiThreadTasksIncludingDelayedTasks();
         }
 
-        Assert.assertEquals(31, riders.size());
+        Assert.assertEquals(30, riders.size());
     }
 }

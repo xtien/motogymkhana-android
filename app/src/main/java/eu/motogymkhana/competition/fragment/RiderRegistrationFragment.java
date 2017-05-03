@@ -8,6 +8,7 @@
 package eu.motogymkhana.competition.fragment;
 
 import android.content.Context;
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.ListFragment;
 import android.view.LayoutInflater;
@@ -23,6 +24,7 @@ import java.util.List;
 
 import eu.motogymkhana.competition.Constants;
 import eu.motogymkhana.competition.R;
+import eu.motogymkhana.competition.activity.AddRiderActivity;
 import eu.motogymkhana.competition.adapter.RiderRegistrationListAdapter;
 import eu.motogymkhana.competition.dao.RoundDao;
 import eu.motogymkhana.competition.dao.TimesDao;
@@ -44,6 +46,7 @@ import toothpick.Toothpick;
  */
 public class RiderRegistrationFragment extends ListFragment {
 
+    private static final int ADD_RIDER = 102;
     private List<Rider> riders = new ArrayList<Rider>();
 
     @Inject
@@ -65,6 +68,27 @@ public class RiderRegistrationFragment extends ListFragment {
     private volatile boolean attached;
     private Scope scope;
 
+    private View.OnClickListener addRiderClickListener = new View.OnClickListener() {
+
+        @Override
+        public void onClick(View v) {
+            startActivityForResult(new Intent(getActivity().getApplicationContext(), AddRiderActivity.class),
+                    ADD_RIDER);
+        }
+    };
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        switch (requestCode) {
+            case ADD_RIDER:
+                switch (resultCode) {
+                    case AddRiderActivity.RESULT_OK:
+                        notifier.notifyDataChanged();
+                }
+        }
+    }
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         scope = Toothpick.openScopes(Constants.DEFAULT_SCOPE, this);
@@ -85,6 +109,10 @@ public class RiderRegistrationFragment extends ListFragment {
         TextView titleView = ((TextView) view.findViewById(R.id.title));
         titleView.setVisibility(View.VISIBLE);
         titleView.setText(R.string.registration);
+
+        TextView addRiderView = (TextView) view.findViewById(R.id.add_rider);
+        addRiderView.setVisibility(View.VISIBLE);
+        addRiderView.setOnClickListener(addRiderClickListener);
 
         adapter = new RiderRegistrationListAdapter(getActivity(), riderManager, notifier);
         adapter.setRegistration();

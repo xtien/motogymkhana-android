@@ -7,7 +7,6 @@ import android.content.SharedPreferences.Editor;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
-import eu.motogymkhana.competition.BuildConfig;
 import eu.motogymkhana.competition.Constants;
 import eu.motogymkhana.competition.Server;
 import eu.motogymkhana.competition.model.Country;
@@ -32,11 +31,9 @@ public class MyPreferencesImpl implements MyPreferences {
     private static final Country COUNTRY_DEFAULT = Country.NL;
     private static final String SEASON = "season";
     private static final String LOAD_ROUNDS = "load_rounds";
-    private static final int SEASON_DEFAULT = 2016;
+    private static final int SEASON_DEFAULT = 0;
 
     private SharedPreferences prefs;
-
-    private String defaultDate = "2016-05-28";
 
     @Inject
     public MyPreferencesImpl(Context context) {
@@ -126,7 +123,12 @@ public class MyPreferencesImpl implements MyPreferences {
 
     @Override
     public Country getCountry() {
-        return Country.valueOf(prefs.getString(COUNTRY, COUNTRY_DEFAULT.name()));
+        String countryString = prefs.getString(COUNTRY, null);
+        if (countryString != null) {
+            return Country.valueOf(countryString);
+        } else {
+            return null;
+        }
     }
 
     @Override

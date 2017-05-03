@@ -1,6 +1,7 @@
 package eu.motogymkhana.competition.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.j256.ormlite.field.DatabaseField;
 import com.j256.ormlite.field.ForeignCollectionField;
@@ -15,12 +16,14 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 
+import eu.motogymkhana.competition.Constants;
 import eu.motogymkhana.competition.dao.impl.RiderDaoImpl;
 import eu.motogymkhana.competition.prefs.PrefsProvider;
 
 @DatabaseTable(tableName = "riders", daoClass = RiderDaoImpl.class)
 public class Rider {
 
+    public static final String ANDROID_ID = "android_id";
     public static final String DATE_OF_BIRTH = "dob";
     public static final String GENDER = "gender";
     public static final String FIRSTNAME = "firstname";
@@ -28,13 +31,8 @@ public class Rider {
     public static final String RIDER_NUMBER = "number";
     public static final String DAY_RIDER = "day_rider";
     public static final String ID = "_id";
-    public static final String START_NUMBER = "startnumber";
-    public static final String TIME1 = "time1";
-    public static final String TIME2 = "time2";
-    public static final String BEST_TIME = "best_time";
-    public static final String REGISTERED = "registered";
+    public static final String SERVER_ID = "rider_id";
     public static final String COUNTRY = "country";
-    public static final String BIB = "bib";
     public static final String TEXT = "text";
     public static final String TIMES = "times";
     public static final String SHARING = "sharing";
@@ -45,9 +43,16 @@ public class Rider {
     public static final String IMAGE_URL = "image_url";
     public static final String BIKE_IMAGE_URL = "bike_image_url";
     public static final String EMAIL = "email";
+    public static final String REGISTRATION = "registration";
+    private static final String HIDE_LASTNAME = "hide_lastname";
 
     @DatabaseField(generatedId = true, columnName = ID)
+    @JsonIgnore
     private int _id;
+
+    @DatabaseField(columnName = SERVER_ID)
+    @JsonProperty(SERVER_ID)
+    private String riderId;
 
     @JsonProperty(SEASON)
     @DatabaseField(columnName = SEASON)
@@ -59,7 +64,7 @@ public class Rider {
 
     @JsonProperty(NATIONALITY)
     @DatabaseField(columnName = NATIONALITY)
-    private Country nationality;
+    private Country nationality = Country.NL;
 
     @JsonProperty(BIKE)
     @DatabaseField(columnName = BIKE)
@@ -85,13 +90,13 @@ public class Rider {
     @DatabaseField(columnName = LASTNAME)
     private String lastName;
 
+    @JsonProperty(HIDE_LASTNAME)
+    @DatabaseField(columnName = HIDE_LASTNAME)
+    private boolean hideLastName;
+
     @JsonProperty(EMAIL)
     @DatabaseField(columnName = EMAIL)
     private String email;
-
-    @JsonProperty(RIDER_NUMBER)
-    @DatabaseField(columnName = RIDER_NUMBER)
-    private int riderNumber;
 
     @JsonProperty(DAY_RIDER)
     @DatabaseField(columnName = DAY_RIDER)
@@ -104,10 +109,6 @@ public class Rider {
     @JsonProperty(DATE_OF_BIRTH)
     @DatabaseField(columnName = DATE_OF_BIRTH)
     private String dateOfBirth;
-
-    @JsonProperty(BIB)
-    @DatabaseField(columnName = BIB)
-    private Bib bib = Bib.Y;
 
     @JsonProperty(TEXT)
     @DatabaseField(columnName = TEXT)
@@ -124,6 +125,14 @@ public class Rider {
     @JsonIgnore
     @DatabaseField(persisted = false)
     private int totalPoints;
+
+    @JsonProperty(REGISTRATION)
+    @ForeignCollectionField(eager = true, maxEagerLevel = 2)
+    private Collection<Registration> registrations = new ArrayList<>();
+
+    @DatabaseField(columnName = ANDROID_ID)
+    @JsonProperty(ANDROID_ID)
+    private String androidId;
 
     public Rider() {
 
@@ -148,8 +157,6 @@ public class Rider {
             String sex = splitString[3].substring(0, 1);
             gender = Gender.valueOf(sex);
 
-            riderNumber = Integer.parseInt(splitString[0]);
-
             if (splitString.length > 4) {
                 dateOfBirth = splitString[4];
             }
@@ -157,7 +164,6 @@ public class Rider {
     }
 
     public Rider(int number, String firstName, String lastName, Gender gender, Country country) {
-        riderNumber = number;
         this.firstName = firstName;
         this.lastName = lastName;
         this.gender = gender;
@@ -166,6 +172,8 @@ public class Rider {
         t.setRider(this);
         t.setRegistered(true);
         timesList.add(t);
+        Registration registration = new Registration(Constants.country, Constants.season, number);
+        registrations.add(registration);
     }
 
     @JsonIgnore
@@ -174,7 +182,12 @@ public class Rider {
     }
 
     public int getRiderNumber() {
-        return riderNumber;
+        Registration registration = getRegistration();
+        if (registration != null) {
+            return registration.getNumber();
+        } else {
+            return -1;
+        }
     }
 
     public String getFirstName() {
@@ -191,7 +204,7 @@ public class Rider {
 
     @JsonIgnore
     public String getRiderNumberString() {
-        return Integer.toString(riderNumber);
+        return Integer.toString(getRiderNumber());
     }
 
     public int get_id() {
@@ -203,6 +216,14 @@ public class Rider {
     }
 
     public void addTimes(Times times) {
+
+        for (Times t : this.timesList) {
+            if (t.getSeason() == times.getSeason() && t.getCountry() == times.getCountry() && t.getDate() == times.getDate()) {
+                t.merge(times);
+                return;
+            }
+        }
+
         timesList.add(times);
     }
 
@@ -265,14 +286,10 @@ public class Rider {
         this.dayRider = dayRider;
     }
 
-    public void setTotalPoints(int totalPoints) {
-        this.totalPoints = totalPoints;
-    }
-
     @JsonIgnore
     public boolean isValid() {
         return firstName != null && firstName.length() > 0 && lastName != null && lastName.length() > 0 &&
-                riderNumber > 0;
+                getRegistration() != null && getRegistration().getNumber() > 0;
     }
 
     public Gender getGender() {
@@ -289,18 +306,6 @@ public class Rider {
 
     public void setGender(Gender gender) {
         this.gender = gender;
-    }
-
-    @JsonIgnore
-    public int getBestTime(long date) {
-
-        Times times = getEUTimes(date);
-
-        if (times != null) {
-            return times.getBestTime();
-        } else {
-            return 0;
-        }
     }
 
     @JsonIgnore
@@ -323,7 +328,9 @@ public class Rider {
             while (iterator.hasNext()) {
                 Times times = iterator.next();
 
-                if (times.isDate(date)) {
+                if (times.isDate(date)
+                        && times.getCountry() == Constants.country
+                        && times.getSeason() == Constants.season) {
                     return times;
                 }
             }
@@ -339,16 +346,12 @@ public class Rider {
         }
 
         Rider otherRider = (Rider) other;
-        return otherRider.getRiderNumber() == riderNumber;
+        return otherRider.getRiderId().equals(riderId);
     }
 
     @Override
     public int hashCode() {
-        return new HashCodeBuilder().append(riderNumber).append(firstName).append(lastName).toHashCode();
-    }
-
-    public void setRiderNumber(int number) {
-        this.riderNumber = number;
+        return new HashCodeBuilder().append(getRegistration().getNumber()).append(firstName).append(lastName).toHashCode();
     }
 
     @JsonIgnore
@@ -376,19 +379,6 @@ public class Rider {
         this.country = country;
     }
 
-    public void setBib(Bib bib) {
-        this.bib = bib;
-    }
-
-    public Bib getBib() {
-
-        if (bib == null) {
-            return Bib.Y;
-        } else {
-            return bib;
-        }
-    }
-
     @JsonIgnore
     public int getStartNumber() {
         Times t = getEUTimes(PrefsProvider.getPrefs().getDate());
@@ -397,15 +387,14 @@ public class Rider {
         } else {
             return 0;
         }
-
     }
 
-    public int getSharing() {
-        return sharing;
-    }
-
-    public void setSharing(int sharing) {
-        this.sharing = sharing;
+    @JsonIgnore
+    public void setStartNumber(int startNumber) {
+        Times t = getEUTimes(PrefsProvider.getPrefs().getDate());
+        if (t != null) {
+            t.setStartNumber(startNumber);
+        }
     }
 
     public void setBike(String bike) {
@@ -441,7 +430,7 @@ public class Rider {
     }
 
     public Country getNationality() {
-        return nationality;
+        return nationality != null ? nationality : Country.NL;
     }
 
     public void setNationality(Country nationality) {
@@ -461,7 +450,25 @@ public class Rider {
     }
 
     public int getBibColor() {
-        return bib.getColor();
+        if (registrations != null) {
+            Registration registration = getRegistration();
+            if (registration != null) {
+                if (!registration.hasBib()) {
+                    registration.setBib(Bib.Y);
+                }
+                return registration.getBib().getColor();
+            }
+        }
+        return Bib.Y.getColor();
+    }
+
+    public Registration getRegistration() {
+        for (Registration registration : registrations) {
+            if (registration.getCountry() == Constants.country && registration.getSeason() == Constants.season) {
+                return registration;
+            }
+        }
+        return null;
     }
 
     public int getSeason() {
@@ -478,5 +485,101 @@ public class Rider {
             times = new Times();
         }
         times.setStartNumber(startNumber);
+    }
+
+    public Registration getRegistration(Country country, int season) {
+        if (registrations != null) {
+            for (Registration registration : registrations) {
+                if (registration.getSeason() == season && registration.getCountry() == country) {
+                    return registration;
+                }
+            }
+        }
+        return new Registration(country, season, false);
+    }
+
+    public void addRegistration(Registration registration) {
+        registration.setRider(this);
+        registrations.add(registration);
+    }
+
+    public Collection<Registration> getRegistrations() {
+        return registrations;
+    }
+
+    public Bib getBib() {
+        if (registrations != null) {
+            Registration registration = getRegistration();
+            if (registration != null) {
+                return getRegistration().getBib();
+            }
+        }
+        return Bib.Y;
+    }
+
+    public void setBib(Bib bib) {
+        Registration registration = getRegistration();
+        if (registration != null) {
+            registration.setBib(bib);
+        }
+    }
+
+    public boolean hasRegistration() {
+        return hasRegistration(Constants.country, Constants.season);
+    }
+
+    public boolean hasRegistration(Country country, int season) {
+        for (Registration registration : registrations) {
+            if (registration.getCountry() == country && registration.getSeason() == season) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public boolean hasRegistration(Country country, int season, Bib bib) {
+        for (Registration registration : registrations) {
+            if (registration.getCountry() == country && registration.getSeason() == season && registration.getBib()
+                    == bib) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public String getFullName() {
+        return firstName + " " + lastName;
+    }
+
+    public String getRiderId() {
+        return riderId;
+    }
+
+    public void setRiderId(String serverId) {
+        this.riderId = serverId;
+    }
+
+    public String getAndroidId() {
+        return androidId;
+    }
+
+    public void setAndroidId(String androidId) {
+        this.androidId = androidId;
+    }
+
+    public boolean hasAndroidId() {
+        return androidId != null;
+    }
+
+    public String getEmail() {
+        return email;
+    }
+
+    public boolean isHideLastName() {
+        return hideLastName;
+    }
+
+    public void setHideLastName(boolean hideLastName) {
+        this.hideLastName = hideLastName;
     }
 }

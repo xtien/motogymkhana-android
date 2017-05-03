@@ -16,6 +16,7 @@ import eu.motogymkhana.competition.api.response.SettingsResult;
 import eu.motogymkhana.competition.model.Rider;
 import eu.motogymkhana.competition.model.Round;
 import eu.motogymkhana.competition.model.Times;
+import eu.motogymkhana.competition.rider.GetRidersCallback;
 import eu.motogymkhana.competition.settings.Settings;
 
 public interface ApiManager {
@@ -41,4 +42,6 @@ public interface ApiManager {
 	void getSettings( ResponseHandler responseHandler);
 
 	void uploadSettings(Settings settings, ResponseHandler responseHandler);
+
+	void getAllRiders(ResponseHandler responseHandler);
 }

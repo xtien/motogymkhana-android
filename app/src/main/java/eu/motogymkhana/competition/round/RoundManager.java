@@ -48,7 +48,7 @@ public interface RoundManager {
     /**
      * get rounds from server and store them
      */
-    void loadRoundsFromServer();
+    void loadRoundsFromServer(ResponseHandler responseHandler);
 
     /**
      * get the round that is current.

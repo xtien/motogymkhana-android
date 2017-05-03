@@ -2,6 +2,7 @@ package eu.motogymkhana.competition.dao.impl;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
+
 import com.j256.ormlite.dao.BaseDaoImpl;
 import com.j256.ormlite.stmt.DeleteBuilder;
 import com.j256.ormlite.stmt.QueryBuilder;
@@ -62,6 +63,8 @@ public class RoundDaoImpl extends BaseDaoImpl<Round, Integer> implements RoundDa
     @Override
     public List<Round> getRounds() throws SQLException {
 
+        List<Round> l = queryForAll();
+
         List<Round> list = null;
         QueryBuilder<Round, Integer> statementBuilder = queryBuilder();
 
@@ -103,12 +106,12 @@ public class RoundDaoImpl extends BaseDaoImpl<Round, Integer> implements RoundDa
 
         for (Round round : rounds) {
             store(round);
-            if(existingRounds.contains(round)){
+            if (existingRounds.contains(round)) {
                 existingRounds.remove(round);
             }
         }
 
-        for(Round round : existingRounds){
+        for (Round round : existingRounds) {
             delete(round);
         }
     }
@@ -134,14 +137,14 @@ public class RoundDaoImpl extends BaseDaoImpl<Round, Integer> implements RoundDa
         long now = System.currentTimeMillis();
         long nowPlusTwoDays = now + 2 * 24 * 3600 * 1000l;
 
-        for(Round rr : getRounds()){
+        for (Round rr : getRounds()) {
             boolean later = r == null || rr.getDate() > r.getDate();
             boolean inPast = rr.getDate() < nowPlusTwoDays;
-            if (later && inPast) {
+            if (r == null || (later && inPast)) {
                 r = rr;
             }
         }
 
         return r;
-     }
+    }
 }

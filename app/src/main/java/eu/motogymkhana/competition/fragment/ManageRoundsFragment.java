@@ -28,6 +28,7 @@ import javax.inject.Inject;
 import eu.motogymkhana.competition.Constants;
 import eu.motogymkhana.competition.R;
 import eu.motogymkhana.competition.adapter.ManageRoundsAdapter;
+import eu.motogymkhana.competition.api.ResponseHandler;
 import eu.motogymkhana.competition.model.Round;
 import eu.motogymkhana.competition.notify.Notifier;
 import eu.motogymkhana.competition.prefs.MyPreferences;
@@ -59,11 +60,28 @@ public class ManageRoundsFragment extends BaseFragment implements DatePickerDial
     @Inject
     protected SettingsManager settingsManager;
 
-    private DatePicker datePicker;
     private Button addButton;
     private ManageRoundsAdapter adapter;
-    private MyPreferences prefs;
     private Scope scope;
+
+    private ResponseHandler roundsResponseHandler = new ResponseHandler() {
+
+        @Override
+        public void onSuccess(Object object) {
+            notifier.notifyDataChanged();
+        }
+
+        @Override
+        public void onException(Exception e) {
+
+        }
+
+        @Override
+        public void onError(int statusCode, String string) {
+
+        }
+    };
+    private volatile boolean roundsChanged = false;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -124,9 +142,7 @@ public class ManageRoundsFragment extends BaseFragment implements DatePickerDial
         round.setSeason(Constants.season);
 
         adapter.add(round);
-
-        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
-        String formattedDate = sdf.format(c.getTime());
+        roundsChanged = true;
     }
 
     @Override
@@ -136,10 +152,10 @@ public class ManageRoundsFragment extends BaseFragment implements DatePickerDial
 
             roundManager.save(adapter.getRounds());
             settingsManager.setRounds(adapter.getRounds());
-
-            notifier.notifyDataChanged();
-
-            Toast.makeText(getActivity(), R.string.upload_rounds_manually, Toast.LENGTH_LONG).show();
+            if (roundsChanged){
+                roundManager.save(adapter.getRounds());
+                roundManager.uploadRounds(roundsResponseHandler);
+            }
 
         } catch (SQLException e) {
             showAlert(e);

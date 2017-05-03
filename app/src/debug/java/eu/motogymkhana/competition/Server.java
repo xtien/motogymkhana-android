@@ -13,12 +13,10 @@ package eu.motogymkhana.competition;
 
 public class Server {
 
-    public static final boolean useTestServer = false;
     public static boolean USE_HTTPS = true;
-    public static final String testServer = "pengo.christine.nl";
-    public static final String productionServer = "api.gymcomp.com";
 
     public static final String urlHttp = USE_HTTPS ? "https://" : "http://";
-    public static final String hostName = useTestServer ? testServer : productionServer;
+    //public static final String hostName = "pengo.christine.nl";
+    public static final String hostName = "api.gymcomp.com";
     public static final int HTTP_PORT = USE_HTTPS ? 9005 : 8085;
 }

@@ -27,4 +27,6 @@ public interface ApiUrlHelper {
     String getSettingsUrl();
 
     String getUploadSettingsUrl();
+
+    String getAllRidersUrl();
 }

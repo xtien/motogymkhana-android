@@ -27,6 +27,7 @@ import eu.motogymkhana.competition.BuildConfig;
 import eu.motogymkhana.competition.Constants;
 import eu.motogymkhana.competition.adapter.ChangeListener;
 import eu.motogymkhana.competition.api.ResponseHandler;
+import eu.motogymkhana.competition.api.response.ListRidersResult;
 import eu.motogymkhana.competition.dao.RiderDao;
 import eu.motogymkhana.competition.dao.RoundDao;
 import eu.motogymkhana.competition.model.Rider;
@@ -55,15 +56,10 @@ public class RidersApiTest {
     @Inject
     protected RiderDao riderDao;
 
-    String dateOne = "01-06-2016";
-    String dateTwo = "01-07-2016";
-
-    private String ridersUrlString = "https://api.gymcomp.com:9005/motogymkhana/getRiders/";
-    private String ridersJsonFile = "test/get_riders.json";
-
     private volatile boolean done = false;
 
     private List<Rider> riders = new LinkedList<Rider>();
+    private Collection<Rider> downloadedRiders;
 
     GetRidersCallback callback = new GetRidersCallback() {
 
@@ -84,6 +80,9 @@ public class RidersApiTest {
 
         @Override
         public void onSuccess(Object object) {
+
+            downloadedRiders = ((ListRidersResult) object).getRiders();
+
             done = true;
         }
 
@@ -117,6 +116,9 @@ public class RidersApiTest {
         while (!done) {
             Thread.sleep(1000);
         }
+        Assert.assertEquals(31, downloadedRiders.size());
+
+        Assert.assertEquals(31, riderDao.getRiders().size());
 
         done = false;
 

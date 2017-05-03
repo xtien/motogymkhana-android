@@ -54,31 +54,6 @@ public class RoundManagerImpl implements RoundManager {
     @Inject
     protected MyLog log;
 
-    private ResponseHandler getRoundsResponseHandler = new ResponseHandler() {
-
-        @Override
-        public void onSuccess(Object object) {
-
-            ListRoundsResult result = (ListRoundsResult) object;
-            try {
-                roundDao.store(result.getRounds());
-                notifier.notifyDataChanged();
-            } catch (SQLException e) {
-                onException(e);
-            }
-        }
-
-        @Override
-        public void onException(Exception e) {
-            log.e(LOGTAG, e);
-        }
-
-        @Override
-        public void onError(int statusCode, String string) {
-            log.e(LOGTAG, "" + statusCode + " " + string);
-        }
-    };
-
     @Inject
     public RoundManagerImpl() {
     }
@@ -138,8 +113,35 @@ public class RoundManagerImpl implements RoundManager {
     }
 
     @Override
-    public void loadRoundsFromServer() {
-        api.getRounds(getRoundsResponseHandler);
+    public void loadRoundsFromServer(final ResponseHandler responseHandler) {
+
+        api.getRounds(new ResponseHandler() {
+
+            @Override
+            public void onSuccess(Object object) {
+
+                ListRoundsResult result = (ListRoundsResult) object;
+                try {
+                    roundDao.store(result.getRounds());
+                    notifier.notifyDataChanged();
+                } catch (SQLException e) {
+                    onException(e);
+                }
+                responseHandler.onSuccess(object);
+            }
+
+            @Override
+            public void onException(Exception e) {
+                log.e(LOGTAG, e);
+                responseHandler.onException(e);
+            }
+
+            @Override
+            public void onError(int statusCode, String string) {
+                log.e(LOGTAG, "" + statusCode + " " + string);
+                responseHandler.onError(statusCode, string);
+            }
+        });
     }
 
     @Override
@@ -165,7 +167,7 @@ public class RoundManagerImpl implements RoundManager {
 
         int i = 0;
         for (Round r : rounds) {
-            System.out.println("round " + r.getDateString());
+            //System.out.println("round " + r.getDateString());
             r.setNumber(++i);
         }
 
@@ -176,7 +178,7 @@ public class RoundManagerImpl implements RoundManager {
                 existingRounds.remove(r);
             }
             roundDao.store(r);
-            System.out.println("round " + r.getNumber() + " " + r.getDateString());
+            // System.out.println("round " + r.getNumber() + " " + r.getDateString());
         }
 
         for (Round r : existingRounds) {

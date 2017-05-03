@@ -7,11 +7,15 @@
 
 package eu.motogymkhana.competition.api.response;
 
+import eu.motogymkhana.competition.model.Rider;
+
 /**
  * Created by christine on 15-5-15.
  */
 public class UpdateRiderResponse {
+
     private int status;
+    private Rider rider;
 
     public int getStatus() {
         return status;
@@ -23,5 +27,9 @@ public class UpdateRiderResponse {
 
     public boolean isOK() {
         return status == 0;
+    }
+
+    public Rider getRider() {
+        return rider;
     }
 }

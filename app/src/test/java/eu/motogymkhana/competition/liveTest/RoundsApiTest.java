@@ -21,6 +21,7 @@ import javax.inject.Inject;
 
 import eu.motogymkhana.competition.BuildConfig;
 import eu.motogymkhana.competition.Constants;
+import eu.motogymkhana.competition.api.ResponseHandler;
 import eu.motogymkhana.competition.model.Round;
 import eu.motogymkhana.competition.round.RoundManager;
 import toothpick.Scope;
@@ -43,13 +44,30 @@ public class RoundsApiTest {
     private String ridersUrlString = "https://api.gymcomp.com:9005/motogymkhana/getRiders/";
     private String ridersJsonFile = "test/get_riders.json";
 
+    private ResponseHandler loadRoundsResposneHandler = new ResponseHandler() {
+        @Override
+        public void onSuccess(Object object) {
+
+        }
+
+        @Override
+        public void onException(Exception e) {
+
+        }
+
+        @Override
+        public void onError(int statusCode, String string) {
+
+        }
+    };
+
     @Test
     public void testGetDates() throws SQLException, InterruptedException {
 
         Scope scope = Toothpick.openScope(Constants.LIVE_TEST_SCOPE);
         Toothpick.inject(this, scope);
 
-        roundManager.loadRoundsFromServer();
+        roundManager.loadRoundsFromServer(loadRoundsResposneHandler);
 
         Collection<Round> rounds = null;
 

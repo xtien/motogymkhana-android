@@ -45,11 +45,11 @@ import toothpick.Toothpick;
  */
 public class RiderTimesInputActivity extends BaseActivity {
 
-    public static final String RIDER_NUMBER = "rider_number";
+    public static final String RIDER_ID = "rider_number";
     public static final String FOCUS = "focus";
     private static final String LOGTAG = RiderTimesInputActivity.class.getSimpleName();
 
-    private int riderNumber;
+    private String riderId;
 
     private int focus;
 
@@ -73,6 +73,7 @@ public class RiderTimesInputActivity extends BaseActivity {
 
     Rider rider = null;
     Times riderTimes = null;
+    private Scope scope;
 
     private ResponseHandler updateRiderResponseHandler = new ResponseHandler() {
 
@@ -82,6 +83,14 @@ public class RiderTimesInputActivity extends BaseActivity {
             UpdateRiderResponse result = (UpdateRiderResponse) object;
 
             if (result.isOK()) {
+
+                Rider updatedRider = result.getRider();
+                try {
+                    riderManager.store(updatedRider);
+                } catch (SQLException e) {
+                    showAlert(e);
+                }
+
                 notifier.notifyDataChanged();
                 setResult(RiderTimeInputListAdapter.RIDER_CHANGED);
                 finish();
@@ -100,7 +109,6 @@ public class RiderTimesInputActivity extends BaseActivity {
             Toast.makeText(RiderTimesInputActivity.this, error, Toast.LENGTH_LONG).show();
         }
     };
-    private Scope scope;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -110,14 +118,14 @@ public class RiderTimesInputActivity extends BaseActivity {
 
         setContentView(R.layout.activity_rider_times_input);
 
-        riderNumber = getIntent().getIntExtra(RIDER_NUMBER, 0);
+        riderId = getIntent().getStringExtra(RIDER_ID);
         focus = getIntent().getIntExtra(FOCUS, 0);
 
         ((TextView) findViewById(R.id.date)).setText(Constants.dateFormat.format(prefs.getDate()));
 
         try {
 
-            rider = riderManager.getRiderByNumber(riderNumber);
+            rider = riderManager.getRiderByServerId(riderId);
             riderTimes = rider.getEUTimes(prefs.getDate());
 
         } catch (SQLException e) {
@@ -196,6 +204,9 @@ public class RiderTimesInputActivity extends BaseActivity {
                     riderTimes.setDisqualified2(disqualified2.isChecked());
 
                     riderManager.update(riderTimes, updateRiderResponseHandler);
+                    setResult(RiderTimeInputListAdapter.RIDER_CHANGED);
+                    notifier.notifyDataChanged();
+                    finish();
 
                 } else {
                     finish();

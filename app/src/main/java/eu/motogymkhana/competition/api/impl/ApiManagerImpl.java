@@ -4,6 +4,7 @@ import android.content.Context;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
@@ -39,6 +40,7 @@ import eu.motogymkhana.competition.model.Rider;
 import eu.motogymkhana.competition.model.Round;
 import eu.motogymkhana.competition.model.Times;
 import eu.motogymkhana.competition.prefs.MyPreferences;
+import eu.motogymkhana.competition.rider.GetRidersCallback;
 import eu.motogymkhana.competition.settings.Settings;
 
 public class ApiManagerImpl implements ApiManager {
@@ -71,12 +73,12 @@ public class ApiManagerImpl implements ApiManager {
 
     @Inject
     @Singleton
-    public ApiManagerImpl(){
+    public ApiManagerImpl() {
 
     }
 
     @Override
-    public void updateRider(Rider rider, ResponseHandler responseHandler)  {
+    public void updateRider(Rider rider, ResponseHandler responseHandler) {
         UpdateRiderRequest request = new UpdateRiderRequest(rider);
         setPW(request);
         String input = null;
@@ -89,7 +91,7 @@ public class ApiManagerImpl implements ApiManager {
     }
 
     @Override
-    public void updateTimes(Times times, ResponseHandler responseHandler)  {
+    public void updateTimes(Times times, ResponseHandler responseHandler) {
         UpdateTimesRequest request = new UpdateTimesRequest(times);
         setPW(request);
         String input = null;
@@ -127,8 +129,30 @@ public class ApiManagerImpl implements ApiManager {
     }
 
     @Override
+    public void getAllRiders(ResponseHandler responseHandler) {
+        GymkhanaRequest request = new GymkhanaRequest();
+        String input = null;
+        try {
+            input = mapper.writeValueAsString(request);
+        } catch (JsonProcessingException e) {
+            responseHandler.onException(e);
+        }
+        apiAsync.post(apiUrlHelper.getAllRidersUrl(), input, responseHandler, ListRidersResult.class);
+    }
+
+    @Override
     public void getRiders(ResponseHandler responseHandler) {
         GymkhanaRequest request = new GymkhanaRequest(Constants.country, Constants.season);
+
+        if (credentialDao.isAdmin()) {
+            try {
+                Credential credential = credentialDao.get();
+                request.setPassword(credential.getPassword());
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        }
+
         String input = null;
         try {
             input = mapper.writeValueAsString(request);
@@ -139,7 +163,7 @@ public class ApiManagerImpl implements ApiManager {
     }
 
     @Override
-    public void uploadRiders(List<Rider> riders, ResponseHandler responseHandler)  {
+    public void uploadRiders(List<Rider> riders, ResponseHandler responseHandler) {
 
         UploadRidersRequest request = new UploadRidersRequest(riders);
         setPW(request);
@@ -154,7 +178,7 @@ public class ApiManagerImpl implements ApiManager {
     }
 
     @Override
-    public void uploadRounds(Collection<Round> rounds, ResponseHandler responseHandler)  {
+    public void uploadRounds(Collection<Round> rounds, ResponseHandler responseHandler) {
         UploadRoundsRequest request = new UploadRoundsRequest(rounds, Constants.country, Constants.season);
         setPW(request);
         String input = null;
@@ -193,7 +217,7 @@ public class ApiManagerImpl implements ApiManager {
     }
 
     @Override
-    public void delete(Rider rider, ResponseHandler responseHandler)  {
+    public void delete(Rider rider, ResponseHandler responseHandler) {
 
         UpdateRiderRequest request = new UpdateRiderRequest(rider);
         setPW(request);
@@ -208,9 +232,9 @@ public class ApiManagerImpl implements ApiManager {
     }
 
     @Override
-    public void sendText(String text, ResponseHandler responseHandler)  {
+    public void sendText(String text, ResponseHandler responseHandler) {
 
-        UpdateTextRequest request = new UpdateTextRequest(text,Constants.country, Constants.season);
+        UpdateTextRequest request = new UpdateTextRequest(text, Constants.country, Constants.season);
         setPW(request);
         String input = null;
         try {

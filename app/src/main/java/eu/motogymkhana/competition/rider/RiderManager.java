@@ -34,7 +34,7 @@ public interface RiderManager {
     /**
      * get a rider, given their rider number.
      */
-    Rider getRiderByNumber(int riderNumber) throws SQLException;
+    Rider getRiderByNumber(String riderNumber) throws SQLException;
 
     /**
      * copy a rider to the EU data. This was used for copying all NL riders to the EU database section.
@@ -55,7 +55,7 @@ public interface RiderManager {
     /**
      * store rider object locally
      */
-    Rider store(Rider rider, Country country, int season) throws SQLException;
+    Rider store(Rider rider) throws SQLException;
 
     /**
      * get totals for current country and season
@@ -80,7 +80,7 @@ public interface RiderManager {
     /**
      * get a rider by their rider number, for current season and country.
      */
-    Rider getRider(int riderNumber) throws SQLException;
+    Rider getRiderByServerId(String riderId) throws SQLException;
 
     /**
      * load all riders from server.
@@ -124,12 +124,12 @@ public interface RiderManager {
      * set a rider as registered for a date. The Times object contains the rider and the date
      * isChecked: rider is registered/unregisterd
      */
-    void setRegistered(Times times, boolean isChecked, ResponseHandler responseHandler) throws SQLException;
+    void setRegistered(Rider rider, boolean isChecked, ResponseHandler responseHandler) throws SQLException;
 
     /**
      * Attribute random start numbers to riders for current round
      */
-    void generateStartNumbers(ResponseHandler responseHandler);
+    void generateStartNumbers();
 
     /**
      * copy a rider from the 2015 list to the 2016 list.
@@ -138,4 +138,8 @@ public interface RiderManager {
     void updateTo2016(Rider rider, ResponseHandler responseHandler);
 
     int newRiderNumber();
+
+    void getAllRiders(ResponseHandler responseHandler);
+
+    boolean hasRiders() throws SQLException;
 }

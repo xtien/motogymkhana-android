@@ -44,5 +44,6 @@
     <color name="light_gray">#FFEEEEEE</color>
     <color name="olive">#FF759121</color>
     <color name="red">#FFFF0000</color>
+    <color name="selected">#FFAAAAAA</color>
 
 </resources>

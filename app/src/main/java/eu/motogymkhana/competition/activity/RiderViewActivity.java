@@ -20,6 +20,8 @@ import javax.inject.Inject;
 
 import eu.motogymkhana.competition.Constants;
 import eu.motogymkhana.competition.R;
+import eu.motogymkhana.competition.model.Bib;
+import eu.motogymkhana.competition.model.Registration;
 import eu.motogymkhana.competition.model.Rider;
 import eu.motogymkhana.competition.rider.RiderManager;
 import toothpick.Scope;
@@ -31,7 +33,7 @@ import toothpick.Toothpick;
  */
 public class RiderViewActivity extends BaseActivity {
 
-    public static final String RIDER_NUMBER = "rider_number";
+    public static final String RIDER_ID = "rider_id";
     public static final String FOCUS = "focus";
 
     @Inject
@@ -58,17 +60,17 @@ public class RiderViewActivity extends BaseActivity {
         final TextView genderView = (TextView) findViewById(R.id.gender);
         numberView.setText(Integer.toString(number));
         final TextView errorText = (TextView) findViewById(R.id.error_text);
-        final int riderNumber = getIntent().getIntExtra(RIDER_NUMBER, -1);
+        final String riderId = getIntent().getStringExtra(RIDER_ID);
         final TextView bikeView = (TextView) findViewById(R.id.bike);
         final TextView riderTextView = (TextView) findViewById(R.id.rider_text);
 
         final ImageView riderImage = (ImageView) findViewById(R.id.rider_image);
         final ImageView bikeImage = (ImageView) findViewById(R.id.bike_image);
 
-        if (riderNumber >= 0) {
+        if (riderId != null) {
 
             try {
-                rider = riderManager.getRider(riderNumber);
+                rider = riderManager.getRiderByServerId(riderId);
 
                 firstNameView.setText(rider.getFirstName());
                 lastNameView.setText(rider.getLastName());
@@ -87,8 +89,12 @@ public class RiderViewActivity extends BaseActivity {
                 }
 
                 countryView.setText(rider.getNationality().name());
-
-                bibView.setText(rider.getBib().name());
+                Registration registration = rider.getRegistration();
+                if (registration != null) {
+                    bibView.setText(registration.getBib().name());
+                } else {
+                    bibView.setText(Bib.Y.name());
+                }
 
             } catch (SQLException e) {
                 e.printStackTrace();
@@ -98,7 +104,7 @@ public class RiderViewActivity extends BaseActivity {
     }
 
     @Override
-    public void onDestroy(){
+    public void onDestroy() {
         super.onDestroy();
         Toothpick.closeScope(this);
     }

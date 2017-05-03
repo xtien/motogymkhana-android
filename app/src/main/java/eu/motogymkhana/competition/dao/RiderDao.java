@@ -11,21 +11,21 @@ import eu.motogymkhana.competition.model.Rider;
 
 public interface RiderDao extends Dao<Rider, Integer> {
 
-    Rider store(Rider rider, Country country, int season) throws SQLException;
+    Rider store(Rider rider) throws SQLException;
 
-    Rider getRiderByNumber(int id) throws SQLException;
+    Rider getRiderByServerId(String id) throws SQLException;
 
-    Rider getRiderByNumber(int riderNumber, Country country, int season) throws SQLException;
+    Rider getRiderById(int id) throws SQLException;
 
     List<Rider> queryForAllNonDayRider() throws SQLException;
 
     List<Rider> getRiders() throws SQLException;
 
-    void store(Collection<Rider> riders, Country country, int season) throws SQLException;
+    List<Rider> getAllRiders() throws SQLException;
+
+    void store(Collection<Rider> riders) throws SQLException;
 
     void deleteRider(Rider rider) throws SQLException;
-
-    void delete(Country counry, int season) throws SQLException;
 
     void clear() throws SQLException;
 }

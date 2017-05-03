@@ -8,6 +8,8 @@
 package eu.motogymkhana.competition.activity;
 
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.HandlerThread;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.AdapterView;
@@ -36,6 +38,7 @@ import eu.motogymkhana.competition.log.MyLog;
 import eu.motogymkhana.competition.model.Bib;
 import eu.motogymkhana.competition.model.Country;
 import eu.motogymkhana.competition.model.Gender;
+import eu.motogymkhana.competition.model.Registration;
 import eu.motogymkhana.competition.model.Rider;
 import eu.motogymkhana.competition.model.Times;
 import eu.motogymkhana.competition.notify.Notifier;
@@ -51,7 +54,7 @@ import toothpick.Toothpick;
  */
 public class RiderNewUpdateActivity extends BaseActivity {
 
-    public static final String RIDER_NUMBER = "rider_number";
+    public static final String RIDER_ID = "rider_number";
     public static final String FOCUS = "focus";
     private static final String LOGTAG = RiderNewUpdateActivity.class.getSimpleName();
     private TextView errorText;
@@ -75,10 +78,24 @@ public class RiderNewUpdateActivity extends BaseActivity {
         public void onSuccess(Object object) {
 
             UpdateRiderResponse response = (UpdateRiderResponse) object;
+            if (response.getRider() != null) {
+                try {
+                    riderManager.store(response.getRider());
+                } catch (SQLException e) {
+                    showAlert(e);
+                }
+            }
 
             if (response.isOK()) {
-                finish();
-                notifier.notifyDataChanged();
+                runOnUiThread(new Runnable() {
+
+                    @Override
+                    public void run() {
+                        finish();
+                        notifier.notifyDataChanged();
+                        progressBar.setVisibility(View.GONE);
+                    }
+                });
             }
         }
 
@@ -103,6 +120,7 @@ public class RiderNewUpdateActivity extends BaseActivity {
             if (response.isOK()) {
                 finish();
                 notifier.notifyDataChanged();
+                progressBar.setVisibility(View.GONE);
             }
         }
 
@@ -117,6 +135,8 @@ public class RiderNewUpdateActivity extends BaseActivity {
         }
     };
     private Scope scope;
+    private View progressBar;
+    private Handler handler;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -126,12 +146,17 @@ public class RiderNewUpdateActivity extends BaseActivity {
 
         setContentView(R.layout.activity_new_rider_input);
 
-        final int riderNumber = getIntent().getIntExtra(RIDER_NUMBER, -1);
+        HandlerThread handlerThread = new HandlerThread("update");
+        handlerThread.start();
+        handler = new Handler(handlerThread.getLooper());
+
+        final String riderId = getIntent().getStringExtra(RIDER_ID);
+
+        progressBar = findViewById(R.id.progress_bar);
 
         final EditText firstNameView = (EditText) findViewById(R.id.first_name);
         final EditText emailView = (EditText) findViewById(R.id.email);
         final EditText lastNameView = (EditText) findViewById(R.id.last_name);
-        final EditText numberView = (EditText) findViewById(R.id.number);
         final Spinner nationalitySpinner = (Spinner) findViewById(R.id.country);
         final Spinner bibSpinner = (Spinner) findViewById(R.id.bib);
         final CheckBox genderButton = (CheckBox) findViewById(R.id.gender);
@@ -139,29 +164,16 @@ public class RiderNewUpdateActivity extends BaseActivity {
         final EditText startNumberView = (EditText) findViewById(R.id.start_number);
         final EditText bikeView = (EditText) findViewById(R.id.bike);
         final EditText riderTextView = (EditText) findViewById(R.id.rider_text);
+        final CheckBox hideBox = (CheckBox) findViewById(R.id.hide);
 
         final ImageView riderImage = (ImageView) findViewById(R.id.rider_image);
         final ImageView bikeImage = (ImageView) findViewById(R.id.bike_image);
 
         Button b2016 = (Button) findViewById(R.id.up_2016);
         b2016.setVisibility(View.GONE);
-        b2016.setOnClickListener(new OnClickListener() {
-
-            @Override
-            public void onClick(View v) {
-                riderManager.updateTo2016(rider, null);
-            }
-        });
 
         Button buttonEU = (Button) findViewById(R.id.button_eu);
         buttonEU.setVisibility(View.GONE);
-        buttonEU.setOnClickListener(new OnClickListener() {
-
-            @Override
-            public void onClick(View v) {
-                riderManager.updateToEU(rider, null);
-            }
-        });
 
         ArrayAdapter<CharSequence> countrySpinAdapter = new ArrayAdapter(this, android.R.layout.simple_spinner_item);
         countrySpinAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
@@ -177,59 +189,63 @@ public class RiderNewUpdateActivity extends BaseActivity {
         BibSpinAdapter bibSpinAdapter = new BibSpinAdapter(this);
         bibSpinner.setAdapter(bibSpinAdapter);
 
-        if (riderNumber >= 0) {
+        if (riderId != null) {
 
             try {
-                rider = riderManager.getRider(riderNumber);
+                rider = riderManager.getRiderByServerId(riderId);
+
                 if (rider == null) {
-                    // can happen when debugging.
+                    showAlert(404, "rider not found");
                     finish();
-                }
 
-                firstNameView.setText(rider.getFirstName());
-                lastNameView.setText(rider.getLastName());
-                numberView.setText(rider.getRiderNumberString());
-                genderButton.setChecked(rider.getGender() == Gender.F);
-
-                Times times = rider.getEUTimes(prefs.getDate());
-                if (times != null) {
-                    startNumberView.setText(Integer.toString(times.getStartNumber()));
-                }
-
-                bikeView.setText(rider.getBike());
-                riderTextView.setText(rider.getText());
-
-                if (rider.hasImageUrl()) {
-                    Picasso.with(this).load(rider.getImageUrl()).into(riderImage);
-                    riderImage.setVisibility(View.VISIBLE);
-                }
-                if (rider.hasBikeImageUrl()) {
-                    Picasso.with(this).load(rider.getBikeImageUrl()).into(bikeImage);
-                    bikeImage.setVisibility(View.VISIBLE);
-                }
-
-                if (rider.getCountry() == null) {
-                    rider.setCountry(Constants.country);
-                }
-                for (int i = 0; i < Country.values().length; i++) {
-                    if (Country.values()[i] == rider.getNationality()) {
-                        nationalitySpinner.setSelection(i);
-                        break;
-                    }
-                }
-
-
-                if (rider.getBib() == null) {
-                    rider.setBib(Bib.Y);
                 } else {
-                    for (int i = 0; i < Bib.values().length; i++) {
-                        if (Bib.values()[i] == rider.getBib()) {
-                            bibSpinner.setSelection(i);
+
+                    firstNameView.setText(rider.getFirstName());
+                    lastNameView.setText(rider.getLastName());
+                    genderButton.setChecked(rider.getGender() == Gender.F);
+                    startNumberView.setText(Integer.toString(rider.getStartNumber()));
+                    emailView.setText(rider.getEmail());
+                    hideBox.setChecked(rider.isHideLastName());
+
+                    Times times = rider.getEUTimes(prefs.getDate());
+                    if (times != null) {
+                        startNumberView.setText(Integer.toString(times.getStartNumber()));
+                    }
+
+                    bikeView.setText(rider.getBike());
+                    riderTextView.setText(rider.getText());
+
+                    if (rider.hasImageUrl()) {
+                        Picasso.with(this).load(rider.getImageUrl()).into(riderImage);
+                        riderImage.setVisibility(View.VISIBLE);
+                    }
+                    if (rider.hasBikeImageUrl()) {
+                        Picasso.with(this).load(rider.getBikeImageUrl()).into(bikeImage);
+                        bikeImage.setVisibility(View.VISIBLE);
+                    }
+
+                    if (rider.getCountry() == null) {
+                        rider.setCountry(Constants.country);
+                    }
+                    for (int i = 0; i < Country.values().length; i++) {
+                        if (Country.values()[i] == rider.getNationality()) {
+                            nationalitySpinner.setSelection(i);
                             break;
                         }
                     }
-                }
 
+
+                    if (rider.getBib() == null) {
+                        rider.setBib(Bib.Y);
+                    } else {
+                        for (int i = 0; i < Bib.values().length; i++) {
+                            if (Bib.values()[i] == rider.getBib()) {
+                                bibSpinner.setSelection(i);
+                                break;
+                            }
+                        }
+                    }
+                }
             } catch (SQLException e) {
                 e.printStackTrace();
                 errorText.setText(e.getMessage());
@@ -237,8 +253,9 @@ public class RiderNewUpdateActivity extends BaseActivity {
 
         } else {
             rider = new Rider();
-            rider.setRiderNumber(riderManager.newRiderNumber());
-            numberView.setText(rider.getRiderNumberString());
+            Registration registration = new Registration(Constants.country, Constants.season, riderManager
+                    .newRiderNumber());
+            rider.addRegistration(registration);
         }
 
         nationalitySpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
@@ -285,22 +302,17 @@ public class RiderNewUpdateActivity extends BaseActivity {
                 String firstName = firstNameView.getText().toString();
                 String lastName = lastNameView.getText().toString();
                 Gender gender = genderButton.isChecked() ? Gender.F : Gender.M;
-                String numberString = numberView.getText().toString();
                 String nationalityString = (String) nationalitySpinner.getSelectedItem();
                 Bib bib = (Bib) bibSpinner.getSelectedItem();
                 String bike = bikeView.getText().toString();
                 String riderText = riderTextView.getText().toString();
                 int startNumber = 0;
-                if (NumberUtils.isNumber(startNumberView.getText().toString())) {
+                if (NumberUtils.isCreatable(startNumberView.getText().toString())) {
                     startNumber = Integer.parseInt(startNumberView.getText().toString());
                 }
                 Country nationality = Constants.country;
                 if (nationalityString != null) {
                     nationality = Country.valueOf(nationalityString);
-                }
-
-                if (numberString != null && StringUtils.isNumeric(numberString)) {
-                    rider.setRiderNumber(Integer.parseInt(numberString));
                 }
 
                 rider.setFirstName(firstName);
@@ -313,20 +325,28 @@ public class RiderNewUpdateActivity extends BaseActivity {
                 rider.setText(riderText);
                 rider.setBib(bib);
                 rider.setEmail(email);
+                rider.setHideLastName(hideBox.isChecked());
 
                 if (startNumber != 0) {
                     rider.setStartNumber(prefs.getDate(), startNumber);
                 }
 
                 if (firstName != null && lastName != null) {
-                    riderManager.update(rider, updateRiderResponseHandler);
+                    progressBar.setVisibility(View.VISIBLE);
+                    handler.postDelayed(new Runnable() {
+
+                        @Override
+                        public void run() {
+                            riderManager.update(rider, updateRiderResponseHandler);
+                        }
+                    }, 10l);
                 }
             }
         });
     }
 
     @Override
-    public void onDestroy(){
+    public void onDestroy() {
         super.onDestroy();
         Toothpick.closeScope(this);
     }

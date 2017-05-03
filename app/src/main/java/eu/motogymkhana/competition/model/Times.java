@@ -7,8 +7,6 @@
 
 package eu.motogymkhana.competition.model;
 
-import android.util.Log;
-
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.j256.ormlite.field.DatabaseField;
@@ -48,6 +46,7 @@ public class Times {
     private static final String TIMESTAMP = "timestamp";
 
     @DatabaseField(generatedId = true, columnName = ID)
+    @JsonIgnore
     private int _id;
 
     @JsonProperty(SEASON)
@@ -124,10 +123,6 @@ public class Times {
 
     public int get_id() {
         return _id;
-    }
-
-    public void set_id(int id) {
-        this._id = id;
     }
 
     public int getTime1() {
@@ -256,8 +251,9 @@ public class Times {
                 if (string.length() > 4) {
                     stringMinutes = string.substring(0, string.length() - 4);
                 }
-
-                time = Integer.parseInt(stringMinutes) * 60000;
+                if (stringMinutes.length() > 0) {
+                    time = Integer.parseInt(stringMinutes) * 60000;
+                }
 
                 if (stringSeconds.length() > 0) {
                     time = time + Integer.parseInt(stringSeconds) * 1000;
@@ -383,11 +379,7 @@ public class Times {
         return this.date == date;
     }
 
-    public boolean newerThan(Times existingTimes) {
-        return timeStamp > existingTimes.getTimeStamp();
-    }
-
-    private long getTimeStamp() {
+    public long getTimeStamp() {
         return timeStamp;
     }
 
@@ -466,5 +458,28 @@ public class Times {
 
     public void clearStartNumber() {
         startNumber = 0;
+    }
+
+    public void merge(Times times) {
+        this.startNumber = times.getStartNumber();
+        this.time1 = times.getTime1();
+        this.time2 = times.getTime2();
+        this.penalties1 = times.getPenalties1();
+        this.penalties2 = times.getPenalties2();
+        this.disqualified1 = times.isDisqualified1();
+        this.disqualified2 = times.isDisqualified2();
+        this.registered = times.isRegistered();
+        this.points = times.getPoints();
+        this.timeStamp = times.getTimeStamp();
+    }
+
+    public void set_id(int id) {
+        this._id = id;
+    }
+
+    public String toString() {
+        return "" + _id + " " + country.name() + " " + season + " " + startNumber + " " +
+                (rider == null ? "no rider" : rider.getFullName()) + " "
+                + registered;
     }
 }

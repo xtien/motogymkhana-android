@@ -23,9 +23,8 @@ public class Constants {
     public static final String TEST_SCOPE = "test_scope";
     public static final String LIVE_TEST_SCOPE = "live_test_scope";
 
-    public static final long refreshRate = 5000l;
-    public static boolean test = false;
-    public static final int DATABASE_VERSION = 9;
+    public static final long refreshRate = 30000l;
+    public static final int DATABASE_VERSION = 11;
     public static String DATABASE_NAME = "gymkhana.db";
 
     public static DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
@@ -33,6 +32,7 @@ public class Constants {
 
     public static final String BASE_URL_STRING = "/motogymkhana";
     public static final String GET_RIDERS_URL_STRING = BASE_URL_STRING + "/getRiders/";
+    public static final String GET_ALL_RIDERS_URL_STRING = BASE_URL_STRING + "/getAllRiders/";
     public static final String GET_ROUNDS_URL_STRING = BASE_URL_STRING + "/getRounds/";
     public static final String GET_UPDATE_ROUND_URL_STRING = BASE_URL_STRING + "/updateRound/";
     public static final String UPDATE_RIDER_URL_STRING = BASE_URL_STRING + "/updateRider/";
@@ -48,5 +48,5 @@ public class Constants {
     public static final String GET_SETTINGS_URL_STRING = BASE_URL_STRING + "/getSettings/";
 
     public static Country country = Country.NL;
-    public static int season = 2016;
+    public static int season = 2017;
 }

@@ -88,7 +88,7 @@ public class MyHttpImpl implements MyHttp {
     public HttpResultWrapper doPutPost(String method, String urlString, String input, RequestParams params) throws
             IOException {
 
-        log.d(LOGTAG, "urlString " + method + " " + urlString + " " + input);
+//        log.d(LOGTAG, "urlString " + method + " " + urlString + " " + input);
 
         if (params == null) {
             params = new RequestParams();
@@ -137,7 +137,7 @@ public class MyHttpImpl implements MyHttp {
                 responseMessage = urlConnection.getResponseMessage();
             }
 
-            log.d(LOGTAG, "url = " + urlString + " statuscode " + httpResult);
+//            log.d(LOGTAG, "url = " + urlString + " statuscode " + httpResult);
 
             BufferedReader br = null;
             if (httpResult == HttpURLConnection.HTTP_OK) {
@@ -164,7 +164,7 @@ public class MyHttpImpl implements MyHttp {
             }
         }
 
-        log.d(LOGTAG, "response PUT/POST " + responseMessage + "\n\n" + string);
+//        log.d(LOGTAG, "response PUT/POST " + responseMessage + "\n\n" + string);
 
         return new HttpResultWrapper(httpResult, responseMessage, resultString);
     }
