@@ -2,17 +2,21 @@ package eu.motogymkhana.competition.settings.impl;
 
 import android.content.Context;
 
-import javax.inject.Inject;
-import javax.inject.Singleton;
-
 import java.io.IOException;
 import java.sql.SQLException;
 import java.util.List;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ScheduledThreadPoolExecutor;
+
+import javax.inject.Inject;
+import javax.inject.Singleton;
 
 import eu.motogymkhana.competition.Constants;
 import eu.motogymkhana.competition.api.ApiManager;
 import eu.motogymkhana.competition.api.ResponseHandler;
+import eu.motogymkhana.competition.api.response.SettingsResult;
 import eu.motogymkhana.competition.dao.SettingsDao;
+import eu.motogymkhana.competition.log.MyLog;
 import eu.motogymkhana.competition.model.Country;
 import eu.motogymkhana.competition.model.Round;
 import eu.motogymkhana.competition.rider.RiderManager;
@@ -26,6 +30,7 @@ import toothpick.Lazy;
 @Singleton
 public class SettingsManagerImpl implements SettingsManager {
 
+    private static final String LOGTAG = SettingsManagerImpl.class.getSimpleName();
     @Inject
     protected Context context;
 
@@ -38,12 +43,19 @@ public class SettingsManagerImpl implements SettingsManager {
     @Inject
     protected SettingsDao settingsDao;
 
+    ScheduledExecutorService es = new ScheduledThreadPoolExecutor(1);
+
+    @Inject
+    protected MyLog log;
+
     private ResponseHandler getSettingsFromServerResponseHandler = new ResponseHandler() {
 
         @Override
         public void onSuccess(Object object) {
-            try {
-                settingsDao.store((Settings) object);
+             try {
+                SettingsResult result = (SettingsResult) object;
+
+                settingsDao.store(result.getSettings());
             } catch (SQLException e) {
                 e.printStackTrace();
             }
@@ -51,12 +63,12 @@ public class SettingsManagerImpl implements SettingsManager {
 
         @Override
         public void onException(Exception e) {
-
+            log.e(LOGTAG, e);
         }
 
         @Override
         public void onError(int statusCode, String string) {
-
+            log.e(LOGTAG, "getSettingsFromServerResponseHandler " + statusCode + " " + string);
         }
     };
 
@@ -69,22 +81,41 @@ public class SettingsManagerImpl implements SettingsManager {
 
         @Override
         public void onException(Exception e) {
-
+            log.e(LOGTAG, e);
         }
 
         @Override
         public void onError(int statusCode, String string) {
-
+            log.e(LOGTAG, "uploadSettingsResponseHandler " + statusCode + " " + string);
         }
     };
+
+    public SettingsManagerImpl() {
+
+        es.submit(new Runnable() {
+
+            @Override
+            public void run() {
+                try {
+                    if (settingsDao.get() == null) {
+                        getSettings(getSettingsFromServerResponseHandler);
+                    }
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        }, 1000);
+    }
 
     @Override
     public void getSettingsFromServer(ResponseHandler responseHandler) {
         apiManager.get().getSettings(responseHandler);
-     }
+    }
 
     @Override
-    public void setSettings(Settings settings){
+    public void setSettings(Settings settings) {
 
         if (settings == null) {
             settings = new Settings();
@@ -105,7 +136,12 @@ public class SettingsManagerImpl implements SettingsManager {
 
     @Override
     public void storeCountryAndSeason(Country country, int season) throws SQLException {
-        settingsDao.storeCountryAndSeason(country,season);
+        settingsDao.storeCountryAndSeason(country, season);
+    }
+
+    @Override
+    public Settings getSettings() throws SQLException {
+        return settingsDao.get();
     }
 
     @Override
@@ -126,7 +162,9 @@ public class SettingsManagerImpl implements SettingsManager {
     }
 
     @Override
-    public Settings getSettings() throws IOException, SQLException {
+    public Settings getSettings(ResponseHandler responseHandler) throws IOException, SQLException {
+
+        getSettingsFromServer(responseHandler);
 
         Settings settings = null;
 
@@ -136,25 +174,13 @@ public class SettingsManagerImpl implements SettingsManager {
             e.printStackTrace();
         }
 
-        if (settings == null) {
-            getSettingsFromServer(getSettingsFromServerResponseHandler);
-            settings = new Settings();
-            settings.setSeason(Constants.season);
-            settings.setCountry(Constants.country);
-            try {
-                settingsDao.store(settings);
-            } catch (SQLException e) {
-                e.printStackTrace();
-            }
-        }
-
         return settings;
     }
 
     @Override
     public void setRounds(List<Round> rounds) throws IOException, SQLException {
 
-        Settings settings = getSettings();
+        Settings settings = getSettings(getSettingsFromServerResponseHandler);
         settings.setHasRounds(rounds != null && rounds.size() > 0);
         settingsDao.storeHasRounds(settings.hasRounds());
         uploadSettingsToServer(settings, uploadSettingsResponseHandler);

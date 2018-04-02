@@ -11,6 +11,7 @@ import android.os.AsyncTask;
 
 import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.ObjectMapper;
+
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
@@ -22,6 +23,7 @@ import eu.motogymkhana.competition.api.ResponseHandler;
 import eu.motogymkhana.competition.api.executor.ExecutorFactory;
 import eu.motogymkhana.competition.api.http.HttpResultWrapper;
 import eu.motogymkhana.competition.api.http.MyHttp;
+import eu.motogymkhana.competition.log.MyLog;
 
 /**
  * Created by christine on 2-6-16.
@@ -29,11 +31,16 @@ import eu.motogymkhana.competition.api.http.MyHttp;
 @Singleton
 public class ApiAsyncImpl implements ApiAsync {
 
+    private static final String LOGTAG = ApiAsyncImpl.class.getSimpleName();
     @Inject
     protected ObjectMapper mapper;
 
     @Inject
     protected MyHttp http;
+
+    @Inject
+    protected MyLog log;
+
 
     private final ExecutorService es;
 
@@ -79,10 +86,12 @@ public class ApiAsyncImpl implements ApiAsync {
             @Override
             protected String doInBackground(Void... args) {
 
+                HttpResultWrapper result = null;
+
                 try {
-                    HttpResultWrapper result;
 
                     result = http.doPutPost(method, urlString, input, params);
+                    log.d(LOGTAG, result != null && result.getString() != null ? result.getString() : "result is null or string is null");
 
                     if (responseHandler != null) {
 
@@ -104,8 +113,10 @@ public class ApiAsyncImpl implements ApiAsync {
                     }
 
                 } catch (Exception e) {
-                    if (responseHandler != null) {
-                        responseHandler.onException(e);
+                    if (result != null) {
+                        if (responseHandler != null) {
+                            responseHandler.onException(e);
+                        }
                     }
                     e.printStackTrace();
                 }

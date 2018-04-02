@@ -382,11 +382,7 @@ public class RiderManagerImpl implements RiderManager {
                     int p = points[pointsPointer++];
 
                     times.setPoints(p);
-                    if (times.getRider().getFirstName().equalsIgnoreCase("kristian")) {
-                        Log.d(LOGTAG, times.getRider().getFullName() + " " + Constants.dateFormat.format(times.getDate())
-                                + " " + "points: " + p);
-                    }
-                }
+                 }
             }
         }
         Collections.sort(riders, new Comparator<Rider>() {
@@ -441,8 +437,6 @@ public class RiderManagerImpl implements RiderManager {
 
     @Override
     public void loadRidersFromServer(final ResponseHandler responseHandler) {
-
-        //System.out.println("loadRidersFromServer");
 
         api.getRiders(new ResponseHandler() {
 

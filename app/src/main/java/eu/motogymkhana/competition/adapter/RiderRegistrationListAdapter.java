@@ -88,11 +88,11 @@ public class RiderRegistrationListAdapter extends BaseAdapter {
 
         @Override
         public void notifyDataChanged() {
-            riderManager.getRiders(callback);
+            riderManager.getRiders(getRidersCallback);
         }
     };
 
-    GetRidersCallback callback = new GetRidersCallback() {
+    GetRidersCallback getRidersCallback = new GetRidersCallback() {
 
         @Override
         public void onSuccess(Collection<Rider> collection) {
@@ -135,6 +135,7 @@ public class RiderRegistrationListAdapter extends BaseAdapter {
         public void onSuccess(Object object) {
             try {
                 riderManager.store(((UpdateRiderResponse) object).getRider());
+                riderManager.getRiders(getRidersCallback);
             } catch (SQLException e) {
                 e.printStackTrace();
             }
@@ -164,7 +165,7 @@ public class RiderRegistrationListAdapter extends BaseAdapter {
 
         inflater = (LayoutInflater) activity.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 
-        riderManager.getRiders(callback);
+        riderManager.getRiders(getRidersCallback);
         notifier.registerRiderResultListener(changeListener);
         femaleText = activity.getResources().getString(R.string.female_sign);
     }

@@ -18,10 +18,6 @@ public class UpdateSettingsResponse {
         return status;
     }
 
-    public void setStatus(int status) {
-        this.status = status;
-    }
-
     public boolean isOK() {
         return status == 200;
     }

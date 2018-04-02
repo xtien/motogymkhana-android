@@ -27,7 +27,7 @@ public interface SettingsManager {
 
     int getRoundsCountingForSeasonResult();
 
-    Settings getSettings() throws IOException, SQLException;
+    Settings getSettings(ResponseHandler responseHandler) throws IOException, SQLException;
 
     void setRounds(List<Round> rounds) throws IOException, SQLException;
 
@@ -36,4 +36,6 @@ public interface SettingsManager {
     void store(Settings settings) throws SQLException;
 
     void storeCountryAndSeason(Country country, int season) throws SQLException;
+
+    Settings getSettings() throws SQLException;
 }

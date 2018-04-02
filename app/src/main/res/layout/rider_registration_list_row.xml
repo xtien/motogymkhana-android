@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
-             android:layout_width="fill_parent"
-             android:layout_height="wrap_content"
-             android:layout_marginLeft="10dp"
-             android:layout_marginStart="10dp"
-             android:background="@color/list_background"
-             android:orientation="horizontal">
+    android:layout_width="fill_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginLeft="10dp"
+    android:layout_marginStart="10dp"
+    android:background="@color/list_background"
+    android:orientation="horizontal">
 
     <LinearLayout
         android:layout_width="fill_parent"
@@ -27,7 +27,7 @@
                 android:id="@+id/ridernumber"
                 style="@style/list_text"
                 android:layout_width="wrap_content"
-                android:layout_height="wrap_content"/>
+                android:layout_height="wrap_content" />
 
         </LinearLayout>
 
@@ -44,7 +44,7 @@
                 android:id="@+id/startnumber"
                 style="@style/list_text"
                 android:layout_width="wrap_content"
-                android:layout_height="wrap_content"/>
+                android:layout_height="wrap_content" />
 
         </LinearLayout>
 
@@ -62,7 +62,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:ellipsize="marquee"
-                android:maxLines="1"/>
+                android:singleLine="true" />
 
             <TextView
                 android:id="@+id/last_name"
@@ -70,7 +70,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:ellipsize="marquee"
-                android:maxLines="1"/>
+                android:singleLine="true" />
         </LinearLayout>
 
         <TextView
@@ -80,7 +80,7 @@
             android:layout_height="wrap_content"
             android:layout_marginEnd="@dimen/rider_listrow_margin"
             android:layout_marginRight="@dimen/rider_listrow_margin"
-            android:layout_weight="0"/>
+            android:layout_weight="0" />
 
         <TextView
             android:id="@+id/country"
@@ -89,7 +89,7 @@
             android:layout_height="wrap_content"
             android:layout_marginEnd="@dimen/rider_listrow_margin"
             android:layout_marginRight="@dimen/rider_listrow_margin"
-            android:layout_weight="0"/>
+            android:layout_weight="0" />
 
         <CheckBox
             android:id="@+id/registered_box"
@@ -98,16 +98,16 @@
             android:layout_height="wrap_content"
             android:layout_marginEnd="@dimen/rider_listrow_margin"
             android:layout_marginRight="@dimen/rider_listrow_margin"
-            android:layout_weight="0"/>
+            android:layout_weight="0" />
 
         <CheckBox
             android:id="@+id/day_rider_box"
-            style="@style/registered_box"
+            android:button="@drawable/dayridercheckbox"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginEnd="@dimen/rider_listrow_margin"
             android:layout_marginRight="@dimen/rider_listrow_margin"
-            android:layout_weight="0"/>
+            android:layout_weight="0" />
 
         <ImageView
             android:id="@+id/edit"
@@ -117,7 +117,7 @@
             android:layout_marginEnd="@dimen/rider_listrow_margin"
             android:layout_marginRight="@dimen/rider_listrow_margin"
             android:layout_weight="0"
-            android:src="@drawable/edit"/>
+            android:src="@drawable/edit" />
 
     </LinearLayout>
 
@@ -127,10 +127,10 @@
         android:gravity="center">
 
         <ProgressBar
-            style="@android:style/Widget.ProgressBar.Small"
             android:id="@+id/progress_bar"
-            android:visibility="gone"
+            style="@android:style/Widget.ProgressBar.Small"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"/>
+            android:layout_height="wrap_content"
+            android:visibility="gone" />
     </RelativeLayout>
 </FrameLayout>

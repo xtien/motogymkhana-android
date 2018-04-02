@@ -121,8 +121,7 @@ public class RiderDaoImpl extends BaseDaoImpl<Rider, Integer> implements RiderDa
         QueryBuilder<Rider, Integer> riderQueryBuilder = queryBuilder();
         riderQueryBuilder.join(registrationQueryBuilder);
 
-        List<Rider> list = riderQueryBuilder.query();
-        return list;
+        return riderQueryBuilder.query();
     }
 
     @Override

@@ -166,9 +166,11 @@ public class TimesDaoImpl extends BaseDaoImpl<Times, Integer> implements TimesDa
 
         List<Rider> riders = new ArrayList<Rider>();
         for (Times times : timesList) {
-            Registration registration = times.getRider().getRegistration(Constants.country, Constants.season);
-            if (registration != null && registration.getBib() == bib) {
-                riders.add(times.getRider());
+            if (times != null && times.getRider() != null && times.getRider().getRegistration(Constants.country, Constants.season) != null) {
+                Registration registration = times.getRider().getRegistration(Constants.country, Constants.season);
+                if (registration != null && registration.getBib() == bib) {
+                    riders.add(times.getRider());
+                }
             }
         }
 
@@ -181,7 +183,7 @@ public class TimesDaoImpl extends BaseDaoImpl<Times, Integer> implements TimesDa
 
         List<Rider> result = riderQueryBuilder.query();
 
-        return riders;
+        return result;
     }
 
     @Override

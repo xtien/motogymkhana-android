@@ -1,0 +1,100 @@
+{
+  "status": 200,
+  "rider": {
+    "_id": 68,
+    "registration": [
+      {
+        "_id": 184,
+        "season": 2016,
+        "country": "EU",
+        "number": 57,
+        "bib": "Y",
+        "day_rider": false,
+        "registered": false
+      },
+      {
+        "_id": 84,
+        "season": 2015,
+        "country": "EU",
+        "number": 36,
+        "bib": "Y",
+        "day_rider": false,
+        "registered": false
+      },
+      {
+        "_id": 0,
+        "season": 2016,
+        "country": "NL",
+        "number": 0,
+        "bib": "Y",
+        "day_rider": false,
+        "registered": true
+      }
+    ],
+    "season": 2015,
+    "country": "EU",
+    "nationality": "PL",
+    "bike": null,
+    "image_url": null,
+    "bike_image_url": null,
+    "timestamp": 1491125497962,
+    "firstname": "Agnieszka",
+    "lastname": "Jaszewska",
+    "number": 0,
+    "day_rider": false,
+    "gender": "F",
+    "dob": "09/30/1991 00:00:00",
+    "bib": null,
+    "text": null,
+    "times": [
+      {
+        "_id": 1354,
+        "country": "EU",
+        "season": 2016,
+        "timestamp": 1491125497977,
+        "date": 1464533995108,
+        "startnumber": 16,
+        "time1": 157590,
+        "time2": 160130,
+        "pen1": 0,
+        "pen2": 0,
+        "dis1": false,
+        "dis2": false,
+        "registered": true,
+        "number": 0
+      },
+      {
+        "_id": 0,
+        "country": "NL",
+        "season": 2016,
+        "timestamp": 1491125524040,
+        "date": 1475440092003,
+        "startnumber": 0,
+        "time1": 0,
+        "time2": 0,
+        "pen1": 0,
+        "pen2": 0,
+        "dis1": false,
+        "dis2": false,
+        "registered": true,
+        "number": 0
+      },
+      {
+        "_id": 264,
+        "country": "EU",
+        "season": 2015,
+        "timestamp": 1491125497999,
+        "date": 1432461600000,
+        "startnumber": 0,
+        "time1": 0,
+        "time2": 153910,
+        "pen1": 0,
+        "pen2": 0,
+        "dis1": true,
+        "dis2": true,
+        "registered": true,
+        "number": 0
+      }
+    ]
+  }
+}

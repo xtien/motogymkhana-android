@@ -1,0 +1,75 @@
+{
+  "status": 200,
+  "rider": {
+    "_id": 99,
+    "registration": [
+      {
+        "_id": 0,
+        "season": 2016,
+        "country": "NL",
+        "number": 0,
+        "bib": "Y",
+        "day_rider": false,
+        "registered": true
+      },
+      {
+        "_id": 89,
+        "season": 2015,
+        "country": "EU",
+        "number": 67,
+        "bib": "Y",
+        "day_rider": false,
+        "registered": false
+      }
+    ],
+    "season": 2015,
+    "country": "EU",
+    "nationality": "RU",
+    "bike": null,
+    "image_url": null,
+    "bike_image_url": null,
+    "timestamp": 1491126488149,
+    "firstname": "Aleksey",
+    "lastname": "Zhukov",
+    "number": 0,
+    "day_rider": false,
+    "gender": "M",
+    "dob": "05/04/1986 00:00:00",
+    "bib": null,
+    "text": null,
+    "times": [
+      {
+        "_id": 0,
+        "country": "NL",
+        "season": 2016,
+        "timestamp": 1491126495510,
+        "date": 1475440092003,
+        "startnumber": 0,
+        "time1": 0,
+        "time2": 0,
+        "pen1": 0,
+        "pen2": 0,
+        "dis1": false,
+        "dis2": false,
+        "registered": true,
+        "number": 0
+      },
+      {
+        "_id": 295,
+        "country": "EU",
+        "season": 2015,
+        "timestamp": 1491126488169,
+        "date": 1432461600000,
+        "startnumber": 0,
+        "time1": 110710,
+        "time2": 0,
+        "pen1": 0,
+        "pen2": 0,
+        "dis1": false,
+        "dis2": true,
+        "registered": true,
+        "number": 0
+      }
+    ]
+  }
+}

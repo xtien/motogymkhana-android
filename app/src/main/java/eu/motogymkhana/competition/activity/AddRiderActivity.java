@@ -91,12 +91,19 @@ public class AddRiderActivity extends BaseActivity {
 
                 Log.d(LOGTAG, "what?");
                 notifier.notifyDataChanged();
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        adapter.notifyDataSetChanged();
+                    }
+                });
+            } else {
+                showAlert(response.getStatus(), "update failed");
             }
 
             runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
-                    adapter.notifyDataSetChanged();
                     progressBar.setVisibility(View.GONE);
                 }
             });

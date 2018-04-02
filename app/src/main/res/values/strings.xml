@@ -26,7 +26,7 @@
 
     <!--settings-->
     <string name="percentage_blue_bib">% for blue bib</string>
-    <string name="percentage_green_bib">% for geen bib</string>
+    <string name="percentage_green_bib">% for green bib</string>
     <string name="number_of_rounds_for_season_result">Number of rounds for season result</string>
     <string name="number_of_rounds_for_bib">Number of rounds for new bib</string>
 
@@ -82,5 +82,6 @@
     <string name="email">Email</string>
     <string name="storage_permission_title">Permission requested</string>
     <string name="storage_permission_text">The app would like to write to the flash memory of your phone.</string>
+    <string name="debug_text">DEV</string>
 
 </resources>

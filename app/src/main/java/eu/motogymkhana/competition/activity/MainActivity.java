@@ -211,12 +211,12 @@ public class MainActivity extends BaseActivity {
 
         @Override
         public void onException(Exception e) {
-
+            showAlert(e);
         }
 
         @Override
         public void onError(int statusCode, String string) {
-
+            showAlert(statusCode, string);
         }
     };
 
@@ -304,16 +304,13 @@ public class MainActivity extends BaseActivity {
             showAlert(statusCode, string);
         }
     };
-    private Scope scope;
 
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
 
         super.onActivityResult(requestCode, resultCode, data);
 
-        if (menuItem != null) {
-            menuItem.setTitle(Constants.country.name() + " " + Constants.season);
-        }
+        setTitleHeader();
 
         switch (requestCode) {
 
@@ -349,6 +346,12 @@ public class MainActivity extends BaseActivity {
                 }
 
                 break;
+        }
+    }
+
+    private void setTitleHeader() {
+        if (menuItem != null) {
+            menuItem.setTitle((BuildConfig.FLAVOR.equalsIgnoreCase("dev") ? getString(R.string.debug_text) + "  " : "") + Constants.country.name() + " " + Constants.season);
         }
     }
 
@@ -577,7 +580,7 @@ public class MainActivity extends BaseActivity {
         menu.findItem(R.id.save_witty_file).setVisible(false);
 
         menuItem = menu.findItem(R.id.country);
-        menuItem.setTitle(Constants.country.name() + " " + Constants.season);
+       setTitleHeader();
 
         menu.findItem(R.id.admin).setVisible(!admin);
 
