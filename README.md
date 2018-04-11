@@ -1,3 +1,6 @@
+# Notification #
+As I left the Motogymkhana Netherlands Society, that doesn't pay me for the service, I took the server at www.gymcomp.com down and removed the app from Google Play. I'm ever so sorry.
+
 # motogymkhana android app #
 Moto Gymkhana android app for a national competition.
 
